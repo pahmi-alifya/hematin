@@ -104,32 +104,22 @@ export function buildFinancialContext(transactions: Transaction[]): FinancialCon
 
 export function formatContextForAI(ctx: FinancialContext): string {
   const fmt = (v: number) => {
-    if (v >= 1_000_000) return `Rp ${(v / 1_000_000).toFixed(1)}jt`
-    if (v >= 1_000) return `Rp ${(v / 1_000).toFixed(0)}rb`
-    return `Rp ${v}`
+    const abs = Math.abs(v)
+    const sign = v < 0 ? '-' : ''
+    if (abs >= 1_000_000) return `${sign}Rp${(abs / 1_000_000).toFixed(1)}jt`
+    if (abs >= 1_000) return `${sign}Rp${(abs / 1_000).toFixed(0)}rb`
+    return `${sign}Rp${abs}`
   }
 
-  const statusMap = {
-    positive: 'Positif (aman)',
-    neutral: 'Netral (waspada)',
-    negative: 'Negatif (perlu hati-hati)',
-  }
-  const trendMap = { increasing: 'meningkat', stable: 'stabil', decreasing: 'menurun' }
-  const consistencyMap = {
-    good: 'baik (5-7 hari aktif)',
-    medium: 'sedang (3-4 hari aktif)',
-    low: 'rendah (0-2 hari aktif)',
-  }
+  const statusMap = { positive: 'aman', neutral: 'waspada', negative: 'defisit' }
+  const trendMap = { increasing: 'naik', stable: 'stabil', decreasing: 'turun' }
+  const consistencyMap = { good: 'baik', medium: 'sedang', low: 'rendah' }
 
   return [
-    `Bulan ini: Pemasukan ${fmt(ctx.total_income)}, Pengeluaran ${fmt(ctx.total_expense)}, Saldo ${fmt(ctx.balance)}`,
-    `Status cash flow: ${statusMap[ctx.cash_flow_status]}`,
-    `Kategori pengeluaran terbesar: ${ctx.top_category}`,
-    `Tren pengeluaran 7 hari terakhir: ${trendMap[ctx.trend]}`,
-    `Hari ini: Pemasukan ${fmt(ctx.income_today)}, Pengeluaran ${fmt(ctx.expense_today)}`,
+    `Bulan ini: pemasukan ${fmt(ctx.total_income)}, pengeluaran ${fmt(ctx.total_expense)}, saldo ${fmt(ctx.balance)} (${statusMap[ctx.cash_flow_status]})`,
+    `Terbesar: ${ctx.top_category} | tren 7hr: ${trendMap[ctx.trend]} | konsistensi: ${consistencyMap[ctx.consistency_level]}`,
     ctx.categories_today.length > 0
-      ? `Pengeluaran hari ini di kategori: ${ctx.categories_today.join(', ')}`
-      : 'Belum ada transaksi hari ini',
-    `Konsistensi pencatatan: ${consistencyMap[ctx.consistency_level]}`,
+      ? `Hari ini: pemasukan ${fmt(ctx.income_today)}, pengeluaran ${fmt(ctx.expense_today)}, kategori: ${ctx.categories_today.join(', ')}`
+      : `Hari ini: pemasukan ${fmt(ctx.income_today)}, pengeluaran ${fmt(ctx.expense_today)}, belum ada transaksi`,
   ].join('\n')
 }
