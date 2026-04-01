@@ -150,7 +150,7 @@ export function AIInsightCard() {
           {preview}
         </p>
 
-        {insight.length > 140 && (
+        {insight.length > 150 && (
           <button
             onClick={() => setShowSheet(true)}
             className="mt-2 flex items-center gap-0.5 text-xs font-semibold text-sky-600 dark:text-sky-400"
