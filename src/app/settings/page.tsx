@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, ExternalLink, Eye, EyeOff, Trash2 } from "lucide-react";
+import { CheckCircle2, ExternalLink, Eye, EyeOff, RefreshCw, Trash2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
@@ -18,7 +18,9 @@ import {
 } from "@/lib/ai-providers";
 import { maskApiKey } from "@/lib/utils";
 import { ConnectionTest } from "@/components/settings/ConnectionTest";
+import { DataBackupSection } from "@/components/settings/DataBackupSection";
 import type { AIProviderKey } from "@/lib/ai-providers";
+import type { ModelOption } from "@/app/api/models/route";
 
 export default function SettingsPage() {
   const {
@@ -38,6 +40,8 @@ export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [dynamicModels, setDynamicModels] = useState<ModelOption[] | null>(null);
+  const [fetchingModels, setFetchingModels] = useState(false);
 
   useEffect(() => {
     loadSettings();
@@ -54,6 +58,38 @@ export default function SettingsPage() {
     setSelectedProvider(p);
     setSelectedModel(getDefaultModel(p));
     setApiKey("");
+    setDynamicModels(null);
+  }
+
+  async function handleFetchModels() {
+    const activeKey = apiKey.trim() || aiSettings?.apiKey;
+    if (!activeKey) {
+      toast("Masukkan API key terlebih dahulu", "error");
+      return;
+    }
+    setFetchingModels(true);
+    try {
+      const res = await fetch("/api/models", {
+        headers: {
+          "X-AI-Provider": selectedProvider,
+          "X-AI-Key": activeKey,
+        },
+      });
+      const json = await res.json() as { models?: ModelOption[]; error?: string };
+      if (!res.ok || !json.models) {
+        throw new Error(json.error ?? "Gagal mengambil daftar model");
+      }
+      setDynamicModels(json.models);
+      // Jika model yang dipilih tidak ada di list baru, reset ke model pertama
+      if (!json.models.find((m) => m.id === selectedModel)) {
+        setSelectedModel(json.models[0]?.id ?? getDefaultModel(selectedProvider));
+      }
+      toast(`${json.models.length} model ditemukan`, "success");
+    } catch (err) {
+      toast(err instanceof Error ? err.message : "Gagal mengambil model", "error");
+    } finally {
+      setFetchingModels(false);
+    }
   }
 
   async function handleSave() {
@@ -98,7 +134,8 @@ export default function SettingsPage() {
   }
 
   const currentProviderConfig = AI_PROVIDERS[selectedProvider];
-  const models = getModelsForProvider(selectedProvider);
+  const models = dynamicModels ?? getModelsForProvider(selectedProvider);
+  const canFetchModels = !!(apiKey.trim() || aiSettings?.apiKey);
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -162,9 +199,28 @@ export default function SettingsPage() {
 
           {/* Model Selector */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              Pilih Model
-            </p>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                  Pilih Model
+                </p>
+                {dynamicModels && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">
+                    Live
+                  </span>
+                )}
+              </div>
+              {canFetchModels && (
+                <button
+                  onClick={handleFetchModels}
+                  disabled={fetchingModels}
+                  className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 font-medium disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3 h-3 ${fetchingModels ? "animate-spin" : ""}`} />
+                  {fetchingModels ? "Memuat..." : "Perbarui model"}
+                </button>
+              )}
+            </div>
             <div className="space-y-2">
               {models.map((m) => (
                 <motion.button
@@ -288,6 +344,9 @@ export default function SettingsPage() {
               </Button>
             </div>
           )}
+
+          {/* Data & Backup */}
+          <DataBackupSection />
 
           {/* Info Note */}
           <div className="bg-sky-50 dark:bg-sky-900/20 rounded-2xl border border-sky-100 dark:border-sky-800/40 p-4">
