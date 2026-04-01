@@ -23,20 +23,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing image data' }, { status: 400 })
   }
 
-  const systemPrompt = `Kamu adalah sistem OCR untuk struk belanja Indonesia.
-Ekstrak informasi dari gambar struk dan kembalikan HANYA JSON valid (tanpa markdown, tanpa komentar).
+  const systemPrompt = `OCR struk belanja Indonesia. Balas HANYA JSON valid tanpa markdown. Gunakan null jika tidak ditemukan. Format: {"merchant":string|null,"date":"YYYY-MM-DD"|null,"total":number|null,"category":"food|transport|shopping|health|entertainment|bills|education|other","notes":string|null,"confidence":"high|medium|low"}`
 
-Format respons (gunakan null jika tidak ditemukan):
-{
-  "merchant": "nama toko atau null",
-  "date": "YYYY-MM-DD atau null",
-  "total": angka_total_tanpa_titik_koma atau null,
-  "category": "food|transport|shopping|health|entertainment|bills|education|other",
-  "notes": "deskripsi singkat pembelian atau null",
-  "confidence": "high|medium|low"
-}`
-
-  const userMessage = 'Ekstrak data dari struk ini dan kembalikan dalam format JSON.'
+  const userMessage = 'Ekstrak data struk ini.'
 
   try {
     let result: ScannedReceipt
@@ -46,7 +35,7 @@ Format respons (gunakan null jika tidak ditemukan):
       const client = new Anthropic({ apiKey })
       const message = await client.messages.create({
         model,
-        max_tokens: 500,
+        max_tokens: 200,
         system: systemPrompt,
         messages: [
           {
@@ -72,7 +61,7 @@ Format respons (gunakan null jika tidak ditemukan):
       const client = new OpenAI({ apiKey })
       const completion = await client.chat.completions.create({
         model,
-        max_tokens: 500,
+        max_tokens: 200,
         messages: [
           { role: 'system', content: systemPrompt },
           {
@@ -93,10 +82,13 @@ Format respons (gunakan null jika tidak ditemukan):
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const genAI = new GoogleGenerativeAI(apiKey)
       const geminiModel = genAI.getGenerativeModel({ model, systemInstruction: systemPrompt })
-      const geminiResult = await geminiModel.generateContent([
-        { inlineData: { data: imageBase64, mimeType } },
-        userMessage,
-      ])
+      const geminiResult = await geminiModel.generateContent({
+        contents: [{ role: 'user', parts: [
+          { inlineData: { data: imageBase64, mimeType } },
+          { text: userMessage },
+        ]}],
+        generationConfig: { maxOutputTokens: 200 },
+      })
       const text = geminiResult.response.text()
       result = JSON.parse(text)
     } else {
