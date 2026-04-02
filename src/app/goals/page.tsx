@@ -214,7 +214,7 @@ export default function GoalsPage() {
         </div>
       </PageWrapper>
 
-      <BottomNav onFabClick={() => setShowAdd(true)} />
+      <BottomNav />
 
       {/* Add Goal Sheet */}
       <BottomSheet

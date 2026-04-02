@@ -1,18 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, ExternalLink, Eye, EyeOff, RefreshCw, Trash2 } from "lucide-react";
+import { CheckCircle2, ExternalLink, Eye, EyeOff, RefreshCw, Trash2, Loader2 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
 import { toast } from "@/components/ui/Toast";
 import { useSettingsStore } from "@/stores/settingsStore";
 import {
   AI_PROVIDERS,
-  getModelsForProvider,
   getDefaultModel,
   isValidKeyFormat,
 } from "@/lib/ai-providers";
@@ -20,7 +18,7 @@ import { maskApiKey } from "@/lib/utils";
 import { ConnectionTest } from "@/components/settings/ConnectionTest";
 import { DataBackupSection } from "@/components/settings/DataBackupSection";
 import type { AIProviderKey } from "@/lib/ai-providers";
-import type { ModelOption } from "@/app/api/models/route";
+import type { CachedModel } from "@/stores/settingsStore";
 
 export default function SettingsPage() {
   const {
@@ -29,6 +27,8 @@ export default function SettingsPage() {
     loadSettings,
     saveSettings,
     clearSettings,
+    cachedModelsByProvider,
+    setCachedModels,
   } = useSettingsStore();
 
   const [selectedProvider, setSelectedProvider] =
@@ -40,25 +40,66 @@ export default function SettingsPage() {
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [clearing, setClearing] = useState(false);
-  const [dynamicModels, setDynamicModels] = useState<ModelOption[] | null>(null);
   const [fetchingModels, setFetchingModels] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Read from per-provider cache — persists across navigations & tab switches
+  const dynamicModels: CachedModel[] | null =
+    cachedModelsByProvider[selectedProvider] ?? null;
 
   useEffect(() => {
     loadSettings();
   }, [loadSettings]);
 
   useEffect(() => {
-    if (aiSettings) {
-      setSelectedProvider(aiSettings.provider as AIProviderKey);
-      setSelectedModel(aiSettings.model);
+    if (!aiSettings) return;
+    setSelectedProvider(aiSettings.provider as AIProviderKey);
+    setSelectedModel(aiSettings.model);
+    // Auto-fetch if this provider has no cache yet
+    if (!cachedModelsByProvider[aiSettings.provider]) {
+      fetchModels(aiSettings.provider as AIProviderKey, aiSettings.apiKey);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiSettings]);
 
-  function handleProviderChange(p: AIProviderKey) {
-    setSelectedProvider(p);
-    setSelectedModel(getDefaultModel(p));
-    setApiKey("");
-    setDynamicModels(null);
+  // Debounced auto-fetch when user types a new API key
+  useEffect(() => {
+    if (!apiKey.trim()) return;
+    if (!isValidKeyFormat(selectedProvider, apiKey.trim())) return;
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchModels(selectedProvider, apiKey.trim());
+    }, 700);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiKey, selectedProvider]);
+
+  async function fetchModels(provider: AIProviderKey, key: string) {
+    if (!key) return;
+    setFetchingModels(true);
+    try {
+      const res = await fetch("/api/models", {
+        headers: {
+          "X-AI-Provider": provider,
+          "X-AI-Key": key,
+        },
+      });
+      const json = await res.json() as { models?: CachedModel[]; error?: string };
+      if (!res.ok || !json.models) {
+        throw new Error(json.error ?? "Gagal mengambil daftar model");
+      }
+      // Save to Zustand store so it persists across navigations
+      setCachedModels(json.models, provider);
+      setSelectedModel((prev) =>
+        json.models!.find((m) => m.id === prev) ? prev : (json.models![0]?.id ?? getDefaultModel(provider))
+      );
+    } catch {
+      // silently fail on auto-fetch; user can retry manually
+    } finally {
+      setFetchingModels(false);
+    }
   }
 
   async function handleFetchModels() {
@@ -75,12 +116,11 @@ export default function SettingsPage() {
           "X-AI-Key": activeKey,
         },
       });
-      const json = await res.json() as { models?: ModelOption[]; error?: string };
+      const json = await res.json() as { models?: CachedModel[]; error?: string };
       if (!res.ok || !json.models) {
         throw new Error(json.error ?? "Gagal mengambil daftar model");
       }
-      setDynamicModels(json.models);
-      // Jika model yang dipilih tidak ada di list baru, reset ke model pertama
+      setCachedModels(json.models, selectedProvider);
       if (!json.models.find((m) => m.id === selectedModel)) {
         setSelectedModel(json.models[0]?.id ?? getDefaultModel(selectedProvider));
       }
@@ -89,6 +129,18 @@ export default function SettingsPage() {
       toast(err instanceof Error ? err.message : "Gagal mengambil model", "error");
     } finally {
       setFetchingModels(false);
+    }
+  }
+
+  function handleProviderChange(p: AIProviderKey) {
+    setSelectedProvider(p);
+    // Restore saved model for this provider if cached, else default
+    const cached = cachedModelsByProvider[p];
+    setSelectedModel(cached?.[0]?.id ?? getDefaultModel(p));
+    setApiKey("");
+    // If this provider has no cache AND we have saved credentials, auto-fetch
+    if (!cached && aiSettings?.apiKey && aiSettings.provider === p) {
+      fetchModels(p, aiSettings.apiKey);
     }
   }
 
@@ -134,7 +186,6 @@ export default function SettingsPage() {
   }
 
   const currentProviderConfig = AI_PROVIDERS[selectedProvider];
-  const models = dynamicModels ?? getModelsForProvider(selectedProvider);
   const canFetchModels = !!(apiKey.trim() || aiSettings?.apiKey);
 
   return (
@@ -221,42 +272,58 @@ export default function SettingsPage() {
                 </button>
               )}
             </div>
-            <div className="space-y-2">
-              {models.map((m) => (
-                <motion.button
-                  key={m.id}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setSelectedModel(m.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-                    selectedModel === m.id
-                      ? "border-sky-500 bg-sky-50 dark:bg-sky-900/40"
-                      : "border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                  }`}
-                >
-                  <div
-                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+            {fetchingModels ? (
+              <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span className="text-sm">Memuat daftar model...</span>
+              </div>
+            ) : dynamicModels === null ? (
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <p className="text-sm text-slate-400 dark:text-slate-500">
+                  Masukkan API key untuk memuat daftar model
+                </p>
+                <p className="text-xs text-slate-300 dark:text-slate-600">
+                  Model akan otomatis terdeteksi setelah key valid
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {dynamicModels.map((m) => (
+                  <motion.button
+                    key={m.id}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setSelectedModel(m.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
                       selectedModel === m.id
-                        ? "border-sky-500"
-                        : "border-slate-300 dark:border-slate-600"
+                        ? "border-sky-500 bg-sky-50 dark:bg-sky-900/40"
+                        : "border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
                     }`}
                   >
-                    {selectedModel === m.id && (
-                      <div className="w-2 h-2 rounded-full bg-sky-500" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p
-                      className={`text-sm font-semibold ${selectedModel === m.id ? "text-sky-700 dark:text-sky-400" : "text-slate-700 dark:text-slate-300"}`}
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        selectedModel === m.id
+                          ? "border-sky-500"
+                          : "border-slate-300 dark:border-slate-600"
+                      }`}
                     >
-                      {m.name}
-                    </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      {m.desc}
-                    </p>
-                  </div>
-                </motion.button>
-              ))}
-            </div>
+                      {selectedModel === m.id && (
+                        <div className="w-2 h-2 rounded-full bg-sky-500" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p
+                        className={`text-sm font-semibold ${selectedModel === m.id ? "text-sky-700 dark:text-sky-400" : "text-slate-700 dark:text-slate-300"}`}
+                      >
+                        {m.name}
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {m.desc}
+                      </p>
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* API Key Input */}

@@ -516,7 +516,7 @@ export default function DebtsPage() {
         </div>
       </PageWrapper>
 
-      <BottomNav onFabClick={() => setShowAdd(true)} />
+      <BottomNav />
 
       {/* Add Debt Sheet */}
       <BottomSheet

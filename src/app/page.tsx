@@ -1,87 +1,109 @@
-'use client'
+"use client";
 
-import { useState, useEffect, useMemo } from 'react'
-import { format } from 'date-fns'
-import { id } from 'date-fns/locale'
-import { motion } from 'framer-motion'
-import { Camera, Plus, TrendingUp, TrendingDown, Minus, Settings } from 'lucide-react'
-import Link from 'next/link'
-import { Header } from '@/components/layout/Header'
-import { PageWrapper } from '@/components/layout/PageWrapper'
-import { BottomNav } from '@/components/layout/BottomNav'
-import { BottomSheet } from '@/components/ui/BottomSheet'
-import { TransactionForm } from '@/components/transactions/TransactionForm'
-import { TransactionList } from '@/components/transactions/TransactionList'
-import { useTransactionStore } from '@/stores/transactionStore'
-import { useSettingsStore } from '@/stores/settingsStore'
-import { MiniChart } from '@/components/dashboard/MiniChart'
-import { AIInsightCard } from '@/components/dashboard/AIInsightCard'
-import { DebtReminderBanner } from '@/components/dashboard/DebtReminderBanner'
-import { RecurringReminderBanner } from '@/components/dashboard/RecurringReminderBanner'
-import { formatRupiah, getCurrentMonth } from '@/lib/utils'
-import { useDebtStore } from '@/stores/debtStore'
-import { useRecurringStore } from '@/stores/recurringStore'
+import { useState, useEffect, useMemo } from "react";
+import { format } from "date-fns";
+import { id } from "date-fns/locale";
+import { motion } from "framer-motion";
+import {
+  Camera,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Settings,
+} from "lucide-react";
+import Link from "next/link";
+import { PageWrapper } from "@/components/layout/PageWrapper";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { BottomSheet } from "@/components/ui/BottomSheet";
+import { TransactionForm } from "@/components/transactions/TransactionForm";
+import { TransactionList } from "@/components/transactions/TransactionList";
+import { useTransactionStore } from "@/stores/transactionStore";
+import { useSettingsStore } from "@/stores/settingsStore";
+import { MonthlyChart } from "@/components/dashboard/MonthlyChart";
+import { CategorySpendingChart } from "@/components/dashboard/CategorySpendingChart";
+import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
+import { DebtReminderBanner } from "@/components/dashboard/DebtReminderBanner";
+import { RecurringReminderBanner } from "@/components/dashboard/RecurringReminderBanner";
+import { GoalAlertBanner } from "@/components/dashboard/GoalAlertBanner";
+import { formatRupiah, getCurrentMonth } from "@/lib/utils";
+import { useDebtStore } from "@/stores/debtStore";
+import { useRecurringStore } from "@/stores/recurringStore";
+import { useGoalStore } from "@/stores/goalStore";
 
 function CashFlowStatus({ balance }: { balance: number }) {
-  if (balance > 0) return (
-    <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-full">
-      <TrendingUp className="w-3 h-3" /> Aman
-    </span>
-  )
-  if (balance < 0) return (
-    <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 bg-red-50/80 px-2 py-0.5 rounded-full">
-      <TrendingDown className="w-3 h-3" /> Perlu Hati-hati
-    </span>
-  )
+  if (balance > 0)
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-full">
+        <TrendingUp className="w-3 h-3" /> Aman
+      </span>
+    );
+  if (balance < 0)
+    return (
+      <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 bg-red-50/80 px-2 py-0.5 rounded-full">
+        <TrendingDown className="w-3 h-3" /> Perlu Hati-hati
+      </span>
+    );
   return (
     <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50/80 px-2 py-0.5 rounded-full">
       <Minus className="w-3 h-3" /> Waspada
     </span>
-  )
+  );
 }
 
 export default function DashboardPage() {
-  const { transactions, isLoading, loadTransactions } = useTransactionStore()
-  const { loadSettings } = useSettingsStore()
-  const { loadDebts } = useDebtStore()
-  const { loadTemplates } = useRecurringStore()
-  const [showForm, setShowForm] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const { transactions, loadTransactions } = useTransactionStore();
+  const { loadSettings } = useSettingsStore();
+  const { loadDebts } = useDebtStore();
+  const { loadTemplates } = useRecurringStore();
+  const { loadGoals } = useGoalStore();
+  const [showForm, setShowForm] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const currentMonth = getCurrentMonth()
-  const monthLabel = format(new Date(), 'MMMM yyyy', { locale: id })
+  const currentMonth = getCurrentMonth();
+  const monthLabel = format(new Date(), "MMMM yyyy", { locale: id });
 
   useEffect(() => {
-    setMounted(true)
-    loadTransactions()
-    loadSettings()
-    loadDebts()
-    loadTemplates()
-  }, [loadTransactions, loadSettings, loadDebts, loadTemplates])
+    setMounted(true);
+    loadTransactions();
+    loadSettings();
+    loadDebts();
+    loadTemplates();
+    loadGoals();
+  }, [loadTransactions, loadSettings, loadDebts, loadTemplates, loadGoals]);
 
   const monthlyTransactions = useMemo(
     () => transactions.filter((t) => t.date.startsWith(currentMonth)),
-    [transactions, currentMonth]
-  )
+    [transactions, currentMonth],
+  );
 
   const income = useMemo(
-    () => monthlyTransactions.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
-    [monthlyTransactions]
-  )
+    () =>
+      monthlyTransactions
+        .filter((t) => t.type === "income")
+        .reduce((s, t) => s + t.amount, 0),
+    [monthlyTransactions],
+  );
   const expense = useMemo(
-    () => monthlyTransactions.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
-    [monthlyTransactions]
-  )
-  const balance = income - expense
+    () =>
+      monthlyTransactions
+        .filter((t) => t.type === "expense")
+        .reduce((s, t) => s + t.amount, 0),
+    [monthlyTransactions],
+  );
+  const balance = income - expense;
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
       {/* Hero Section */}
       <div
         className="relative overflow-hidden pt-14"
-        style={{ background: 'linear-gradient(135deg, #0EA5E9 0%, #38BDF8 60%, #7DD3FC 100%)' }}
+        style={{
+          background:
+            "linear-gradient(135deg, #0EA5E9 0%, #38BDF8 60%, #7DD3FC 100%)",
+        }}
       >
         {/* Settings link */}
         <Link
@@ -102,7 +124,8 @@ export default function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-bold text-white tracking-tight mb-2"
           >
-            {balance >= 0 ? '' : '-'}{formatRupiah(Math.abs(balance))}
+            {balance >= 0 ? "" : "-"}
+            {formatRupiah(Math.abs(balance))}
           </motion.p>
           <CashFlowStatus balance={balance} />
         </div>
@@ -117,9 +140,13 @@ export default function DashboardPage() {
           >
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingUp className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-xs text-white/80 font-medium">Pemasukan</span>
+              <span className="text-xs text-white/80 font-medium">
+                Pemasukan
+              </span>
             </div>
-            <p className="text-lg font-bold text-white">{formatRupiah(income)}</p>
+            <p className="text-lg font-bold text-white">
+              {formatRupiah(income)}
+            </p>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -129,14 +156,21 @@ export default function DashboardPage() {
           >
             <div className="flex items-center gap-1.5 mb-1">
               <TrendingDown className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-xs text-white/80 font-medium">Pengeluaran</span>
+              <span className="text-xs text-white/80 font-medium">
+                Pengeluaran
+              </span>
             </div>
-            <p className="text-lg font-bold text-white">{formatRupiah(expense)}</p>
+            <p className="text-lg font-bold text-white">
+              {formatRupiah(expense)}
+            </p>
           </motion.div>
         </div>
 
         {/* Wave bottom */}
-        <div className="h-6 bg-sky-50 dark:bg-[#0B1120]" style={{ borderTopLeftRadius: '28px', borderTopRightRadius: '28px' }} />
+        <div
+          className="h-6 bg-sky-50 dark:bg-[#0B1120]"
+          style={{ borderTopLeftRadius: "28px", borderTopRightRadius: "28px" }}
+        />
       </div>
 
       <PageWrapper className="mt-0">
@@ -151,7 +185,9 @@ export default function DashboardPage() {
               <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center">
                 <Plus className="w-5 h-5 text-white" />
               </div>
-              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Catat Transaksi</span>
+              <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Catat Transaksi
+              </span>
             </motion.button>
 
             <Link href="/scan">
@@ -162,7 +198,9 @@ export default function DashboardPage() {
                 <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
                   <Camera className="w-5 h-5 text-white" />
                 </div>
-                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Scan Struk</span>
+                <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                  Scan Struk
+                </span>
               </motion.div>
             </Link>
           </div>
@@ -173,21 +211,35 @@ export default function DashboardPage() {
           {/* Debt Reminder Banner */}
           <DebtReminderBanner />
 
+          {/* Goal Alert Banner */}
+          <GoalAlertBanner />
+
           {/* AI Insight Card */}
           <AIInsightCard />
 
-          {/* Mini Chart */}
-          {monthlyTransactions.length > 0 && (
-            <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
-              <MiniChart transactions={transactions} />
-            </div>
-          )}
+          {/* Category Spending Chart */}
+          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
+            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3">
+              Top Pengeluaran Bulan Ini
+            </p>
+            <CategorySpendingChart transactions={transactions} />
+          </div>
+
+          {/* Monthly Chart */}
+          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
+            <MonthlyChart transactions={transactions} />
+          </div>
 
           {/* Recent Transactions */}
           <div>
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">Transaksi Bulan Ini</h2>
-              <Link href="/transactions" className="text-xs font-semibold text-sky-600 dark:text-sky-400">
+              <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
+                Transaksi Bulan Ini
+              </h2>
+              <Link
+                href="/transactions"
+                className="text-xs font-semibold text-sky-600 dark:text-sky-400"
+              >
                 Lihat semua →
               </Link>
             </div>
@@ -202,7 +254,7 @@ export default function DashboardPage() {
       </PageWrapper>
 
       {/* Bottom Nav */}
-      <BottomNav onFabClick={() => setShowForm(true)} />
+      <BottomNav />
 
       {/* Add Transaction Sheet */}
       <BottomSheet
@@ -213,5 +265,5 @@ export default function DashboardPage() {
         <TransactionForm onSuccess={() => setShowForm(false)} />
       </BottomSheet>
     </div>
-  )
+  );
 }

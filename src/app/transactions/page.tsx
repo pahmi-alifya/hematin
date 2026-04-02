@@ -11,7 +11,7 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { getCurrentMonth } from '@/lib/utils'
 import { format, subMonths, addMonths, parseISO } from 'date-fns'
 import { id } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Search, X, RefreshCw } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, X, RefreshCw, Plus } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getCategoryById, EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/categories'
@@ -61,13 +61,21 @@ export default function TransactionsPage() {
       <Header
         title="Transaksi"
         rightElement={
-          <Link
-            href="/recurring"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-xs font-semibold"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Rutin
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/recurring"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-xs font-semibold"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              Rutin
+            </Link>
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-8 h-8 rounded-xl bg-sky-500 flex items-center justify-center"
+            >
+              <Plus className="w-4 h-4 text-white" strokeWidth={2.5} />
+            </button>
+          </div>
         }
       />
 
@@ -171,7 +179,7 @@ export default function TransactionsPage() {
         </div>
       </PageWrapper>
 
-      <BottomNav onFabClick={() => setShowForm(true)} />
+      <BottomNav />
 
       <BottomSheet
         open={showForm}
