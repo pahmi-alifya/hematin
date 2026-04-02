@@ -21,7 +21,8 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
   loadGoals: async () => {
     set({ isLoading: true })
     try {
-      const goals = await db.goals.orderBy('createdAt').reverse().toArray()
+      const goals = await db.goals.toArray()
+      goals.sort((a, b) => b.createdAt - a.createdAt)
       set({ goals, isLoading: false })
     } catch {
       set({ isLoading: false })
