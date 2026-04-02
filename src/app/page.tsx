@@ -77,19 +77,21 @@ export default function DashboardPage() {
     [transactions, currentMonth],
   );
 
-  const income = useMemo(
-    () =>
-      monthlyTransactions
-        .filter((t) => t.type === "income")
-        .reduce((s, t) => s + t.amount, 0),
+  const incomeTransactions = useMemo(
+    () => monthlyTransactions.filter((t) => t.type === "income"),
     [monthlyTransactions],
   );
-  const expense = useMemo(
-    () =>
-      monthlyTransactions
-        .filter((t) => t.type === "expense")
-        .reduce((s, t) => s + t.amount, 0),
+  const expenseTransactions = useMemo(
+    () => monthlyTransactions.filter((t) => t.type === "expense"),
     [monthlyTransactions],
+  );
+  const income = useMemo(
+    () => incomeTransactions.reduce((s, t) => s + t.amount, 0),
+    [incomeTransactions],
+  );
+  const expense = useMemo(
+    () => expenseTransactions.reduce((s, t) => s + t.amount, 0),
+    [expenseTransactions],
   );
   const balance = income - expense;
 
@@ -102,7 +104,7 @@ export default function DashboardPage() {
         className="relative overflow-hidden pt-14"
         style={{
           background:
-            "linear-gradient(135deg, #0EA5E9 0%, #38BDF8 60%, #7DD3FC 100%)",
+            "linear-gradient(135deg, #075985 0%, #0284C7 45%, #38BDF8 100%)",
         }}
       >
         {/* Settings link */}
@@ -132,35 +134,48 @@ export default function DashboardPage() {
 
         {/* Summary Cards */}
         <div className="mx-4 mb-0 grid grid-cols-2 gap-3 pb-5">
+          {/* Pemasukan */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-3"
+            className="bg-white dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 shadow-sm border border-sky-100 dark:border-slate-700/60"
           >
-            <div className="flex items-center gap-1.5 mb-1">
-              <TrendingUp className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-xs text-white/80 font-medium">
-                Pemasukan
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Pemasukan
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/60 px-1.5 py-0.5 rounded-full">
+                {incomeTransactions.length}x
               </span>
             </div>
-            <p className="text-lg font-bold text-white">
+            <p className="text-[17px] font-bold text-emerald-500 dark:text-emerald-400 leading-tight">
               {formatRupiah(income)}
             </p>
           </motion.div>
+
+          {/* Pengeluaran */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="bg-white/20 backdrop-blur-sm rounded-2xl px-4 py-3"
+            className="bg-white dark:bg-slate-800/60 rounded-2xl px-4 py-3.5 shadow-sm border border-sky-100 dark:border-slate-700/60"
           >
-            <div className="flex items-center gap-1.5 mb-1">
-              <TrendingDown className="w-3.5 h-3.5 text-white/80" />
-              <span className="text-xs text-white/80 font-medium">
-                Pengeluaran
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <TrendingDown className="w-3.5 h-3.5 text-rose-500" />
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  Pengeluaran
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700/60 px-1.5 py-0.5 rounded-full">
+                {expenseTransactions.length}x
               </span>
             </div>
-            <p className="text-lg font-bold text-white">
+            <p className="text-[17px] font-bold text-rose-500 dark:text-rose-400 leading-tight">
               {formatRupiah(expense)}
             </p>
           </motion.div>
