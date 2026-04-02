@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { format, subMonths, addMonths, parseISO } from "date-fns";
+import { format, subMonths, addMonths, parseISO, getDaysInMonth } from "date-fns";
 import { id } from "date-fns/locale";
 import {
   TrendingUp,
   TrendingDown,
   ChevronLeft,
   ChevronRight,
+  Flame,
+  CalendarDays,
+  Target,
+  BarChart2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/layout/Header";
@@ -19,7 +23,7 @@ import { CategoryDonut } from "@/components/reports/CategoryDonut";
 import { DebtSummaryChart } from "@/components/reports/DebtSummaryChart";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useDebtStore } from "@/stores/debtStore";
-import { EXPENSE_CATEGORIES } from "@/lib/categories";
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/categories";
 import { formatRupiah, getCurrentMonth, cn } from "@/lib/utils";
 
 export default function ReportsPage() {
@@ -100,6 +104,66 @@ export default function ReportsPage() {
         };
       }),
     [byCategory],
+  );
+
+  // Daily stats (only for specific month, not "Semua")
+  const dailyStats = useMemo(() => {
+    if (showAll) return null
+    const monthDate = parseISO(month + "-01")
+    const daysInMonth = getDaysInMonth(monthDate)
+    const daysElapsed = isCurrentMonth ? new Date().getDate() : daysInMonth
+
+    const avgExpense = daysElapsed > 0 ? expense / daysElapsed : 0
+    const avgIncome = daysElapsed > 0 ? income / daysElapsed : 0
+
+    // Hari paling boros
+    const expenseByDay: Record<string, number> = {}
+    filteredTx
+      .filter((t) => t.type === "expense")
+      .forEach((t) => {
+        expenseByDay[t.date] = (expenseByDay[t.date] ?? 0) + t.amount
+      })
+    const busiestEntry = Object.entries(expenseByDay).sort(([, a], [, b]) => b - a)[0]
+    const busiestDay = busiestEntry
+      ? format(parseISO(busiestEntry[0]), "EEE, d MMM", { locale: id })
+      : null
+    const busiestAmount = busiestEntry?.[1] ?? 0
+
+    // Hari aktif (ada pengeluaran)
+    const activeDays = Object.keys(expenseByDay).length
+
+    // Proyeksi akhir bulan (hanya bulan berjalan)
+    const projection = isCurrentMonth ? Math.round(avgExpense * daysInMonth) : null
+
+    return { avgExpense, avgIncome, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection }
+  }, [showAll, month, isCurrentMonth, expense, income, filteredTx])
+
+  const byIncomeCategory = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredTx
+      .filter((t) => t.type === "income")
+      .forEach((t) => {
+        map[t.category] = (map[t.category] ?? 0) + t.amount;
+      });
+    return Object.entries(map)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 6);
+  }, [filteredTx]);
+
+  const incomeDonutData = useMemo(
+    () =>
+      byIncomeCategory.map(([catId, amount]) => {
+        const cat = INCOME_CATEGORIES.find((c) => c.id === catId);
+        return {
+          id: catId,
+          name: cat?.name ?? catId,
+          icon: cat?.icon ?? "💰",
+          amount,
+          color: cat?.color ?? "#10B981",
+          bgColor: cat?.bgColor ?? "#ECFDF5",
+        };
+      }),
+    [byIncomeCategory],
   );
 
   // Bulan yang ditampilkan di chart: jika "Semua", tampilkan bulan saat ini
@@ -202,6 +266,16 @@ export default function ReportsPage() {
             </div>
           )}
 
+          {/* Income Donut */}
+          {incomeDonutData.length > 0 && (
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4">
+                Distribusi Pemasukan
+              </p>
+              <CategoryDonut data={incomeDonutData} total={income} />
+            </div>
+          )}
+
           {/* Debt Summary Chart */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-4">
@@ -233,16 +307,75 @@ export default function ReportsPage() {
             </div>
           </div>
 
-          {/* Avg daily — only for specific month */}
-          {!showAll && expense > 0 && (
-            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 flex items-center justify-between">
-              <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">
-                  Rata-rata pengeluaran/hari
-                </p>
-                <p className="text-lg font-bold text-slate-800 dark:text-slate-100">
-                  {formatRupiah(Math.round(expense / new Date().getDate()))}
-                </p>
+          {/* Daily Stats */}
+          {dailyStats && expense > 0 && (
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 space-y-4">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Ringkasan Harian</p>
+
+              {/* Top 2 stats */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <BarChart2 className="w-3.5 h-3.5 text-rose-500" />
+                    <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-wide">Rata-rata/hari</span>
+                  </div>
+                  <p className="text-base font-bold text-rose-600 dark:text-rose-400 leading-tight">
+                    {formatRupiah(Math.round(dailyStats.avgExpense))}
+                  </p>
+                  <p className="text-[10px] text-rose-400 dark:text-rose-500 mt-0.5">pengeluaran</p>
+                </div>
+
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <BarChart2 className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-[11px] font-semibold text-emerald-500 uppercase tracking-wide">Rata-rata/hari</span>
+                  </div>
+                  <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
+                    {formatRupiah(Math.round(dailyStats.avgIncome))}
+                  </p>
+                  <p className="text-[10px] text-emerald-400 dark:text-emerald-500 mt-0.5">pemasukan</p>
+                </div>
+              </div>
+
+              {/* Divider stats row */}
+              <div className="divide-y divide-slate-100 dark:divide-slate-700 rounded-xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+                {/* Hari paling boros */}
+                {dailyStats.busiestDay && (
+                  <div className="flex items-center justify-between px-3 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Flame className="w-3.5 h-3.5 text-orange-500 shrink-0" />
+                      <span className="text-xs text-slate-600 dark:text-slate-300">Hari paling boros</span>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-100">{formatRupiah(dailyStats.busiestAmount)}</p>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-500">{dailyStats.busiestDay}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hari aktif */}
+                <div className="flex items-center justify-between px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="w-3.5 h-3.5 text-sky-500 shrink-0" />
+                    <span className="text-xs text-slate-600 dark:text-slate-300">Hari aktif transaksi</span>
+                  </div>
+                  <p className="text-xs font-bold text-slate-800 dark:text-slate-100">
+                    {dailyStats.activeDays} <span className="font-normal text-slate-400 dark:text-slate-500">dari {dailyStats.daysElapsed} hari</span>
+                  </p>
+                </div>
+
+                {/* Proyeksi — hanya bulan berjalan */}
+                {dailyStats.projection !== null && (
+                  <div className="flex items-center justify-between px-3 py-2.5">
+                    <div className="flex items-center gap-2">
+                      <Target className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                      <span className="text-xs text-slate-600 dark:text-slate-300">Proyeksi akhir bulan</span>
+                    </div>
+                    <p className="text-xs font-bold text-violet-600 dark:text-violet-400">
+                      {formatRupiah(dailyStats.projection)}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
