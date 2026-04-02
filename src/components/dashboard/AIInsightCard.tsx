@@ -118,26 +118,32 @@ export function AIInsightCard() {
   if (!insight) return null;
 
   const preview =
-    insight.length > 140 ? insight.slice(0, 140).trimEnd() + "..." : insight;
+    insight.length > 220 ? insight.slice(0, 220).trimEnd() + "..." : insight;
 
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4"
+        className="rounded-2xl shadow-sm border border-sky-200 dark:border-sky-800/40 p-5 overflow-hidden"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(14,165,233,0.08) 0%, rgba(186,230,253,0.18) 100%)",
+        }}
       >
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <span className="text-base">🤖</span>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            <div className="w-8 h-8 rounded-xl bg-sky-500/15 dark:bg-sky-400/20 flex items-center justify-center">
+              <span className="text-base">🤖</span>
+            </div>
+            <p className="text-sm font-bold text-sky-700 dark:text-sky-300">
               HEMATIN bilang:
             </p>
           </div>
           <button
             onClick={() => loadInsight(true)}
             disabled={isLoading}
-            className="p-1.5 rounded-lg text-slate-400 dark:text-slate-500 hover:text-sky-500 hover:bg-sky-50 dark:hover:bg-sky-900/30 transition-colors disabled:opacity-40"
+            className="p-1.5 rounded-lg text-sky-400 hover:text-sky-600 hover:bg-sky-100 dark:hover:bg-sky-900/30 transition-colors disabled:opacity-40"
             title="Refresh insight"
           >
             <RefreshCw
@@ -146,14 +152,14 @@ export function AIInsightCard() {
           </button>
         </div>
 
-        <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+        <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed">
           {preview}
         </p>
 
-        {insight.length > 150 && (
+        {insight.length > 220 && (
           <button
             onClick={() => setShowSheet(true)}
-            className="mt-2 flex items-center gap-0.5 text-xs font-semibold text-sky-600 dark:text-sky-400"
+            className="mt-3 flex items-center gap-0.5 text-xs font-semibold text-sky-600 dark:text-sky-400"
           >
             Baca Selengkapnya <ChevronRight className="w-3.5 h-3.5" />
           </button>
