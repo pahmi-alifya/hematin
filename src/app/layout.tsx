@@ -39,6 +39,7 @@ export const metadata: Metadata = {
     "aplikasi budgeting indonesia",
     "pencatatan keuangan gratis",
   ],
+  verification: { google: "ad5ddca25974693b" },
   authors: [{ name: "HEMATIN" }],
   creator: "HEMATIN",
   icons: {
