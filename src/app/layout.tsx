@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ui/ThemeToggle";
 import { InstallBanner } from "@/components/ui/InstallBanner";
@@ -108,6 +109,7 @@ export default function RootLayout({
         <ToastProvider />
         {children}
         <InstallBanner />
+        <Analytics />
       </body>
     </html>
   );
