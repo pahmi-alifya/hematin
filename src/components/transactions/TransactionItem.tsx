@@ -11,9 +11,15 @@ interface TransactionItemProps {
   index?: number
 }
 
+const TYPE_CONFIG = {
+  income:  { prefix: '+', colorClass: 'text-emerald-600 dark:text-emerald-400' },
+  expense: { prefix: '-', colorClass: 'text-slate-700 dark:text-slate-300' },
+  saving:  { prefix: '→', colorClass: 'text-teal-600 dark:text-teal-400' },
+}
+
 export function TransactionItem({ transaction, onPress, index = 0 }: TransactionItemProps) {
   const cat = getCategoryById(transaction.category, transaction.type)
-  const isIncome = transaction.type === 'income'
+  const { prefix, colorClass } = TYPE_CONFIG[transaction.type] ?? TYPE_CONFIG.expense
 
   return (
     <motion.button
@@ -26,7 +32,7 @@ export function TransactionItem({ transaction, onPress, index = 0 }: Transaction
     >
       {/* Category Icon */}
       <div
-        className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl flex-shrink-0"
+        className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0"
         style={{ backgroundColor: cat?.bgColor ?? '#F1F5F9' }}
       >
         {cat?.icon ?? '📦'}
@@ -44,11 +50,9 @@ export function TransactionItem({ transaction, onPress, index = 0 }: Transaction
       </div>
 
       {/* Amount */}
-      <div className="text-right flex-shrink-0">
-        <p
-          className={`text-sm font-bold ${isIncome ? 'text-emerald-600' : 'text-slate-700 dark:text-slate-300'}`}
-        >
-          {isIncome ? '+' : '-'}{formatRupiah(transaction.amount)}
+      <div className="text-right shrink-0">
+        <p className={`text-sm font-bold ${colorClass}`}>
+          {prefix}{formatRupiah(transaction.amount)}
         </p>
         <p className="text-[10px] text-slate-400 mt-0.5">
           {transaction.source === 'scan' ? '📷' : transaction.source === 'recurring' ? '🔁' : '✏️'}

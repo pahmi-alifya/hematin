@@ -14,8 +14,14 @@ export function getTotalExpense(transactions: Transaction[], month: string): num
     .reduce((sum, t) => sum + t.amount, 0)
 }
 
-export function getCashFlowStatus(income: number, expense: number): 'positive' | 'neutral' | 'negative' {
-  const balance = income - expense
+export function getTotalSaving(transactions: Transaction[], month: string): number {
+  return transactions
+    .filter((t) => t.type === 'saving' && t.date.startsWith(month))
+    .reduce((sum, t) => sum + t.amount, 0)
+}
+
+export function getCashFlowStatus(income: number, expense: number, saving = 0): 'positive' | 'neutral' | 'negative' {
+  const balance = income - expense - saving
   if (balance > 0) return 'positive'
   if (balance < 0) return 'negative'
   return 'neutral'
@@ -81,7 +87,9 @@ export function buildFinancialContext(transactions: Transaction[]): FinancialCon
 
   const total_income = getTotalIncome(transactions, month)
   const total_expense = getTotalExpense(transactions, month)
-  const balance = total_income - total_expense
+  const total_saving = getTotalSaving(transactions, month)
+  const saving_rate = total_income > 0 ? Math.round((total_saving / total_income) * 100) : 0
+  const balance = total_income - total_expense - total_saving
 
   const todayTx = transactions.filter((t) => t.date === today)
   const income_today = todayTx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
@@ -91,7 +99,9 @@ export function buildFinancialContext(transactions: Transaction[]): FinancialCon
   return {
     total_income,
     total_expense,
-    cash_flow_status: getCashFlowStatus(total_income, total_expense),
+    total_saving,
+    saving_rate,
+    cash_flow_status: getCashFlowStatus(total_income, total_expense, total_saving),
     balance,
     top_category: getTopCategory(transactions, month),
     trend: getSpendingTrend(transactions),
@@ -115,8 +125,12 @@ export function formatContextForAI(ctx: FinancialContext): string {
   const trendMap = { increasing: 'naik', stable: 'stabil', decreasing: 'turun' }
   const consistencyMap = { good: 'baik', medium: 'sedang', low: 'rendah' }
 
+  const savingLine = ctx.total_saving > 0
+    ? `tabungan/investasi ${fmt(ctx.total_saving)} (saving rate ${ctx.saving_rate}%)`
+    : `belum ada tabungan bulan ini`
+
   return [
-    `Bulan ini: pemasukan ${fmt(ctx.total_income)}, pengeluaran ${fmt(ctx.total_expense)}, saldo ${fmt(ctx.balance)} (${statusMap[ctx.cash_flow_status]})`,
+    `Bulan ini: pemasukan ${fmt(ctx.total_income)}, pengeluaran ${fmt(ctx.total_expense)}, ${savingLine}, saldo ${fmt(ctx.balance)} (${statusMap[ctx.cash_flow_status]})`,
     `Terbesar: ${ctx.top_category} | tren 7hr: ${trendMap[ctx.trend]} | konsistensi: ${consistencyMap[ctx.consistency_level]}`,
     ctx.categories_today.length > 0
       ? `Hari ini: pemasukan ${fmt(ctx.income_today)}, pengeluaran ${fmt(ctx.expense_today)}, kategori: ${ctx.categories_today.join(', ')}`

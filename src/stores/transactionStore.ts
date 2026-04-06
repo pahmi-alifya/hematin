@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
+import { migrateSavingsFromExpense } from '@/lib/migrations'
 import type { Transaction } from '@/types'
 
 interface TransactionStore {
@@ -21,6 +22,7 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
   loadTransactions: async () => {
     set({ isLoading: true })
     try {
+      await migrateSavingsFromExpense()
       const transactions = await db.transactions
         .orderBy('createdAt')
         .reverse()

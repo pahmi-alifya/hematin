@@ -23,7 +23,7 @@ import { CategoryDonut } from "@/components/reports/CategoryDonut";
 import { DebtSummaryChart } from "@/components/reports/DebtSummaryChart";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useDebtStore } from "@/stores/debtStore";
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/categories";
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from "@/lib/categories";
 import { formatRupiah, getCurrentMonth, cn } from "@/lib/utils";
 
 export default function ReportsPage() {
@@ -77,6 +77,14 @@ export default function ReportsPage() {
         .reduce((s, t) => s + t.amount, 0),
     [filteredTx],
   );
+  const saving = useMemo(
+    () =>
+      filteredTx
+        .filter((t) => t.type === "saving")
+        .reduce((s, t) => s + t.amount, 0),
+    [filteredTx],
+  );
+  const savingRate = income > 0 ? Math.round((saving / income) * 100) : 0;
 
   const byCategory = useMemo(() => {
     const map: Record<string, number> = {};
@@ -137,6 +145,32 @@ export default function ReportsPage() {
 
     return { avgExpense, avgIncome, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection }
   }, [showAll, month, isCurrentMonth, expense, income, filteredTx])
+
+  const bySavingCategory = useMemo(() => {
+    const map: Record<string, number> = {};
+    filteredTx
+      .filter((t) => t.type === "saving")
+      .forEach((t) => {
+        map[t.category] = (map[t.category] ?? 0) + t.amount;
+      });
+    return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 6);
+  }, [filteredTx]);
+
+  const savingDonutData = useMemo(
+    () =>
+      bySavingCategory.map(([catId, amount]) => {
+        const cat = SAVING_CATEGORIES.find((c) => c.id === catId);
+        return {
+          id: catId,
+          name: cat?.name ?? catId,
+          icon: cat?.icon ?? "🏦",
+          amount,
+          color: cat?.color ?? "#0D9488",
+          bgColor: cat?.bgColor ?? "#CCFBF1",
+        };
+      }),
+    [bySavingCategory],
+  );
 
   const byIncomeCategory = useMemo(() => {
     const map: Record<string, number> = {};
@@ -215,28 +249,42 @@ export default function ReportsPage() {
           </div>
 
           {/* Summary */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                  Pemasukan
+          <div className="grid grid-cols-3 gap-2">
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <TrendingUp className="w-3.5 h-3.5 text-emerald-500" />
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                  Masuk
                 </span>
               </div>
-              <p className="text-lg font-bold text-emerald-600">
+              <p className="text-sm font-bold text-emerald-600">
                 {formatRupiah(income)}
               </p>
             </div>
-            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <TrendingDown className="w-4 h-4 text-red-500" />
-                <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                  Pengeluaran
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <TrendingDown className="w-3.5 h-3.5 text-red-500" />
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                  Keluar
                 </span>
               </div>
-              <p className="text-lg font-bold text-red-500">
+              <p className="text-sm font-bold text-red-500">
                 {formatRupiah(expense)}
               </p>
+            </div>
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-3">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <span className="text-xs">🏦</span>
+                <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                  Tabungan
+                </span>
+              </div>
+              <p className="text-sm font-bold text-teal-600 dark:text-teal-400">
+                {formatRupiah(saving)}
+              </p>
+              {savingRate > 0 && (
+                <p className="text-[10px] text-teal-500 mt-0.5">{savingRate}% income</p>
+              )}
             </div>
           </div>
 
@@ -273,6 +321,23 @@ export default function ReportsPage() {
                 Distribusi Pemasukan
               </p>
               <CategoryDonut data={incomeDonutData} total={income} />
+            </div>
+          )}
+
+          {/* Saving Donut */}
+          {savingDonutData.length > 0 && (
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  Distribusi Tabungan & Investasi
+                </p>
+                {savingRate > 0 && (
+                  <span className="text-xs font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-900/30 px-2 py-0.5 rounded-full">
+                    {savingRate}% dari income
+                  </span>
+                )}
+              </div>
+              <CategoryDonut data={savingDonutData} total={saving} />
             </div>
           )}
 

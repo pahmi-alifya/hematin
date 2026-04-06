@@ -2,17 +2,20 @@
 
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/categories'
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from '@/lib/categories'
 import type { Category } from '@/types'
 
 interface CategoryPickerProps {
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'saving'
   selected: string
   onSelect: (categoryId: string) => void
 }
 
 export function CategoryPicker({ type, selected, onSelect }: CategoryPickerProps) {
-  const categories: Category[] = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
+  const categories: Category[] =
+    type === 'income' ? INCOME_CATEGORIES :
+    type === 'saving' ? SAVING_CATEGORIES :
+    EXPENSE_CATEGORIES
 
   return (
     <div>

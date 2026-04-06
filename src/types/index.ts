@@ -2,7 +2,7 @@ export type AIProvider = 'anthropic' | 'openai' | 'gemini'
 
 export interface Transaction {
   id: string
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'saving'
   amount: number
   category: string
   merchant?: string
@@ -15,7 +15,7 @@ export interface Transaction {
 
 export interface RecurringTemplate {
   id: string
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'saving'
   amount: number
   category: string
   merchant?: string
@@ -71,8 +71,10 @@ export interface ScannedReceipt {
 export interface FinancialContext {
   total_income: number
   total_expense: number
+  total_saving: number
+  saving_rate: number // persen dari income (0-100)
   cash_flow_status: 'positive' | 'neutral' | 'negative'
-  balance: number
+  balance: number // income - expense - saving
   top_category: string
   trend: 'increasing' | 'stable' | 'decreasing'
   income_today: number

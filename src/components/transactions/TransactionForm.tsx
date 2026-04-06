@@ -10,11 +10,11 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { useRecurringStore } from '@/stores/recurringStore'
 import { toast } from '@/components/ui/Toast'
 import { formatRupiahInput, parseRupiahInput, getCurrentDate } from '@/lib/utils'
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from '@/lib/categories'
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from '@/lib/categories'
 import { cn } from '@/lib/utils'
 
 interface DefaultValues {
-  type?: 'income' | 'expense'
+  type?: 'income' | 'expense' | 'saving'
   amount?: number
   category?: string
   merchant?: string
@@ -27,7 +27,7 @@ interface TransactionFormProps {
   onSuccess?: () => void
   /** @deprecated use onSuccess */
   onClose?: () => void
-  initialType?: 'income' | 'expense'
+  initialType?: 'income' | 'expense' | 'saving'
   defaultValues?: DefaultValues
   editId?: string // jika diisi, mode edit (update) bukan tambah baru
 }
@@ -57,7 +57,7 @@ function DayPicker({ value, onChange }: { value: number; onChange: (day: number)
 }
 
 export function TransactionForm({ onSuccess, onClose, initialType = 'expense', defaultValues, editId }: TransactionFormProps) {
-  const [type, setType] = useState<'income' | 'expense'>(defaultValues?.type ?? initialType)
+  const [type, setType] = useState<'income' | 'expense' | 'saving'>(defaultValues?.type ?? initialType)
   const [amount, setAmount] = useState(defaultValues?.amount ? formatRupiahInput(defaultValues.amount) : '')
   const [amountRaw, setAmountRaw] = useState(defaultValues?.amount ?? 0)
   const [category, setCategory] = useState(defaultValues?.category ?? '')
@@ -73,9 +73,10 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
   const { addTransaction, updateTransaction } = useTransactionStore()
   const { addTemplate } = useRecurringStore()
 
-  const defaultCategory = type === 'expense'
-    ? EXPENSE_CATEGORIES[0].id
-    : INCOME_CATEGORIES[0].id
+  const defaultCategory =
+    type === 'income' ? INCOME_CATEGORIES[0].id :
+    type === 'saving' ? SAVING_CATEGORIES[0].id :
+    EXPENSE_CATEGORIES[0].id
 
   const activeCategory = category || defaultCategory
 
@@ -85,7 +86,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
     setAmount(formatRupiahInput(raw))
   }
 
-  function handleTypeChange(newType: 'income' | 'expense') {
+  function handleTypeChange(newType: 'income' | 'expense' | 'saving') {
     setType(newType)
     setCategory('')
   }
@@ -146,21 +147,23 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
     <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-5">
       {/* Type Toggle */}
       <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-        {(['expense', 'income'] as const).map((t) => (
+        {([
+          { value: 'expense', label: '💸 Keluar', activeClass: 'text-red-500' },
+          { value: 'income',  label: '💰 Masuk',  activeClass: 'text-emerald-500' },
+          { value: 'saving',  label: '🏦 Tabungan', activeClass: 'text-teal-600 dark:text-teal-400' },
+        ] as const).map((t) => (
           <motion.button
-            key={t}
+            key={t.value}
             type="button"
             whileTap={{ scale: 0.97 }}
-            onClick={() => handleTypeChange(t)}
-            className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-              type === t
-                ? t === 'expense'
-                  ? 'bg-white dark:bg-slate-700 text-red-500 shadow-sm'
-                  : 'bg-white dark:bg-slate-700 text-emerald-500 shadow-sm'
+            onClick={() => handleTypeChange(t.value)}
+            className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+              type === t.value
+                ? `bg-white dark:bg-slate-700 ${t.activeClass} shadow-sm`
                 : 'text-slate-500 dark:text-slate-400'
             }`}
           >
-            {t === 'expense' ? '💸 Pengeluaran' : '💰 Pemasukan'}
+            {t.label}
           </motion.button>
         ))}
       </div>
@@ -187,7 +190,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
       {/* Merchant */}
       <Input
         label="Nama toko / keterangan"
-        placeholder={type === 'income' ? 'misal: PT. Maju Jaya' : 'misal: Indomaret, Warteg Bu Sari'}
+        placeholder={type === 'income' ? 'misal: PT. Maju Jaya' : type === 'saving' ? 'misal: BCA, Bibit, Pluang' : 'misal: Indomaret, Warteg Bu Sari'}
         value={merchant}
         onChange={(e) => setMerchant(e.target.value)}
       />

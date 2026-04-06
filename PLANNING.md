@@ -14,13 +14,13 @@
 8. [Halaman & Komponen](#8-halaman--komponen)
 9. [User Flow](#9-user-flow)
 10. [PWA Configuration](#10-pwa-configuration)
-11. [Phase Pengerjaan](#11-phase-pengerjaan)
-12. [Roadmap Pengembangan](#12-roadmap-pengembangan)
+11. [Roadmap Pengembangan](#12-roadmap-pengembangan)
 13. [SEO Strategy](#13-seo-strategy)
 14. [Monetization Roadmap](#14-monetization-roadmap)
 15. [Fitur Utang Piutang](#15-fitur-utang-piutang)
 16. [Cloud Storage Migration Plan](#16-cloud-storage-migration-plan)
 17. [Fitur Recurring Transactions](#17-fitur-recurring-transactions)
+18. [Tipe Transaksi: Saving (Tabungan & Investasi)](#18-tipe-transaksi-saving-tabungan--investasi)
 
 ---
 
@@ -963,82 +963,6 @@ export default nextConfig
 
 ---
 
-## 11. Phase Pengerjaan
-
-### Phase 1 — Foundation (Setup + Input Transaksi)
-**Output: Bisa input & simpan transaksi** ✅ SELESAI
-- [x] Setup project Next.js + TypeScript + Tailwind + next-pwa
-- [x] Setup Dexie.js (IndexedDB) — termasuk tabel `settings`
-- [x] Setup Zustand store (transaction + settings)
-- [x] Buat types & interfaces (termasuk `AISettings`)
-- [x] Buat `ai-providers.ts` (konfigurasi semua provider & model)
-- [x] Buat komponen UI dasar (Button, Card, Input, BottomSheet, Toast, Skeleton, EmptyState, Badge)
-- [x] Buat Bottom Navigation (4 tab + FAB button)
-- [x] Buat form input transaksi manual
-- [x] Buat daftar kategori + icon
-- [x] Koneksi form → IndexedDB
-- [x] Buat halaman Riwayat Transaksi (grouped by date + detail sheet + delete)
-
-### Phase 2 — Dashboard & Charts
-**Output: Dashboard dengan visualisasi data** ✅ SELESAI
-- [x] Buat halaman Dashboard (hero balance, summary income/expense)
-- [x] Buat Summary Cards (income, expense, balance di hero)
-- [x] Buat Cash Flow Status badge (Aman/Waspada/Perlu Hati-hati)
-- [x] Integrasi Recharts — MiniChart (7 hari), CashFlowChart (4 bulan), CategoryDonut
-- [x] Buat `src/lib/calculations.ts` — buildFinancialContext, formatContextForAI
-- [x] Buat halaman Laporan (CashFlowChart + CategoryDonut + summary)
-- [x] Hitung trend pengeluaran per kategori
-- [x] Buat AI Insight Card di dashboard (fetch + cache IndexedDB per hari)
-- [x] Buat `src/lib/ai-insight.ts` — getOrFetchInsight + cache IndexedDB
-
-### Phase 3 — Settings AI & AI Integration
-**Output: User bisa setup AI sendiri, insight & scanner jalan** ✅ SELESAI
-- [x] Buat halaman `/settings` (UI lengkap: provider picker, model picker, key input)
-- [x] Buat `settingsStore.ts` (Zustand + IndexedDB sync)
-- [x] AIProviderPicker, ModelPicker, APIKeyInput (inline di settings page)
-- [x] Buat Test Koneksi — `ConnectionTest.tsx` (success/rate-limit/invalid-key/error)
-- [x] Buat `/api/insight` — multi-provider dispatch (Anthropic/OpenAI/Gemini)
-- [x] Buat `/api/scan` — multi-provider dispatch vision (Anthropic/OpenAI/Gemini)
-- [x] Buat `ai-insight.ts` client lib + cache IndexedDB
-- [x] Buat AI Insight Card di dashboard (dengan cache per hari)
-- [x] Buat halaman `/scan` + upload/kamera + preview + hasil scan
-- [x] Form konfirmasi hasil scan (pre-filled dari AI, bisa diedit)
-- [x] Integrasi `browser-image-compression`
-
-### Phase 4 — Goals & Fitur Lengkap
-**Output: Semua fitur MVP berjalan** ✅ SELESAI
-- [x] Buat halaman Goals + `goalStore.ts`
-- [x] Form tambah goal/budget per kategori (bottom sheet)
-- [x] Progress bar vs actual spending (warna: hijau/kuning/merah)
-- [x] Filter & search di riwayat transaksi
-- [ ] Swipe-to-delete gesture — *pending*
-- [x] Edit transaksi
-- [x] **[NEW]** Fitur Utang Piutang (lihat Section 15)
-  - [x] Tambah interface `Debt` ke `types/index.ts`
-  - [x] Tambah tabel `debts` ke `db.ts` (Dexie version bump)
-  - [x] Buat `debtStore.ts` (Zustand + Dexie)
-  - [x] Buat halaman `/debts` (DebtCard + DebtForm inline)
-  - [x] Buat `DebtReminderBanner.tsx` → pasang di Dashboard
-  - [x] Badge overdue di BottomNav tab Utang
-  - [x] Update AI insight prompt — sertakan data hutang
-
-### Phase 5 — UI/UX Polish, Animasi & PWA
-**Output: Tampilan premium, bisa diinstall sebagai app** 🟡 SEBAGIAN SELESAI
-- [x] Integrasi Framer Motion (micro-interactions, bottom sheet, card enter)
-- [x] whileTap scale, layoutId nav indicator, AnimatePresence
-- [x] Loading skeleton di semua card
-- [x] Empty state & error state di semua halaman
-- [x] Toast notifications (global, modul-level)
-- [ ] Responsive check (mobile, tablet, desktop) — *pending*
-- [x] Setup `public/manifest.json` & PWA config (next-pwa + webpack flag)
-- [x] Konfigurasi next-pwa cache strategy (workbox)
-- [x] Buat `public/icons/` (icon.svg + icon-192.png + icon-512.png + icon-maskable-512.png)
-- [ ] Test install di Android & iOS — *pending*
-- [x] `InstallBanner.tsx` — prompt install yang elegan
-- [x] Dark mode (semua halaman & komponen — Tailwind v4 class-based)
-
----
-
 ## 12. Roadmap Pengembangan
 
 > Detail langkah-langkah coding dari awal hingga selesai. Setiap phase menghasilkan sesuatu yang bisa dijalankan.
@@ -1515,8 +1439,6 @@ vercel deploy
 - ~~Recharts~~ ✅ — MiniChart + CashFlowChart + CategoryDonut
 - ~~PWA Icons~~ ✅ — icon.svg + icon-192.png + icon-512.png + icon-maskable-512.png
 - ~~Dark mode~~ ✅ — semua halaman & komponen
-
----
 
 ---
 
@@ -2574,6 +2496,270 @@ Jika dicentang → saat simpan, buat `RecurringTemplate` sekaligus dengan `recur
 
 ---
 
+---
+
+---
+
+## 18. Tipe Transaksi: Saving (Tabungan & Investasi)
+
+> Menambahkan tipe ketiga `saving` di samping `income` dan `expense`, untuk mencatat alokasi dana ke tabungan dan investasi secara terpisah — bukan sebagai "pengeluaran konsumtif".
+
+---
+
+### 18.1 Latar Belakang & Keputusan Desain
+
+| Pertanyaan | Jawaban |
+|------------|---------|
+| Apakah tabungan = pengeluaran? | **Tidak** — uang tidak "habis", hanya berpindah ke aset |
+| Kenapa bukan tipe `transfer`? | `transfer` ambigu — bisa ke orang lain atau pembayaran |
+| Mengapa tidak cukup pakai kategori? | Tipe mempengaruhi kalkulasi balance, warna UI, dan AI insight |
+| Apakah saving mempengaruhi saldo? | **Ya** — uang keluar dari kantong, tapi ditampilkan terpisah dari expense |
+
+**Model akhir:**
+```
+income   → uang masuk (gaji, freelance, bonus, dll)
+expense  → uang keluar konsumtif (makan, transport, tagihan, dll)
+saving   → uang dialokasikan ke tabungan / investasi
+```
+
+**Formula saldo dashboard:**
+```
+Saldo Estimasi = Total Income − Total Expense − Total Saving
+```
+
+---
+
+### 18.2 Kategori Saving
+
+Tambah `SAVING_CATEGORIES` baru di `src/lib/categories.ts`:
+
+```typescript
+export const SAVING_CATEGORIES: Category[] = [
+  { id: 'tabungan',    name: 'Tabungan',      icon: '🏦', color: '#0D9488', bgColor: '#CCFBF1' },
+  { id: 'deposito',    name: 'Deposito',      icon: '💵', color: '#0891B2', bgColor: '#CFFAFE' },
+  { id: 'reksa-dana',  name: 'Reksa Dana',    icon: '📊', color: '#7C3AED', bgColor: '#EDE9FE' },
+  { id: 'saham',       name: 'Saham',         icon: '📈', color: '#16A34A', bgColor: '#DCFCE7' },
+  { id: 'crypto',      name: 'Crypto',        icon: '🪙', color: '#D97706', bgColor: '#FEF3C7' },
+  { id: 'emas',        name: 'Emas',          icon: '🥇', color: '#CA8A04', bgColor: '#FEF9C3' },
+  { id: 'dana-darurat',name: 'Dana Darurat',  icon: '🛡️', color: '#DC2626', bgColor: '#FEE2E2' },
+  { id: 'properti',    name: 'Properti',      icon: '🏠', color: '#64748B', bgColor: '#F1F5F9' },
+  { id: 'other-saving',name: 'Lainnya',       icon: '📦', color: '#64748B', bgColor: '#F1F5F9' },
+]
+```
+
+**Catatan:** Hapus kategori `savings` dari `EXPENSE_CATEGORIES` (saat ini ada `id: 'savings'`) karena sudah pindah ke tipe `saving`.
+
+---
+
+### 18.3 Perubahan Type System
+
+**File: `src/types/index.ts`**
+
+```typescript
+// Sebelum
+type: 'income' | 'expense'
+
+// Sesudah
+type: 'income' | 'expense' | 'saving'
+```
+
+Update semua interface yang menggunakan union ini:
+- `Transaction.type`
+- `RecurringTemplate.type`
+
+Update `FinancialContext`:
+```typescript
+export interface FinancialContext {
+  total_income: number
+  total_expense: number
+  total_saving: number        // ← BARU
+  saving_rate: number         // ← BARU: total_saving / total_income * 100 (%)
+  cash_flow_status: 'positive' | 'neutral' | 'negative'
+  balance: number             // income - expense - saving
+  // ...field lainnya tetap
+}
+```
+
+---
+
+### 18.4 File yang Terkena Perubahan
+
+| # | File | Jenis Perubahan |
+|---|------|-----------------|
+| 1 | `src/types/index.ts` | Tambah `'saving'` ke union type `Transaction.type` & `RecurringTemplate.type`; tambah `total_saving` & `saving_rate` ke `FinancialContext` |
+| 2 | `src/lib/categories.ts` | Tambah `SAVING_CATEGORIES[]`; hapus `savings` dari `EXPENSE_CATEGORIES`; update `getCategoryById` & `getCategoryName` untuk terima `'saving'` |
+| 3 | `src/lib/calculations.ts` | Hitung `total_saving` & `saving_rate`; update rumus `balance = income - expense - saving`; update `buildFinancialContext` |
+| 4 | `src/components/transactions/TransactionForm.tsx` | Tambah tab/toggle ketiga "Tabungan" di type selector; tampilkan `SAVING_CATEGORIES` saat type='saving' |
+| 5 | `src/components/transactions/CategoryPicker.tsx` | Terima prop `type: 'income' \| 'expense' \| 'saving'`; tampilkan `SAVING_CATEGORIES` untuk type saving |
+| 6 | `src/components/transactions/TransactionItem.tsx` | Tambah warna & ikon untuk type saving (warna: teal/emerald, ikon piggy bank atau chart) |
+| 7 | `src/components/transactions/TransactionList.tsx` | Update filter & group jika ada filter per tipe |
+| 8 | `src/app/page.tsx` (Dashboard) | Tambah summary card "Tabungan" di samping Income & Expense; update hero balance menggunakan rumus baru |
+| 9 | `src/app/reports/page.tsx` | Tambah section tabungan/investasi: total saving bulan ini, breakdown per kategori saving, saving rate % |
+| 10 | `src/components/reports/CashFlowChart.tsx` | Tambah bar ketiga (saving) di grouped bar chart — warna teal |
+| 11 | `src/components/reports/CategoryDonut.tsx` | Tambah toggle: tampilkan donut expense ATAU donut saving |
+| 12 | `src/app/goals/page.tsx` | Goals hanya berlaku untuk tipe `expense` — filter kategori saving dari goal picker |
+| 13 | `src/app/recurring/page.tsx` | Tambah opsi type='saving' di form recurring template |
+| 14 | `src/app/api/insight/route.ts` | Update prompt AI — sertakan `total_saving`, `saving_rate`, dan konteks positif jika user rajin menabung |
+| 15 | `src/app/scan/page.tsx` | Scan default type tetap `expense`; user bisa ganti ke `saving` manual jika perlu |
+
+---
+
+### 18.5 Logika Warna & Visual untuk Tipe Saving
+
+```
+income  → hijau  (Emerald-500, #10B981)
+expense → merah  (Red-500, #EF4444)
+saving  → teal   (Teal-500, #14B8A6)
+```
+
+Di `TransactionItem.tsx`:
+```tsx
+const typeConfig = {
+  income:  { color: 'text-emerald-600', bg: 'bg-emerald-50', prefix: '+', label: 'Pemasukan' },
+  expense: { color: 'text-red-500',     bg: 'bg-red-50',     prefix: '-', label: 'Pengeluaran' },
+  saving:  { color: 'text-teal-600',    bg: 'bg-teal-50',    prefix: '→', label: 'Tabungan' },
+}
+```
+
+---
+
+### 18.6 Perubahan Dashboard
+
+**Summary Cards** (saat ini: Income + Expense):
+
+```
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ 💰 Pemasukan │  │ 💸 Pengeluaran│  │ 🏦 Tabungan  │
+│  Rp 5.000.000│  │  Rp 2.500.000│  │  Rp 500.000  │
+└──────────────┘  └──────────────┘  └──────────────┘
+```
+
+**Hero Card** — Saldo Estimasi:
+```
+Saldo Estimasi = Income − Expense − Saving
+               = 5.000.000 − 2.500.000 − 500.000
+               = Rp 2.000.000
+```
+
+**Cash Flow Status** tetap berdasarkan `balance` (bukan expense saja).
+
+---
+
+### 18.7 Perubahan AI Insight
+
+Update context yang dikirim ke AI prompt di `src/app/api/insight/route.ts`:
+
+```
+Bulan ini:
+- Pemasukan: Rp 5.000.000
+- Pengeluaran: Rp 2.500.000
+- Tabungan/Investasi: Rp 500.000 (saving rate: 10%)
+- Saldo estimasi: Rp 2.000.000
+```
+
+AI bisa memberikan insight seperti:
+- *"Kamu sudah menabung 10% dari pendapatan bulan ini — pertahankan!"*
+- *"Saving rate kamu masih di bawah 20%, coba tingkatkan sedikit."*
+- *"Belum ada alokasi tabungan bulan ini — coba sisihkan minimal 10% dari gaji."*
+
+---
+
+### 18.8 Langkah Implementasi
+
+| # | File | Aksi |
+|---|------|------|
+| 1 | `src/types/index.ts` | Tambah `'saving'` ke union, tambah `total_saving` & `saving_rate` ke `FinancialContext` |
+| 2 | `src/lib/categories.ts` | Tambah `SAVING_CATEGORIES`, hapus `savings` dari `EXPENSE_CATEGORIES`, update helper functions |
+| 3 | `src/lib/calculations.ts` | Update `buildFinancialContext` — hitung saving, saving rate, update balance |
+| 4 | `src/components/transactions/CategoryPicker.tsx` | Handle type `'saving'` → tampilkan SAVING_CATEGORIES |
+| 5 | `src/components/transactions/TransactionForm.tsx` | Tambah tab "Tabungan" ke type selector |
+| 6 | `src/components/transactions/TransactionItem.tsx` | Tambah visual config untuk type saving |
+| 7 | `src/app/page.tsx` | Tambah Summary Card tabungan, update balance formula |
+| 8 | `src/components/reports/CashFlowChart.tsx` | Tambah bar saving (teal) ke grouped chart |
+| 9 | `src/components/reports/CategoryDonut.tsx` | Tambah toggle expense/saving donut |
+| 10 | `src/app/reports/page.tsx` | Tampilkan saving rate + breakdown saving |
+| 11 | `src/app/goals/page.tsx` | Filter saving dari category picker goals |
+| 12 | `src/app/recurring/page.tsx` | Tambah opsi type saving di form recurring |
+| 13 | `src/app/api/insight/route.ts` | Update prompt dengan data saving |
+| 14 | `src/lib/migrations.ts` | Buat fungsi `migrateSavingsFromExpense()` — one-time migration data lama |
+| 15 | `src/stores/transactionStore.ts` | Panggil `migrateSavingsFromExpense()` di awal `loadTransactions()` |
+
+---
+
+### 18.9 FAB Expand Menu — Keputusan
+
+FAB saat ini sudah memiliki radial menu dengan 3 item: **Scan** (150°), **Utang** (90°), **Settings** (30°).
+
+**Keputusan: Tidak tambah item FAB baru untuk Saving.**
+
+Alasan:
+- 4 item radial di mobile mulai terasa sesak
+- Entry point saving sudah ada di form transaksi — user tap FAB utama → form terbuka → pilih tab "Tabungan"
+- Konsisten dengan UX yang sudah ada (expense & income juga tidak punya shortcut FAB sendiri)
+
+```
+[FAB utama] → bottom sheet TransactionForm
+               ├── Tab: Pengeluaran  (default)
+               ├── Tab: Pemasukan
+               └── Tab: Tabungan  ← tab baru
+```
+
+---
+
+### 18.10 Migrasi Data Lama
+
+**Masalah:** Sebelum fitur ini ada, kategori `savings` sudah ada di `EXPENSE_CATEGORIES`. User yang pernah input tabungan sebagai pengeluaran akan memiliki data:
+```
+{ type: 'expense', category: 'savings', amount: ... }
+```
+
+**Dampak jika tidak dimigrasi:**
+- `total_expense` tercampur dengan nilai tabungan → laporan tidak akurat
+- `total_saving` = 0 meski user sudah pernah mencatat tabungan
+- AI insight salah baca kondisi keuangan user
+
+**Solusi: One-time auto-migration saat app load**
+
+```typescript
+// src/lib/migrations.ts (file baru)
+export async function migrateSavingsFromExpense() {
+  const FLAG = 'hematin_migration_saving_v1'
+  if (localStorage.getItem(FLAG)) return // sudah pernah jalan, skip
+
+  await db.transactions
+    .where({ type: 'expense', category: 'savings' })
+    .modify({ type: 'saving', category: 'tabungan' })
+
+  localStorage.setItem(FLAG, '1')
+}
+```
+
+Panggil di `transactionStore.ts` → `loadTransactions()` sebelum fetch data:
+```typescript
+await migrateSavingsFromExpense()
+const txs = await db.transactions.toArray()
+```
+
+**Properti migrasi:**
+- Otomatis, satu kali, tidak butuh konfirmasi user
+- Intent jelas: user pilih kategori "Tabungan" di expense = maksudnya menabung
+- Flag di localStorage → tidak pernah jalan ulang meski app di-refresh
+
+---
+
+### 18.11 Edge Cases & Catatan
+
+| Case | Handling |
+|------|----------|
+| Data lama `type: 'expense', category: 'savings'` | Auto-migrate ke `type: 'saving', category: 'tabungan'` saat pertama load (Section 18.10) |
+| User scan struk → default type | Tetap `expense` — scanner tidak akan otomatis detect saving |
+| Goals untuk kategori saving | Tidak relevan — goals hanya untuk expense; filter saving dari goal picker |
+| Recurring template type saving | Boleh — cocok untuk cicilan investasi rutin (e.g., reksa dana otomatis tiap tanggal 1) |
+| `saving_rate` jika income = 0 | Tampilkan `0%` — guard division by zero |
+| Migration gagal (IndexedDB error) | Log error, tidak set flag → akan retry di load berikutnya |
+
+---
+
 *Dokumen ini adalah living document — akan diupdate seiring pengerjaan.*
 
-*Dibuat: 26 Februari 2026 | Terakhir diupdate: 3 Maret 2026 (v10 — Phase 4C Recurring Transactions selesai diimplementasi)*
+*Dibuat: 26 Februari 2026 | Terakhir diupdate: 6 April 2026 (v12 — Section 18 lengkap: FAB decision, migrasi data lama; hapus duplikat Section 11)*

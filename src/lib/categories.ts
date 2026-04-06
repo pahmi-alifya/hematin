@@ -8,7 +8,6 @@ export const EXPENSE_CATEGORIES: Category[] = [
   { id: 'entertainment', name: 'Hiburan', icon: '🎮', color: '#DB2777', bgColor: '#FCE7F3' },
   { id: 'bills', name: 'Tagihan', icon: '📋', color: '#DC2626', bgColor: '#FEE2E2' },
   { id: 'education', name: 'Pendidikan', icon: '📚', color: '#0891B2', bgColor: '#CFFAFE' },
-  { id: 'savings', name: 'Tabungan', icon: '💳', color: '#0D9488', bgColor: '#CCFBF1' },
   { id: 'other', name: 'Lainnya', icon: '📦', color: '#64748B', bgColor: '#F1F5F9' },
 ]
 
@@ -21,11 +20,24 @@ export const INCOME_CATEGORIES: Category[] = [
   { id: 'other-income', name: 'Lainnya', icon: '✨', color: '#64748B', bgColor: '#F1F5F9' },
 ]
 
-export function getCategoryById(id: string, type: 'income' | 'expense'): Category | undefined {
-  const list = type === 'income' ? INCOME_CATEGORIES : EXPENSE_CATEGORIES
-  return list.find((c) => c.id === id)
+export const SAVING_CATEGORIES: Category[] = [
+  { id: 'tabungan', name: 'Tabungan', icon: '🏦', color: '#0D9488', bgColor: '#CCFBF1' },
+  { id: 'deposito', name: 'Deposito', icon: '💵', color: '#0891B2', bgColor: '#CFFAFE' },
+  { id: 'reksa-dana', name: 'Reksa Dana', icon: '📊', color: '#7C3AED', bgColor: '#EDE9FE' },
+  { id: 'saham', name: 'Saham', icon: '📈', color: '#16A34A', bgColor: '#DCFCE7' },
+  { id: 'crypto', name: 'Crypto', icon: '🪙', color: '#D97706', bgColor: '#FEF3C7' },
+  { id: 'emas', name: 'Emas', icon: '🥇', color: '#CA8A04', bgColor: '#FEF9C3' },
+  { id: 'dana-darurat', name: 'Dana Darurat', icon: '🛡️', color: '#DC2626', bgColor: '#FEE2E2' },
+  { id: 'properti', name: 'Properti', icon: '🏠', color: '#64748B', bgColor: '#F1F5F9' },
+  { id: 'other-saving', name: 'Lainnya', icon: '📦', color: '#64748B', bgColor: '#F1F5F9' },
+]
+
+export function getCategoryById(id: string, type: 'income' | 'expense' | 'saving'): Category | undefined {
+  if (type === 'income') return INCOME_CATEGORIES.find((c) => c.id === id)
+  if (type === 'saving') return SAVING_CATEGORIES.find((c) => c.id === id)
+  return EXPENSE_CATEGORIES.find((c) => c.id === id)
 }
 
-export function getCategoryName(id: string, type: 'income' | 'expense'): string {
+export function getCategoryName(id: string, type: 'income' | 'expense' | 'saving'): string {
   return getCategoryById(id, type)?.name ?? id
 }

@@ -43,7 +43,7 @@ function DayPicker({ value, onChange }: { value: number; onChange: (day: number)
 }
 
 interface TemplateFormData {
-  type: 'income' | 'expense'
+  type: 'income' | 'expense' | 'saving'
   amount: string
   amountRaw: number
   category: string
@@ -55,7 +55,7 @@ interface TemplateFormData {
 
 function getInitialForm(template?: RecurringTemplate): TemplateFormData {
   return {
-    type: template?.type ?? 'expense',
+    type: (template?.type ?? 'expense') as 'income' | 'expense' | 'saving',
     amount: template?.amount ? formatRupiahInput(template.amount) : '',
     amountRaw: template?.amount ?? 0,
     category: template?.category ?? '',
@@ -190,7 +190,7 @@ export default function RecurringPage() {
     setForm((f) => ({ ...f, amountRaw: raw, amount: formatRupiahInput(raw) }))
   }
 
-  function handleTypeChange(type: 'income' | 'expense') {
+  function handleTypeChange(type: 'income' | 'expense' | 'saving') {
     setForm((f) => ({ ...f, type, category: '' }))
   }
 
@@ -201,7 +201,7 @@ export default function RecurringPage() {
       return
     }
 
-    const activeCategory = form.category || (form.type === 'expense' ? 'makanan' : 'gaji')
+    const activeCategory = form.category || (form.type === 'income' ? 'gaji' : form.type === 'saving' ? 'tabungan' : 'makanan')
 
     setSubmitting(true)
     try {
@@ -357,21 +357,23 @@ export default function RecurringPage() {
         <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-5">
           {/* Type Toggle */}
           <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-            {(['expense', 'income'] as const).map((t) => (
+            {([
+              { value: 'expense', label: '💸 Keluar',   activeClass: 'text-red-500' },
+              { value: 'income',  label: '💰 Masuk',    activeClass: 'text-emerald-500' },
+              { value: 'saving',  label: '🏦 Tabungan', activeClass: 'text-teal-600 dark:text-teal-400' },
+            ] as const).map((t) => (
               <motion.button
-                key={t}
+                key={t.value}
                 type="button"
                 whileTap={{ scale: 0.97 }}
-                onClick={() => handleTypeChange(t)}
-                className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  form.type === t
-                    ? t === 'expense'
-                      ? 'bg-white dark:bg-slate-700 text-red-500 shadow-sm'
-                      : 'bg-white dark:bg-slate-700 text-emerald-500 shadow-sm'
+                onClick={() => handleTypeChange(t.value)}
+                className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                  form.type === t.value
+                    ? `bg-white dark:bg-slate-700 ${t.activeClass} shadow-sm`
                     : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
-                {t === 'expense' ? '💸 Pengeluaran' : '💰 Pemasukan'}
+                {t.label}
               </motion.button>
             ))}
           </div>
@@ -399,7 +401,7 @@ export default function RecurringPage() {
           {/* Category */}
           <CategoryPicker
             type={form.type}
-            selected={form.category || (form.type === 'expense' ? 'makanan' : 'gaji')}
+            selected={form.category || (form.type === 'income' ? 'gaji' : form.type === 'saving' ? 'tabungan' : 'makanan')}
             onSelect={(cat) => setForm((f) => ({ ...f, category: cat }))}
           />
 

@@ -31,6 +31,7 @@ function buildData(transactions: Transaction[], currentMonth: string, count: num
       label,
       income: monthTx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
       expense: monthTx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+      saving: monthTx.filter((t) => t.type === 'saving').reduce((s, t) => s + t.amount, 0),
     }
   })
 }
@@ -60,9 +61,9 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
       {payload.map((p) => (
         <p
           key={p.name}
-          className={p.name === 'income' ? 'text-emerald-600' : 'text-red-500'}
+          className={p.name === 'income' ? 'text-emerald-600' : p.name === 'saving' ? 'text-teal-600' : 'text-red-500'}
         >
-          {p.name === 'income' ? '+' : '-'}{fmt(p.value)}
+          {p.name === 'income' ? '+' : p.name === 'saving' ? '→' : '-'}{fmt(p.value)}
         </p>
       ))}
     </div>
@@ -90,16 +91,20 @@ export function CashFlowChart({ transactions, currentMonth, months = 4 }: CashFl
             width={36}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(14,165,233,0.06)', radius: 4 }} />
-          <Bar dataKey="income" name="income" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={18} />
-          <Bar dataKey="expense" name="expense" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={18} />
+          <Bar dataKey="income" name="income" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={14} />
+          <Bar dataKey="expense" name="expense" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={14} />
+          <Bar dataKey="saving" name="saving" fill="#14B8A6" radius={[4, 4, 0, 0]} maxBarSize={14} />
         </BarChart>
       </ResponsiveContainer>
-      <div className="flex items-center gap-4 mt-1 justify-center">
+      <div className="flex items-center gap-3 mt-1 justify-center flex-wrap">
         <span className="flex items-center gap-1.5 text-xs text-slate-400">
           <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" /> Pemasukan
         </span>
         <span className="flex items-center gap-1.5 text-xs text-slate-400">
           <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> Pengeluaran
+        </span>
+        <span className="flex items-center gap-1.5 text-xs text-slate-400">
+          <span className="w-2.5 h-2.5 rounded-sm bg-teal-500 inline-block" /> Tabungan
         </span>
       </div>
     </div>
