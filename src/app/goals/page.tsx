@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Target, Plus, Trash2, ChevronDown } from 'lucide-react'
+import { Target, Plus, Trash2, ChevronDown, Pencil } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
 import { PageWrapper } from '@/components/layout/PageWrapper'
 import { BottomNav } from '@/components/layout/BottomNav'
@@ -21,9 +21,10 @@ interface GoalCardProps {
   spent: number
   goalId: string
   onDelete: (id: string) => void
+  onEdit: (goalId: string, category: string, limit: number) => void
 }
 
-function GoalCard({ category, limit, spent, goalId, onDelete }: GoalCardProps) {
+function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCardProps) {
   const cat = EXPENSE_CATEGORIES.find((c) => c.id === category)
   const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
   const remaining = limit - spent
@@ -56,12 +57,20 @@ function GoalCard({ category, limit, spent, goalId, onDelete }: GoalCardProps) {
             <p className="text-xs text-slate-400 dark:text-slate-500">Limit {formatRupiah(limit)}</p>
           </div>
         </div>
-        <button
-          onClick={() => onDelete(goalId)}
-          className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => onEdit(goalId, category, limit)}
+            className="p-1.5 text-slate-400 hover:text-sky-500 transition-colors"
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete(goalId)}
+            className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Progress bar */}
@@ -95,6 +104,9 @@ export default function GoalsPage() {
   const [selectedCategory, setSelectedCategory] = useState(EXPENSE_CATEGORIES[0].id)
   const [limitInput, setLimitInput] = useState('')
   const [saving, setSaving] = useState(false)
+  const [editingGoal, setEditingGoal] = useState<{ id: string; category: string } | null>(null)
+  const [editLimitInput, setEditLimitInput] = useState('')
+  const [editSaving, setEditSaving] = useState(false)
 
   const currentMonth = getCurrentMonth()
 
@@ -117,6 +129,14 @@ export default function GoalsPage() {
       })
     return map
   }, [transactions, currentMonth])
+
+  const totalLimit = useMemo(() => monthGoals.reduce((s, g) => s + g.limitAmount, 0), [monthGoals])
+  const totalSpent = useMemo(
+    () => monthGoals.reduce((s, g) => s + (spentByCategory[g.category] ?? 0), 0),
+    [monthGoals, spentByCategory]
+  )
+  const totalPercentage = totalLimit > 0 ? Math.min((totalSpent / totalLimit) * 100, 100) : 0
+  const totalOver = totalSpent > totalLimit
 
   // Categories without a goal set yet
   const availableCategories = EXPENSE_CATEGORIES.filter(
@@ -148,6 +168,30 @@ export default function GoalsPage() {
     toast('Limit dihapus', 'success')
   }
 
+  function openEdit(goalId: string, category: string, limit: number) {
+    setEditingGoal({ id: goalId, category })
+    setEditLimitInput(formatRupiahInput(limit))
+  }
+
+  async function handleEditSave() {
+    if (!editingGoal) return
+    const amount = parseRupiahInput(editLimitInput)
+    if (!amount || amount <= 0) {
+      toast('Masukkan jumlah limit yang valid', 'error')
+      return
+    }
+    setEditSaving(true)
+    try {
+      await setGoal({ category: editingGoal.category, limitAmount: amount })
+      toast('Limit berhasil diperbarui', 'success')
+      setEditingGoal(null)
+    } catch {
+      toast('Gagal memperbarui limit', 'error')
+    } finally {
+      setEditSaving(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
       <Header title="Batas Pengeluaran" />
@@ -166,6 +210,36 @@ export default function GoalsPage() {
               </div>
             </div>
           </div>
+
+          {/* Summary card */}
+          {monthGoals.length > 0 && (
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 space-y-3">
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ringkasan Bulan Ini</p>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">Total Budget</p>
+                  <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{formatRupiah(totalLimit)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">Terpakai</p>
+                  <p className={`text-sm font-bold ${totalOver ? 'text-red-500' : 'text-slate-800 dark:text-slate-100'}`}>{formatRupiah(totalSpent)}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{totalOver ? 'Melebihi' : 'Sisa'}</p>
+                  <p className={`text-sm font-bold ${totalOver ? 'text-red-500' : 'text-emerald-500'}`}>{formatRupiah(Math.abs(totalLimit - totalSpent))}</p>
+                </div>
+              </div>
+              <div className="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${totalPercentage}%` }}
+                  transition={{ duration: 0.7, ease: 'easeOut' }}
+                  className={`h-full rounded-full ${totalOver ? 'bg-red-500' : totalPercentage >= 80 ? 'bg-amber-400' : 'bg-sky-500'}`}
+                />
+              </div>
+              <p className="text-xs text-slate-400 dark:text-slate-500 text-right">{totalPercentage.toFixed(0)}% dari total budget</p>
+            </div>
+          )}
 
           {/* Add button */}
           {availableCategories.length > 0 && (
@@ -206,6 +280,7 @@ export default function GoalsPage() {
                     limit={goal.limitAmount}
                     spent={spentByCategory[goal.category] ?? 0}
                     onDelete={handleDelete}
+                    onEdit={openEdit}
                   />
                 ))}
               </div>
@@ -262,6 +337,47 @@ export default function GoalsPage() {
             Simpan Batas
           </Button>
         </div>
+      </BottomSheet>
+
+      {/* Edit Goal Sheet */}
+      <BottomSheet
+        open={!!editingGoal}
+        onClose={() => setEditingGoal(null)}
+        title="Edit Batas Pengeluaran"
+      >
+        {editingGoal && (() => {
+          const cat = EXPENSE_CATEGORIES.find((c) => c.id === editingGoal.category)
+          return (
+            <div className="px-5 pb-6 space-y-4">
+              <div className="flex items-center gap-2.5 py-2">
+                <div
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                  style={{ backgroundColor: cat?.bgColor ?? '#F1F5F9' }}
+                >
+                  {cat?.icon ?? '📦'}
+                </div>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{cat?.name ?? editingGoal.category}</p>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Jumlah</p>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 dark:text-slate-400">Rp</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={editLimitInput}
+                    onChange={(e) => setEditLimitInput(formatRupiahInput(parseRupiahInput(e.target.value)))}
+                    placeholder="0"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
+                  />
+                </div>
+              </div>
+              <Button variant="primary" fullWidth loading={editSaving} onClick={handleEditSave}>
+                Perbarui Batas
+              </Button>
+            </div>
+          )
+        })()}
       </BottomSheet>
     </div>
   )
