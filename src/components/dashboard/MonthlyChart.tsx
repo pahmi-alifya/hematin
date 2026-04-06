@@ -36,28 +36,30 @@ function buildDailyData(transactions: Transaction[], month: string) {
     const day = i + 1
     const dateStr = `${month}-${String(day).padStart(2, '0')}`
     const dayTx = transactions.filter((t) => t.date === dateStr)
-    const income = dayTx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
+    const income  = dayTx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
     const expense = dayTx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-    return { day, dateStr, income, expense, isToday: dateStr === today }
+    const saving  = dayTx.filter((t) => t.type === 'saving').reduce((s, t) => s + t.amount, 0)
+    return { day, dateStr, income, expense, saving, isToday: dateStr === today }
   })
 }
 
 interface TooltipProps {
   active?: boolean
-  payload?: Array<{ payload: { dateStr: string; income: number; expense: number } }>
+  payload?: Array<{ payload: { dateStr: string; income: number; expense: number; saving: number } }>
 }
 
 function CustomTooltip({ active, payload }: TooltipProps) {
   if (!active || !payload?.length) return null
   const d = payload[0]?.payload
-  if (!d || (d.income === 0 && d.expense === 0)) return null
+  if (!d || (d.income === 0 && d.expense === 0 && d.saving === 0)) return null
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-sky-100 dark:border-slate-700 px-3 py-2 text-xs pointer-events-none space-y-1">
       <p className="font-semibold text-slate-500 dark:text-slate-400 mb-1">
         {format(parseISO(d.dateStr), 'd MMM', { locale: id })}
       </p>
-      {d.income > 0 && <p className="text-emerald-600 font-semibold">+{formatRupiah(d.income)}</p>}
+      {d.income  > 0 && <p className="text-emerald-600 font-semibold">+{formatRupiah(d.income)}</p>}
       {d.expense > 0 && <p className="text-red-500 font-semibold">-{formatRupiah(d.expense)}</p>}
+      {d.saving  > 0 && <p className="text-teal-600 font-semibold">→{formatRupiah(d.saving)}</p>}
     </div>
   )
 }
@@ -92,10 +94,11 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
 
   const monthLabel = format(parseISO(month + '-01'), 'MMMM yyyy', { locale: id })
   const data = useMemo(() => buildDailyData(transactions, month), [transactions, month])
-  const totalIncome = useMemo(() => data.reduce((s, d) => s + d.income, 0), [data])
+  const totalIncome  = useMemo(() => data.reduce((s, d) => s + d.income,  0), [data])
   const totalExpense = useMemo(() => data.reduce((s, d) => s + d.expense, 0), [data])
-  const balance = totalIncome - totalExpense
-  const hasData = totalIncome > 0 || totalExpense > 0
+  const totalSaving  = useMemo(() => data.reduce((s, d) => s + d.saving,  0), [data])
+  const balance = totalIncome - totalExpense - totalSaving
+  const hasData = totalIncome > 0 || totalExpense > 0 || totalSaving > 0
 
   return (
     <div className="w-full">
@@ -121,34 +124,49 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
         </div>
       )}
 
-      {/* Summary stats */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="flex flex-col items-center gap-0.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl py-2.5 px-1">
-          <TrendingUp className="w-3.5 h-3.5 text-emerald-500 mb-0.5" />
-          <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Masuk</p>
-          <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 text-center leading-tight">
-            {formatRupiah(totalIncome)}
-          </p>
+      {/* Summary stats — 2×2 grid */}
+      <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl py-2.5 px-3">
+          <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+          <div>
+            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Masuk</p>
+            <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 leading-tight">
+              {formatRupiah(totalIncome)}
+            </p>
+          </div>
         </div>
-        <div className="flex flex-col items-center gap-0.5 bg-red-50 dark:bg-red-900/20 rounded-xl py-2.5 px-1">
-          <TrendingDown className="w-3.5 h-3.5 text-red-500 mb-0.5" />
-          <p className="text-[10px] text-red-500 font-medium">Keluar</p>
-          <p className="text-xs font-bold text-red-600 dark:text-red-400 text-center leading-tight">
-            {formatRupiah(totalExpense)}
-          </p>
+        <div className="flex items-center gap-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl py-2.5 px-3">
+          <TrendingDown className="w-3.5 h-3.5 text-red-500 shrink-0" />
+          <div>
+            <p className="text-[10px] text-red-500 font-medium">Keluar</p>
+            <p className="text-xs font-bold text-red-600 dark:text-red-400 leading-tight">
+              {formatRupiah(totalExpense)}
+            </p>
+          </div>
         </div>
-        <div className={`flex flex-col items-center gap-0.5 rounded-xl py-2.5 px-1 ${
+        <div className="flex items-center gap-2.5 bg-teal-50 dark:bg-teal-900/20 rounded-xl py-2.5 px-3">
+          <span className="text-sm shrink-0">🏦</span>
+          <div>
+            <p className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">Tabungan</p>
+            <p className="text-xs font-bold text-teal-700 dark:text-teal-300 leading-tight">
+              {formatRupiah(totalSaving)}
+            </p>
+          </div>
+        </div>
+        <div className={`flex items-center gap-2.5 rounded-xl py-2.5 px-3 ${
           balance >= 0 ? 'bg-sky-50 dark:bg-sky-900/20' : 'bg-orange-50 dark:bg-orange-900/20'
         }`}>
-          <Wallet className={`w-3.5 h-3.5 mb-0.5 ${balance >= 0 ? 'text-sky-500' : 'text-orange-500'}`} />
-          <p className={`text-[10px] font-medium ${balance >= 0 ? 'text-sky-600 dark:text-sky-400' : 'text-orange-500'}`}>
-            Saldo
-          </p>
-          <p className={`text-xs font-bold text-center leading-tight ${
-            balance >= 0 ? 'text-sky-700 dark:text-sky-300' : 'text-orange-600 dark:text-orange-400'
-          }`}>
-            {balance >= 0 ? '' : '-'}{formatRupiah(Math.abs(balance))}
-          </p>
+          <Wallet className={`w-3.5 h-3.5 shrink-0 ${balance >= 0 ? 'text-sky-500' : 'text-orange-500'}`} />
+          <div>
+            <p className={`text-[10px] font-medium ${balance >= 0 ? 'text-sky-600 dark:text-sky-400' : 'text-orange-500'}`}>
+              Saldo
+            </p>
+            <p className={`text-xs font-bold leading-tight ${
+              balance >= 0 ? 'text-sky-700 dark:text-sky-300' : 'text-orange-600 dark:text-orange-400'
+            }`}>
+              {balance >= 0 ? '' : '-'}{formatRupiah(Math.abs(balance))}
+            </p>
+          </div>
         </div>
       </div>
 
@@ -169,31 +187,34 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
                 interval={0}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(14,165,233,0.06)', radius: 4 }} />
-              <Bar dataKey="income" name="income" radius={[2, 2, 0, 0]} maxBarSize={8}>
+              <Bar dataKey="income" name="income" radius={[2, 2, 0, 0]} maxBarSize={6}>
                 {data.map((entry) => (
                   <Cell key={entry.dateStr} fill={entry.isToday ? '#059669' : '#6EE7B7'} />
                 ))}
               </Bar>
-              <Bar dataKey="expense" name="expense" radius={[2, 2, 0, 0]} maxBarSize={8}>
+              <Bar dataKey="expense" name="expense" radius={[2, 2, 0, 0]} maxBarSize={6}>
                 {data.map((entry) => (
                   <Cell key={entry.dateStr} fill={entry.isToday ? '#DC2626' : '#FCA5A5'} />
+                ))}
+              </Bar>
+              <Bar dataKey="saving" name="saving" radius={[2, 2, 0, 0]} maxBarSize={6}>
+                {data.map((entry) => (
+                  <Cell key={entry.dateStr} fill={entry.isToday ? '#0F766E' : '#99F6E4'} />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
 
-          <div className="flex items-center gap-4 mt-1.5 justify-center">
+          <div className="flex items-center gap-3 mt-1.5 justify-center flex-wrap">
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
-              <span className="w-2 h-2 rounded-sm bg-emerald-400 inline-block" /> Pemasukan
+              <span className="w-2 h-2 rounded-sm bg-emerald-400 inline-block" /> Masuk
             </span>
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
-              <span className="w-2 h-2 rounded-sm bg-red-400 inline-block" /> Pengeluaran
+              <span className="w-2 h-2 rounded-sm bg-red-400 inline-block" /> Keluar
             </span>
-            {isCurrentMonth && (
-              <span className="flex items-center gap-1 text-[10px] text-slate-400">
-                <span className="w-2 h-2 rounded-sm bg-emerald-600 inline-block" /> Hari ini
-              </span>
-            )}
+            <span className="flex items-center gap-1 text-[10px] text-slate-400">
+              <span className="w-2 h-2 rounded-sm bg-teal-300 inline-block" /> Tabungan
+            </span>
           </div>
         </>
       )}
