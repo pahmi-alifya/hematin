@@ -23,7 +23,7 @@ const APP_DESCRIPTION =
 
 export const metadata: Metadata = {
   metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.app",
+    process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app",
   ),
   title: {
     default: "HEMATIN — Asisten Keuangan Harian Berbasis AI",
@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   },
   description: APP_DESCRIPTION,
   keywords: [
+    "hematin",
+    "hematin app",
+    "hematin keuangan",
     "aplikasi keuangan pribadi",
     "catat pengeluaran harian",
     "cash flow harian",
@@ -38,6 +41,7 @@ export const metadata: Metadata = {
     "asisten keuangan AI",
     "aplikasi budgeting indonesia",
     "pencatatan keuangan gratis",
+    "manajemen keuangan harian",
   ],
   verification: { google: "ad5ddca25974693b" },
   authors: [{ name: "HEMATIN" }],
@@ -75,6 +79,9 @@ export const metadata: Metadata = {
     title: "HEMATIN",
   },
   formatDetection: { telephone: false },
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app",
+  },
 };
 
 export const viewport: Viewport = {
@@ -102,6 +109,32 @@ export default function RootLayout({
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('hematin-theme');var d=window.matchMedia('(prefers-color-scheme: dark)').matches;if(t==='dark'||(t===null&&d))document.documentElement.classList.add('dark')}catch(e){}})()`,
+          }}
+        />
+        {/* JSON-LD Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebApplication",
+              name: "HEMATIN",
+              alternateName: "Hematin App",
+              url: process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app",
+              description: APP_DESCRIPTION,
+              applicationCategory: "FinanceApplication",
+              operatingSystem: "Web, Android, iOS",
+              offers: { "@type": "Offer", price: "0", priceCurrency: "IDR" },
+              inLanguage: "id",
+              author: { "@type": "Organization", name: "HEMATIN" },
+              featureList: [
+                "Catat pemasukan dan pengeluaran harian",
+                "Scan struk belanja dengan AI",
+                "Insight keuangan berbasis AI",
+                "Laporan bulanan otomatis",
+                "Tidak perlu login, data tersimpan di perangkat",
+              ],
+            }),
           }}
         />
       </head>
