@@ -122,7 +122,8 @@ export default function ReportsPage() {
     const daysElapsed = isCurrentMonth ? new Date().getDate() : daysInMonth
 
     const avgExpense = daysElapsed > 0 ? expense / daysElapsed : 0
-    const avgIncome = daysElapsed > 0 ? income / daysElapsed : 0
+    const avgIncome  = daysElapsed > 0 ? income  / daysElapsed : 0
+    const avgSaving  = daysElapsed > 0 ? saving  / daysElapsed : 0
 
     // Hari paling boros
     const expenseByDay: Record<string, number> = {}
@@ -132,19 +133,18 @@ export default function ReportsPage() {
         expenseByDay[t.date] = (expenseByDay[t.date] ?? 0) + t.amount
       })
     const busiestEntry = Object.entries(expenseByDay).sort(([, a], [, b]) => b - a)[0]
-    const busiestDay = busiestEntry
-      ? format(parseISO(busiestEntry[0]), "EEE, d MMM", { locale: id })
-      : null
+    const busiestDay    = busiestEntry ? format(parseISO(busiestEntry[0]), "EEE, d MMM", { locale: id }) : null
     const busiestAmount = busiestEntry?.[1] ?? 0
 
-    // Hari aktif (ada pengeluaran)
-    const activeDays = Object.keys(expenseByDay).length
+    // Hari aktif (ada transaksi apapun)
+    const activeDates = new Set(filteredTx.map((t) => t.date))
+    const activeDays  = activeDates.size
 
-    // Proyeksi akhir bulan (hanya bulan berjalan)
+    // Proyeksi akhir bulan pengeluaran (hanya bulan berjalan)
     const projection = isCurrentMonth ? Math.round(avgExpense * daysInMonth) : null
 
-    return { avgExpense, avgIncome, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection }
-  }, [showAll, month, isCurrentMonth, expense, income, filteredTx])
+    return { avgExpense, avgIncome, avgSaving, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection }
+  }, [showAll, month, isCurrentMonth, expense, income, saving, filteredTx])
 
   const bySavingCategory = useMemo(() => {
     const map: Record<string, number> = {};
@@ -350,11 +350,12 @@ export default function ReportsPage() {
           </div>
 
           {/* Net Cash Flow */}
-          {(income > 0 || expense > 0) && (() => {
-            const net = income - expense
+          {(income > 0 || expense > 0 || saving > 0) && (() => {
+            const net = income - expense - saving
             const isPositive = net >= 0
-            const savingsRate = income > 0 ? Math.round((net / income) * 100) : 0
-            const expenseRatio = income > 0 ? Math.min(Math.round((expense / income) * 100), 100) : 100
+            const expenseRatio = income > 0 ? Math.min(Math.round((expense / income) * 100), 100) : 0
+            const savingRatio  = income > 0 ? Math.min(Math.round((saving  / income) * 100), 100 - expenseRatio) : 0
+            const usedRatio    = Math.min(expenseRatio + savingRatio, 100)
 
             return (
               <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 space-y-4">
@@ -374,19 +375,36 @@ export default function ReportsPage() {
                   </div>
                 </div>
 
-                {/* Progress bar: expense vs income */}
-                <div className="space-y-1.5">
-                  <div className="flex justify-between text-[11px] text-slate-400 dark:text-slate-500">
-                    <span>Pengeluaran dari pemasukan</span>
-                    <span className={`font-semibold ${expenseRatio >= 90 ? "text-rose-500" : expenseRatio >= 70 ? "text-amber-500" : "text-emerald-500"}`}>
-                      {expenseRatio}%
-                    </span>
-                  </div>
-                  <div className="h-2 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
+                {/* Stacked progress bar: expense + saving dari income */}
+                <div className="space-y-2">
+                  <div className="h-3 rounded-full bg-slate-100 dark:bg-slate-700 overflow-hidden flex">
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${expenseRatio >= 90 ? "bg-rose-500" : expenseRatio >= 70 ? "bg-amber-400" : "bg-emerald-500"}`}
+                      className={`h-full transition-all duration-500 ${expenseRatio >= 90 ? "bg-rose-500" : expenseRatio >= 70 ? "bg-amber-400" : "bg-rose-400"}`}
                       style={{ width: `${expenseRatio}%` }}
                     />
+                    {savingRatio > 0 && (
+                      <div
+                        className="h-full bg-teal-400 transition-all duration-500"
+                        style={{ width: `${savingRatio}%` }}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between text-[10px] text-slate-400 dark:text-slate-500">
+                    <div className="flex items-center gap-3">
+                      <span className="flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-rose-400 inline-block" />
+                        Keluar {expenseRatio}%
+                      </span>
+                      {savingRatio > 0 && (
+                        <span className="flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-teal-400 inline-block" />
+                          Tabungan {savingRatio}%
+                        </span>
+                      )}
+                    </div>
+                    <span className={`font-semibold ${usedRatio >= 90 ? "text-rose-500" : usedRatio >= 70 ? "text-amber-500" : "text-emerald-500"}`}>
+                      Terpakai {usedRatio}%
+                    </span>
                   </div>
                 </div>
 
@@ -394,20 +412,20 @@ export default function ReportsPage() {
                 <div className="grid grid-cols-3 divide-x divide-slate-100 dark:divide-slate-700 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden">
                   <div className="px-3 py-2.5 text-center">
                     <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-1">Saving Rate</p>
-                    <p className={`text-sm font-bold ${savingsRate > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"}`}>
-                      {savingsRate > 0 ? savingsRate : 0}%
+                    <p className={`text-sm font-bold ${savingRate > 0 ? "text-teal-600 dark:text-teal-400" : "text-slate-400 dark:text-slate-500"}`}>
+                      {savingRate}%
                     </p>
                   </div>
                   <div className="px-3 py-2.5 text-center">
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-1">Pemasukan</p>
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-1">Transaksi</p>
                     <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                      {filteredTx.filter(t => t.type === 'income').length}x
+                      {filteredTx.length}x
                     </p>
                   </div>
                   <div className="px-3 py-2.5 text-center">
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-1">Pengeluaran</p>
-                    <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                      {filteredTx.filter(t => t.type === 'expense').length}x
+                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mb-1">Sisa</p>
+                    <p className={`text-sm font-bold ${isPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-500 dark:text-rose-400"}`}>
+                      {isPositive ? "+" : ""}{formatRupiah(Math.abs(net))}
                     </p>
                   </div>
                 </div>
@@ -416,32 +434,43 @@ export default function ReportsPage() {
           })()}
 
           {/* Daily Stats */}
-          {dailyStats && expense > 0 && (
+          {dailyStats && (income > 0 || expense > 0 || saving > 0) && (
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 space-y-4">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Ringkasan Harian</p>
 
-              {/* Top 2 stats */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <BarChart2 className="w-3.5 h-3.5 text-rose-500" />
-                    <span className="text-[11px] font-semibold text-rose-500 uppercase tracking-wide">Rata-rata/hari</span>
+              {/* Top 3 stats */}
+              <div className="grid grid-cols-3 gap-2">
+                <div className="bg-rose-50 dark:bg-rose-900/20 rounded-xl p-2.5">
+                  <div className="flex items-center gap-1 mb-1">
+                    <BarChart2 className="w-3 h-3 text-rose-500 shrink-0" />
+                    <span className="text-[10px] font-semibold text-rose-500 uppercase tracking-wide">Avg/hari</span>
                   </div>
-                  <p className="text-base font-bold text-rose-600 dark:text-rose-400 leading-tight">
+                  <p className="text-xs font-bold text-rose-600 dark:text-rose-400 leading-tight">
                     {formatRupiah(Math.round(dailyStats.avgExpense))}
                   </p>
                   <p className="text-[10px] text-rose-400 dark:text-rose-500 mt-0.5">pengeluaran</p>
                 </div>
 
-                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-3">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <BarChart2 className="w-3.5 h-3.5 text-emerald-500" />
-                    <span className="text-[11px] font-semibold text-emerald-500 uppercase tracking-wide">Rata-rata/hari</span>
+                <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-xl p-2.5">
+                  <div className="flex items-center gap-1 mb-1">
+                    <BarChart2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                    <span className="text-[10px] font-semibold text-emerald-500 uppercase tracking-wide">Avg/hari</span>
                   </div>
-                  <p className="text-base font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
+                  <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 leading-tight">
                     {formatRupiah(Math.round(dailyStats.avgIncome))}
                   </p>
                   <p className="text-[10px] text-emerald-400 dark:text-emerald-500 mt-0.5">pemasukan</p>
+                </div>
+
+                <div className="bg-teal-50 dark:bg-teal-900/20 rounded-xl p-2.5">
+                  <div className="flex items-center gap-1 mb-1">
+                    <BarChart2 className="w-3 h-3 text-teal-500 shrink-0" />
+                    <span className="text-[10px] font-semibold text-teal-500 uppercase tracking-wide">Avg/hari</span>
+                  </div>
+                  <p className="text-xs font-bold text-teal-600 dark:text-teal-400 leading-tight">
+                    {formatRupiah(Math.round(dailyStats.avgSaving))}
+                  </p>
+                  <p className="text-[10px] text-teal-400 dark:text-teal-500 mt-0.5">tabungan</p>
                 </div>
               </div>
 
