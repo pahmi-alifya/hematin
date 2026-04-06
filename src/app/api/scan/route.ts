@@ -23,9 +23,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing image data' }, { status: 400 })
   }
 
-  const systemPrompt = `OCR struk belanja Indonesia. Balas HANYA JSON valid tanpa markdown. Gunakan null jika tidak ditemukan. Format: {"merchant":string|null,"date":"YYYY-MM-DD"|null,"total":number|null,"category":"food|transport|shopping|health|entertainment|bills|education|other","notes":string|null,"confidence":"high|medium|low"}`
+  const systemPrompt = `OCR struk belanja Indonesia. Balas HANYA raw JSON valid, TANPA markdown, TANPA code block, TANPA penjelasan apapun. Mulai langsung dengan { dan akhiri dengan }. Gunakan null jika tidak ditemukan. Format: {"merchant":string|null,"date":"YYYY-MM-DD"|null,"total":number|null,"category":"food|transport|shopping|health|entertainment|bills|education|other","notes":string|null,"confidence":"high|medium|low"}`
 
   const userMessage = 'Ekstrak data struk ini.'
+
+  // Strip markdown code fences if AI wraps response in ```json ... ```
+  function extractJSON(text: string): string {
+    const match = text.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (match) return match[1].trim()
+    // Find first { to last } to be safe
+    const start = text.indexOf('{')
+    const end = text.lastIndexOf('}')
+    if (start !== -1 && end !== -1 && end > start) return text.slice(start, end + 1)
+    return text.trim()
+  }
 
   try {
     let result: ScannedReceipt
@@ -35,7 +46,7 @@ export async function POST(req: NextRequest) {
       const client = new Anthropic({ apiKey })
       const message = await client.messages.create({
         model,
-        max_tokens: 200,
+        max_tokens: 512,
         system: systemPrompt,
         messages: [
           {
@@ -55,13 +66,13 @@ export async function POST(req: NextRequest) {
         ],
       })
       const text = message.content[0].type === 'text' ? message.content[0].text : '{}'
-      result = JSON.parse(text)
+      result = JSON.parse(extractJSON(text))
     } else if (provider === 'openai') {
       const OpenAI = (await import('openai')).default
       const client = new OpenAI({ apiKey })
       const completion = await client.chat.completions.create({
         model,
-        max_tokens: 200,
+        max_tokens: 512,
         messages: [
           { role: 'system', content: systemPrompt },
           {
@@ -77,7 +88,7 @@ export async function POST(req: NextRequest) {
         ],
       })
       const text = completion.choices[0]?.message?.content ?? '{}'
-      result = JSON.parse(text)
+      result = JSON.parse(extractJSON(text))
     } else if (provider === 'gemini') {
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const genAI = new GoogleGenerativeAI(apiKey)
@@ -87,10 +98,10 @@ export async function POST(req: NextRequest) {
           { inlineData: { data: imageBase64, mimeType } },
           { text: userMessage },
         ]}],
-        generationConfig: { maxOutputTokens: 200 },
+        generationConfig: { maxOutputTokens: 512 },
       })
       const text = geminiResult.response.text()
-      result = JSON.parse(text)
+      result = JSON.parse(extractJSON(text))
     } else {
       return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 })
     }
