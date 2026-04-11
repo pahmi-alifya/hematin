@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import type { Transaction, Goal, InsightCache, AISettings, Debt, RecurringTemplate } from '@/types'
+import type { Transaction, Goal, InsightCache, AISettings, Debt, DebtPayment, RecurringTemplate } from '@/types'
 
 class HematinDB extends Dexie {
   transactions!: Table<Transaction>
@@ -7,6 +7,7 @@ class HematinDB extends Dexie {
   insights!: Table<InsightCache>
   settings!: Table<AISettings>
   debts!: Table<Debt>
+  debtPayments!: Table<DebtPayment>
   recurringTemplates!: Table<RecurringTemplate>
 
   constructor() {
@@ -33,6 +34,16 @@ class HematinDB extends Dexie {
       settings: 'id',
       debts: 'id, type, status, dueDate, person, createdAt',
       recurringTemplates: 'id, type, isActive, recurringDay, createdAt',
+    })
+    // v4: tambah tabel debtPayments untuk fitur cicilan
+    this.version(4).stores({
+      transactions: 'id, type, category, date, createdAt',
+      goals: 'id, category, month',
+      insights: 'id, date',
+      settings: 'id',
+      debts: 'id, type, status, dueDate, person, createdAt',
+      recurringTemplates: 'id, type, isActive, recurringDay, createdAt',
+      debtPayments: 'id, debtId, month, paidDate, createdAt',
     })
   }
 }

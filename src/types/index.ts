@@ -87,11 +87,26 @@ export interface Debt {
   id: string
   type: 'hutang' | 'piutang' // hutang = I owe someone, piutang = they owe me
   person: string              // nama orang
-  amount: number              // dalam Rupiah
-  dueDate?: string            // ISO date: "2026-03-15" (opsional)
+  amount: number              // TOTAL dalam Rupiah
+  dueDate?: string            // ISO date: "2026-03-15" (opsional, untuk lunas sekaligus)
   description?: string        // keterangan transaksi
-  status: 'active' | 'paid' | 'overdue'
+  status: 'active' | 'paid' | 'overdue' | 'partial'
   createdAt: number
   paidAt?: number             // timestamp saat dilunasi
   notes?: string              // catatan saat mark as paid
+  // cicilan fields
+  isCicilan?: boolean         // true = mode cicilan bulanan
+  cicilanAmount?: number      // nominal per cicilan
+  cicilanDay?: number         // tanggal jatuh tempo tiap bulan (1–28)
+  cicilanStartMonth?: string  // "2026-04" — bulan cicilan pertama
+}
+
+export interface DebtPayment {
+  id: string
+  debtId: string              // FK ke Debt.id
+  amount: number              // nominal yang dibayarkan
+  paidDate: string            // ISO date "YYYY-MM-DD"
+  month: string               // "YYYY-MM" — bulan cicilan ini
+  notes?: string
+  createdAt: number
 }
