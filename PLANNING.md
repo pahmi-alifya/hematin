@@ -2760,6 +2760,431 @@ const txs = await db.transactions.toArray()
 
 ---
 
+## 19. Fitur Natural Language Input
+
+> User bisa ketik transaksi dengan bahasa bebas → AI parse → preview + konfirmasi → simpan ke IndexedDB.
+
+### 19.1 Contoh Use Case
+
+```
+"beli kopi 15rb sama makan siang 35rb"     → 2 expense (food)
+"gajian 5jt"                               → 1 income (salary)
+"bayar listrik 250000 sama bensin kemarin" → 2 expense, date kemarin
+"nabung 1jt ke BCA"                        → 1 saving (tabungan)
+```
+
+### 19.2 Arsitektur Flow
+
+```
+User ketik teks bebas
+  → POST /api/parse-nl (AI parsing)
+    → JSON array ParsedTransaction[]
+  → NLPreviewSheet (preview + edit per item)
+    → User konfirmasi / edit / hapus
+  → Bulk addTransaction() ke IndexedDB
+```
+
+### 19.3 Types Baru (`src/types/index.ts`)
+
+```ts
+export interface ParsedTransaction {
+  type: 'income' | 'expense' | 'saving'
+  amount: number
+  category: string
+  description: string
+  date: string          // ISO "YYYY-MM-DD"
+  confidence: 'high' | 'medium' | 'low'
+}
+
+export interface NLParseResult {
+  transactions: ParsedTransaction[]
+  rawInput: string
+  parseNote?: string    // catatan AI jika ada ambiguitas
+}
+```
+
+### 19.4 File yang Terlibat
+
+| File | Aksi |
+|---|---|
+| `src/types/index.ts` | Modifikasi — tambah `ParsedTransaction`, `NLParseResult` |
+| `src/lib/nl-parse.ts` | **Buat baru** — shared helper: `extractJSON()`, `sanitizeParsedTransaction()`, `parseIndonesianAmount()` |
+| `src/app/api/parse-nl/route.ts` | **Buat baru** — API route NL parsing |
+| `src/components/transactions/NLInputBar.tsx` | **Buat baru** — textarea input + loading state |
+| `src/components/transactions/NLPreviewSheet.tsx` | **Buat baru** — preview + edit inline + konfirmasi |
+| `src/app/page.tsx` | Modifikasi — tambah kartu "Ketik Bebas" di quick actions |
+| `src/app/api/scan/route.ts` | Modifikasi minor — import `extractJSON` dari shared helper |
+
+### 19.5 API Route (`/api/parse-nl`)
+
+Header sama dengan `/api/scan`: `X-AI-Provider`, `X-AI-Model`, `X-AI-Key`.
+Body: `{ text: string, today: string }` — `today` dikirim dari client (format `YYYY-MM-DD`) agar "kemarin" sesuai timezone user.
+
+**System Prompt Inti:**
+- Parse format angka Indonesia: `15rb` = 15000, `5jt` = 5000000, `1.5jt` = 1500000
+- Deteksi tipe dari kata kunci: beli/bayar/makan → expense; gajian/terima → income; nabung/invest → saving
+- Deteksi tanggal relatif: "kemarin" = today-1, "minggu lalu" = today-7, tanpa keterangan = today
+- Return: raw JSON valid tanpa markdown, format `{ transactions: [...], parseNote: null }`
+
+**Sanitasi di route handler:**
+- `amount` harus > 0
+- `category` tidak dikenal → fallback ke `'other'` / `'other-income'` / `'other-saving'`
+- `date` tidak valid → fallback ke `today`
+- `confidence` tidak ada → fallback ke `'medium'`
+
+### 19.6 Komponen UI
+
+**`NLInputBar.tsx`**
+- `textarea` auto-resize, Ctrl+Enter untuk kirim
+- Placeholder: `"beli kopi 15rb, makan siang 35rb..."`
+- State: `idle | loading | error`
+- Disabled + hint kalau AI belum dikonfigurasi di Settings
+
+**`NLPreviewSheet.tsx`**
+- BottomSheet scrollable (`max-h-[85dvh]`)
+- Per kartu transaksi: edit inline (amount, category, date), hapus dengan animasi
+- Badge confidence: hijau (high) / kuning (medium) / merah (low)
+- Tombol "Simpan Semua" sticky di bawah
+- `transactions.length === 0` → toast info "AI tidak menemukan transaksi"
+
+### 19.7 Integrasi Dashboard
+
+Quick actions di `page.tsx` jadi 3 kartu:
+```
+[Catat Transaksi]  [Scan Struk]
+[   Ketik Bebas (full width)  ]
+```
+
+State baru di `page.tsx`:
+```ts
+const [showNLInput, setShowNLInput] = useState(false)
+const [nlParseResult, setNLParseResult] = useState<NLParseResult | null>(null)
+```
+
+### 19.8 Keputusan Teknis
+
+- **Entry point**: Kartu ketiga di Quick Actions (bukan tab di TransactionForm — state tidak bercampur)
+- **`today` dari client**: Konsisten dengan pola AI insight, hindari timezone mismatch server/user
+- **Kategori fallback**: Sanitizer di API route handle mapping → tidak perlu logika di client
+- **Provider**: Mengikuti settingan user yang sudah ada (Gemini Flash direkomendasikan — gratis 1500 req/hari)
+
+### 19.9 Urutan Implementasi
+
+| Step | Task | Estimasi |
+|---|---|---|
+| 1 | Tambah types ke `src/types/index.ts` | 5 menit |
+| 2 | Buat `src/lib/nl-parse.ts` (shared helpers) | 10 menit |
+| 3 | Buat `src/app/api/parse-nl/route.ts` + test manual | 30 menit |
+| 4 | Buat `NLInputBar.tsx` | 30 menit |
+| 5 | Buat `NLPreviewSheet.tsx` (paling kompleks) | 45 menit |
+| 6 | Integrasi di `src/app/page.tsx` | 20 menit |
+| 7 | Polish: dark mode, mobile keyboard, flow antar sheet | 20 menit |
+
+**Total estimasi: ~2.5 jam**
+
+---
+
 *Dokumen ini adalah living document — akan diupdate seiring pengerjaan.*
 
-*Dibuat: 26 Februari 2026 | Terakhir diupdate: 6 April 2026 (v12 — Section 18 lengkap: FAB decision, migrasi data lama; hapus duplikat Section 11)*
+*Dibuat: 26 Februari 2026 | Terakhir diupdate: 11 April 2026 (v14 — Section 20: Cicilan Hutang/Piutang)*
+
+---
+
+## 20. Cicilan Hutang/Piutang (Installment + Reminder)
+
+> Melacak pembayaran bertahap (cicilan) untuk hutang/piutang, lengkap dengan reminder otomatis saat jatuh tempo cicilan tiap bulan.
+
+---
+
+### 20.1 Konsep
+
+Saat ini `Debt` hanya support satu kali bayar penuh (mark as paid). Fitur ini menambah mode **cicilan** di mana:
+- Total hutang/piutang dibagi menjadi cicilan per bulan
+- Setiap pembayaran dicatat di tabel terpisah (`debtPayments`)
+- Sisa hutang dihitung otomatis: `amount - totalPaid`
+- Reminder muncul di halaman `/debts` saat tanggal cicilan tiba bulan ini
+
+**Dua mode Debt:**
+| Mode | Deskripsi |
+|---|---|
+| **Lunas Sekaligus** | Behavior existing — satu kali bayar, status jadi `paid` |
+| **Cicilan Bulanan** | Bayar bertahap tiap bulan — sisa berkurang, lunas otomatis saat sisa = 0 |
+
+---
+
+### 20.2 Perubahan Database Schema
+
+**Modifikasi interface `Debt` (`src/types/index.ts`):**
+```typescript
+export interface Debt {
+  // --- field existing ---
+  id: string
+  type: 'hutang' | 'piutang'
+  person: string
+  amount: number              // TOTAL hutang/piutang (tidak berubah)
+  dueDate?: string            // untuk mode lunas sekaligus
+  description?: string
+  status: 'active' | 'paid' | 'overdue' | 'partial' // tambah 'partial'
+  createdAt: number
+  paidAt?: number
+  notes?: string
+
+  // --- field baru untuk cicilan ---
+  isCicilan?: boolean         // true = mode cicilan
+  cicilanAmount?: number      // nominal per cicilan (mis. 500.000/bulan)
+  cicilanDay?: number         // tanggal jatuh tempo tiap bulan (1–28)
+  cicilanStartMonth?: string  // "2026-04" — bulan cicilan pertama
+}
+```
+
+**Tabel baru: `debtPayments` (`src/lib/db.ts`):**
+```typescript
+export interface DebtPayment {
+  id: string
+  debtId: string              // FK ke Debt.id
+  amount: number              // nominal yang dibayarkan (boleh ≠ cicilanAmount)
+  paidDate: string            // ISO date "YYYY-MM-DD"
+  month: string               // "YYYY-MM" — bulan cicilan yang dibayar ini
+  notes?: string
+  createdAt: number
+}
+```
+
+**Kalkulasi otomatis:**
+- `totalPaid` = SUM(`debtPayments.amount` WHERE `debtId = id`)
+- `remaining` = `debt.amount - totalPaid`
+- `status` → otomatis `'paid'` jika `remaining <= 0`
+- `status` → `'partial'` jika `totalPaid > 0 && remaining > 0`
+- `status` → `'overdue'` jika cicilan bulan ini belum dibayar dan `cicilanDay < today`
+
+---
+
+### 20.3 Perubahan Store — `debtStore.ts`
+
+Tambah actions dan computed baru:
+
+```typescript
+interface DebtStore {
+  // --- existing ---
+  debts: Debt[]
+  isLoading: boolean
+  loadDebts: () => Promise<void>
+  addDebt: (data) => Promise<void>
+  markAsPaid: (id, notes?) => Promise<void>
+  deleteDebt: (id) => Promise<void>
+  updateDebt: (id, data) => Promise<void>
+
+  // --- baru: payments ---
+  payments: DebtPayment[]
+  loadPayments: () => Promise<void>
+  addPayment: (data: Omit<DebtPayment, 'id' | 'createdAt'>) => Promise<void>
+  deletePayment: (id: string) => Promise<void>
+  getPaymentsByDebt: (debtId: string) => DebtPayment[]
+  getTotalPaid: (debtId: string) => number
+  getRemaining: (debtId: string) => number
+
+  // --- baru: cicilan reminder ---
+  getPendingCicilanToday: () => Debt[]
+  // → debt.isCicilan === true &&
+  //   debt.cicilanDay === today.getDate() &&
+  //   belum ada payment untuk bulan ini
+}
+```
+
+**Logic `getPendingCicilanToday()`:**
+```typescript
+getPendingCicilanToday: () => {
+  const today = new Date()
+  const todayDay = today.getDate()
+  const currentMonth = format(today, 'yyyy-MM')
+
+  return get().debts.filter((d) => {
+    if (!d.isCicilan || d.status === 'paid') return false
+    if (d.cicilanDay !== todayDay) return false
+
+    // cek apakah bulan ini sudah ada payment
+    const payments = get().getPaymentsByDebt(d.id)
+    const paidThisMonth = payments.some((p) => p.month === currentMonth)
+    return !paidThisMonth
+  })
+}
+```
+
+---
+
+### 20.4 File yang Terlibat
+
+| File | Aksi |
+|---|---|
+| `src/types/index.ts` | Modifikasi — tambah field cicilan di `Debt`, tambah interface `DebtPayment` |
+| `src/lib/db.ts` | Modifikasi — tambah tabel `debtPayments` ke Dexie schema, bump versi DB |
+| `src/stores/debtStore.ts` | Modifikasi — tambah state `payments`, actions baru, `getPendingCicilanToday()` |
+| `src/components/debts/DebtForm.tsx` | Modifikasi — tambah toggle "Cicilan Bulanan" + field cicilanAmount + cicilanDay |
+| `src/components/debts/DebtCard.tsx` | Modifikasi — tampilkan progress bar sisa, tombol "Bayar Cicilan" |
+| `src/components/debts/PaymentSheet.tsx` | **Buat baru** — BottomSheet form catat pembayaran cicilan |
+| `src/components/debts/PaymentHistory.tsx` | **Buat baru** — daftar riwayat pembayaran per debt |
+| `src/components/debts/CicilanReminderBanner.tsx` | **Buat baru** — banner reminder cicilan jatuh tempo hari ini |
+| `src/app/debts/page.tsx` | Modifikasi — tampilkan `CicilanReminderBanner`, update layout kartu cicilan |
+
+---
+
+### 20.5 UI — Perubahan Form Tambah Hutang
+
+Tambah toggle di `DebtForm.tsx`:
+
+```
+┌─────────────────────────────────────┐
+│  ── Tambah Hutang ──                │
+│                                     │
+│  [Hutang]  [Piutang]               │
+│                                     │
+│  Nama: [Budi              ]         │
+│  Total: [Rp 2.000.000     ]         │
+│                                     │
+│  Pembayaran:                        │
+│  ○ Lunas Sekaligus                  │
+│  ● Cicilan Bulanan                  │
+│                                     │
+│  (jika Cicilan Bulanan dipilih)     │
+│  Per cicilan: [Rp 500.000  ]        │
+│  Tanggal bayar tiap bulan: [15 ▼]   │
+│  Mulai bulan: [April 2026  ]        │
+│                                     │
+│  Jatuh tempo (opsional): [__/__/__] │
+│  Keterangan: [               ]      │
+│                                     │
+│  [Simpan]                           │
+└─────────────────────────────────────┘
+```
+
+---
+
+### 20.6 UI — DebtCard untuk Mode Cicilan
+
+```
+┌─────────────────────────────────────┐
+│  🟡 Budi                            │
+│  Total: Rp 2.000.000                │
+│  ████████░░░░░░░░  4/8 cicilan      │  ← progress bar
+│  Sudah dibayar: Rp 1.000.000        │
+│  Sisa: Rp 1.000.000                 │
+│  Cicilan: Rp 500.000 / tgl 15       │
+│                                     │
+│  [Bayar Cicilan]  [Riwayat]         │
+└─────────────────────────────────────┘
+```
+
+**Progress bar:**
+- Warna: biru (< 50% lunas), hijau (≥ 50%), emerald (≥ 90%)
+- Teks: `X/Y cicilan` atau `Rp X dari Rp Y`
+
+---
+
+### 20.7 UI — PaymentSheet (Baru)
+
+BottomSheet yang muncul saat tap "Bayar Cicilan":
+
+```
+┌─────────────────────────────────────┐
+│  ── Catat Pembayaran ──             │
+│  Budi · Sisa Rp 1.000.000          │
+│                                     │
+│  Nominal:                           │
+│  [Rp 500.000     ] ← pre-fill       │
+│  (default: cicilanAmount)           │
+│                                     │
+│  Tanggal bayar: [11 Apr 2026]       │
+│                                     │
+│  Catatan: [               ]         │
+│                                     │
+│  [Simpan Pembayaran]                │
+└─────────────────────────────────────┘
+```
+
+Setelah simpan:
+- `addPayment()` ke IndexedDB
+- Cek apakah `remaining <= 0` → otomatis `markAsPaid()`
+- Toast: "Cicilan bulan ini berhasil dicatat 🎉" atau "Hutang ke Budi LUNAS! 🎊"
+
+---
+
+### 20.8 UI — CicilanReminderBanner (Baru)
+
+Tampil di halaman `/debts` saat ada cicilan jatuh tempo hari ini:
+
+```
+┌─────────────────────────────────────┐
+│  💳 Cicilan jatuh tempo hari ini    │
+│  Budi Rp 500rb · Mama Rp 300rb     │
+│  [Catat Sekarang]  [Nanti]          │
+└─────────────────────────────────────┘
+```
+
+- "Catat Sekarang" → buka PaymentSheet untuk item pertama, lanjut ke berikutnya
+- "Nanti" → dismiss dengan localStorage flag `hematin_cicilan_dismissed_YYYY-MM-DD`
+- Warna: amber/kuning (berbeda dari overdue banner yang merah)
+
+---
+
+### 20.9 PaymentHistory Component (Baru)
+
+Tampil saat tap "Riwayat" di DebtCard:
+
+```
+┌─────────────────────────────────────┐
+│  ── Riwayat Pembayaran — Budi ──   │
+│                                     │
+│  Apr 2026   Rp 500.000  15 Apr ✓   │
+│  Mar 2026   Rp 500.000  14 Mar ✓   │
+│  Feb 2026   Rp 500.000  15 Feb ✓   │  ← scrollable
+│  Jan 2026   Rp 500.000  13 Jan ✓   │
+│                                     │
+│  Total dibayar: Rp 2.000.000        │
+│  Sisa: Rp 0 (LUNAS)                │
+└─────────────────────────────────────┘
+```
+
+---
+
+### 20.10 Dexie DB — Perubahan Versi
+
+```typescript
+// src/lib/db.ts — bump versi DB
+this.version(X).stores({
+  // ... existing tables ...
+  debtPayments: '++id, debtId, month, paidDate',
+})
+```
+
+> Tidak ada migrasi data lama — field baru di `Debt` bersifat opsional, debt existing tetap bekerja normal sebagai mode "lunas sekaligus".
+
+---
+
+### 20.11 Edge Cases
+
+| Case | Handling |
+|---|---|
+| Bayar lebih dari `cicilanAmount` | Diperbolehkan — sisa berkurang lebih cepat |
+| Bayar kurang dari `cicilanAmount` | Diperbolehkan — sisa tetap terhitung, muncul di reminder bulan depan |
+| Cicilan ganda dalam satu bulan | Boleh — `month` field tidak unique per debtId |
+| `cicilanDay` = 31, bulan hanya 30 hari | Tampilkan reminder di hari terakhir bulan |
+| Debt lunas sekaligus + ada payments | Tidak mungkin — toggle di form mutual exclusive |
+| Hapus debt | Cascade delete semua `debtPayments` yang terkait |
+
+---
+
+### 20.12 Urutan Implementasi
+
+| Step | Task | Estimasi |
+|---|---|---|
+| 1 | Tambah `DebtPayment` type + field cicilan di `Debt` (`src/types/index.ts`) | 5 menit |
+| 2 | Bump versi Dexie, tambah tabel `debtPayments` (`src/lib/db.ts`) | 10 menit |
+| 3 | Update `debtStore.ts` — tambah state payments + actions + `getPendingCicilanToday()` | 30 menit |
+| 4 | Update `DebtForm.tsx` — tambah toggle cicilan + field baru | 30 menit |
+| 5 | Buat `PaymentSheet.tsx` — form catat pembayaran | 25 menit |
+| 6 | Update `DebtCard.tsx` — progress bar + tombol "Bayar Cicilan" + "Riwayat" | 30 menit |
+| 7 | Buat `PaymentHistory.tsx` — riwayat per debt | 20 menit |
+| 8 | Buat `CicilanReminderBanner.tsx` — banner reminder hari ini | 20 menit |
+| 9 | Update `src/app/debts/page.tsx` — integrasi banner + state flow | 20 menit |
+
+**Total estimasi: ~3 jam**
