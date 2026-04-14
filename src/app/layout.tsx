@@ -18,34 +18,53 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const APP_NAME = "HEMATIN";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app";
+
 const APP_DESCRIPTION =
-  "Catat cash flow harianmu, scan struk belanja, dan dapatkan insight AI yang empatik. Data tersimpan aman di perangkatmu, gratis.";
+  "Catat pengeluaran & pemasukan harian, scan struk belanja dengan AI, dan dapatkan insight keuangan otomatis. Gratis, tanpa akun — data aman di perangkatmu.";
+
+const APP_TITLE = "HEMATIN — Aplikasi Catatan Keuangan Harian Berbasis AI";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app",
-  ),
+  metadataBase: new URL(APP_URL),
   title: {
-    default: "HEMATIN — Asisten Keuangan Harian Berbasis AI",
+    default: APP_TITLE,
     template: "%s | HEMATIN",
   },
   description: APP_DESCRIPTION,
   keywords: [
+    // brand
     "hematin",
     "hematin app",
     "hematin keuangan",
-    "aplikasi keuangan pribadi",
+    // primary intent
+    "aplikasi catatan keuangan harian",
+    "aplikasi pencatat pengeluaran harian",
     "catat pengeluaran harian",
-    "cash flow harian",
-    "scan struk belanja",
+    "catat pemasukan dan pengeluaran",
+    "pencatat transaksi harian",
+    "lacak pengeluaran harian",
+    // AI angle
     "asisten keuangan AI",
-    "aplikasi budgeting indonesia",
-    "pencatatan keuangan gratis",
+    "insight keuangan AI",
+    "scan struk belanja otomatis",
+    "scan struk AI",
+    // category & audience
+    "aplikasi keuangan pribadi Indonesia",
+    "aplikasi budgeting Indonesia",
     "manajemen keuangan harian",
+    "keuangan pribadi gratis",
+    "aplikasi keuangan tanpa login",
+    "catatan keuangan offline",
+    "cash flow harian",
+    "laporan keuangan bulanan",
   ],
   verification: { google: "ad5ddca25974693b" },
-  authors: [{ name: "HEMATIN" }],
-  creator: "HEMATIN",
+  authors: [{ name: APP_NAME, url: APP_URL }],
+  creator: APP_NAME,
+  publisher: APP_NAME,
+  category: "finance",
   icons: {
     icon: [{ url: "/icons/logo.png", type: "image/png" }],
     shortcut: "/icons/logo.png",
@@ -55,32 +74,44 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "id_ID",
-    siteName: "HEMATIN",
-    title: "HEMATIN — Asisten Keuangan Harian Berbasis AI",
+    siteName: APP_NAME,
+    url: APP_URL,
+    title: APP_TITLE,
     description: APP_DESCRIPTION,
     images: [
-      { url: "/icons/logo.png", width: 600, height: 600, alt: "HEMATIN Logo" },
+      {
+        url: "/icons/logo.png",
+        width: 600,
+        height: 600,
+        alt: "HEMATIN — Aplikasi Catatan Keuangan Harian Berbasis AI",
+      },
     ],
   },
   twitter: {
     card: "summary",
-    title: "HEMATIN — Asisten Keuangan Harian Berbasis AI",
+    title: APP_TITLE,
     description: APP_DESCRIPTION,
     images: ["/icons/logo.png"],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+    },
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "HEMATIN",
+    title: APP_NAME,
   },
   formatDetection: { telephone: false },
   alternates: {
-    canonical: process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app",
+    canonical: APP_URL,
+    languages: { "id-ID": APP_URL },
   },
 };
 
@@ -117,22 +148,38 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
-              "@type": "WebApplication",
-              name: "HEMATIN",
-              alternateName: "Hematin App",
-              url: process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app",
+              "@type": "SoftwareApplication",
+              name: APP_NAME,
+              alternateName: ["Hematin App", "Hematin Keuangan"],
+              url: APP_URL,
               description: APP_DESCRIPTION,
               applicationCategory: "FinanceApplication",
+              applicationSubCategory: "Personal Finance",
               operatingSystem: "Web, Android, iOS",
-              offers: { "@type": "Offer", price: "0", priceCurrency: "IDR" },
-              inLanguage: "id",
-              author: { "@type": "Organization", name: "HEMATIN" },
+              browserRequirements: "Requires JavaScript",
+              offers: {
+                "@type": "Offer",
+                price: "0",
+                priceCurrency: "IDR",
+                availability: "https://schema.org/InStock",
+              },
+              inLanguage: "id-ID",
+              isAccessibleForFree: true,
+              author: {
+                "@type": "Organization",
+                name: APP_NAME,
+                url: APP_URL,
+              },
               featureList: [
                 "Catat pemasukan dan pengeluaran harian",
-                "Scan struk belanja dengan AI",
-                "Insight keuangan berbasis AI",
-                "Laporan bulanan otomatis",
-                "Tidak perlu login, data tersimpan di perangkat",
+                "Scan struk belanja otomatis dengan AI vision",
+                "Insight keuangan harian berbasis AI",
+                "Laporan keuangan bulanan otomatis",
+                "Grafik cash flow dan kategori pengeluaran",
+                "Pengelolaan batas anggaran per kategori",
+                "Tidak perlu akun atau login",
+                "Data tersimpan aman di perangkat (offline-first)",
+                "Tersedia sebagai Progressive Web App (PWA)",
               ],
             }),
           }}
