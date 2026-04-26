@@ -59,6 +59,85 @@ export const metadata: Metadata = {
     "catatan keuangan offline",
     "cash flow harian",
     "laporan keuangan bulanan",
+
+    "keuangan harian",
+    "keuangan harian AI",
+    "keuangan harian Indonesia",
+    "aplikasi keuangan harian",
+    "aplikasi keuangan harian AI",
+    "aplikasi keuangan harian Indonesia",
+
+    "catatan keuangan harian",
+    "catatan keuangan harian AI",
+    "catatan keuangan harian Indonesia",
+
+    "pencatat keuangan harian",
+    "pencatat keuangan harian AI",
+    "pencatat keuangan harian Indonesia",
+
+    "aplikasi catatan keuangan harian",
+    "aplikasi catatan keuangan harian AI",
+    "aplikasi catatan keuangan harian Indonesia",
+
+    "aplikasi pencatat keuangan harian",
+    "aplikasi pencatat keuangan harian AI",
+    "aplikasi pencatat keuangan harian Indonesia",
+
+    "lacak keuangan harian",
+    "lacak keuangan harian AI",
+    "lacak keuangan harian Indonesia",
+
+    "scan struk belanja otomatis",
+    "scan struk belanja AI",
+    "scan struk belanja Indonesia",
+
+    "insight keuangan harian",
+    "insight keuangan harian AI",
+    "insight keuangan harian Indonesia",
+
+    "laporan keuangan bulanan otomatis",
+    "laporan keuangan bulanan AI",
+    "laporan keuangan bulanan Indonesia",
+
+    "grafik cash flow dan kategori pengeluaran",
+    "grafik cash flow dan kategori pengeluaran AI",
+    "grafik cash flow dan kategori pengeluaran Indonesia",
+
+    "pengelolaan batas anggaran per kategori",
+    "pengelolaan batas anggaran per kategori AI",
+    "pengelolaan batas anggaran per kategori Indonesia",
+
+    "aplikasi keuangan pribadi",
+    "aplikasi keuangan pribadi AI",
+    "aplikasi keuangan pribadi Indonesia",
+
+    "aplikasi budgeting",
+    "aplikasi budgeting AI",
+    "aplikasi budgeting Indonesia",
+
+    "manajemen keuangan harian",
+    "manajemen keuangan harian AI",
+    "manajemen keuangan harian Indonesia",
+
+    "keuangan pribadi gratis",
+    "keuangan pribadi gratis AI",
+    "keuangan pribadi gratis Indonesia",
+
+    "aplikasi keuangan tanpa login",
+    "aplikasi keuangan tanpa login AI",
+    "aplikasi keuangan tanpa login Indonesia",
+
+    "catatan keuangan offline",
+    "catatan keuangan offline AI",
+    "catatan keuangan offline Indonesia",
+
+    "cash flow harian",
+    "cash flow harian AI",
+    "cash flow harian Indonesia",
+
+    "laporan keuangan bulanan",
+    "laporan keuangan bulanan AI",
+    "laporan keuangan bulanan Indonesia",
   ],
   verification: { google: "ad5ddca25974693b" },
   authors: [{ name: APP_NAME, url: APP_URL }],
