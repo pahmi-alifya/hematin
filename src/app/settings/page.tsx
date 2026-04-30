@@ -477,6 +477,27 @@ export default function SettingsPage() {
               pilihanmu.
             </p>
           </div>
+
+          {/* Created by */}
+          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-400 dark:text-slate-500">
+                Dibuat oleh
+              </p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Pahmi Alifya Bahri
+              </p>
+            </div>
+            <a
+              href="https://www.linkedin.com/in/pahmi-alifya-bahri-479a0919a/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0A66C2] hover:bg-[#0958A8] active:bg-[#084d93] transition-colors text-white text-xs font-semibold"
+            >
+              LinkedIn
+              <ExternalLink className="w-3 h-3 opacity-80" />
+            </a>
+          </div>
         </div>
       </PageWrapper>
 
