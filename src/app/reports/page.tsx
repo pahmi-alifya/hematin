@@ -140,10 +140,11 @@ export default function ReportsPage() {
     const activeDates = new Set(filteredTx.map((t) => t.date))
     const activeDays  = activeDates.size
 
-    // Proyeksi akhir bulan pengeluaran (hanya bulan berjalan)
-    const projection = isCurrentMonth ? Math.round(avgExpense * daysInMonth) : null
+    // Proyeksi akhir bulan (bulan berjalan) atau realisasi (bulan lampau)
+    const projection = isCurrentMonth ? Math.round(avgExpense * daysInMonth) : expense
+    const projectionLabel = isCurrentMonth ? 'Proyeksi akhir bulan' : 'Realisasi pengeluaran'
 
-    return { avgExpense, avgIncome, avgSaving, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection }
+    return { avgExpense, avgIncome, avgSaving, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection, projectionLabel }
   }, [showAll, month, isCurrentMonth, expense, income, saving, filteredTx])
 
   const bySavingCategory = useMemo(() => {
@@ -501,18 +502,16 @@ export default function ReportsPage() {
                   </p>
                 </div>
 
-                {/* Proyeksi — hanya bulan berjalan */}
-                {dailyStats.projection !== null && (
-                  <div className="flex items-center justify-between px-3 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <Target className="w-3.5 h-3.5 text-violet-500 shrink-0" />
-                      <span className="text-xs text-slate-600 dark:text-slate-300">Proyeksi akhir bulan</span>
-                    </div>
-                    <p className="text-xs font-bold text-violet-600 dark:text-violet-400">
-                      {formatRupiah(dailyStats.projection)}
-                    </p>
+                {/* Proyeksi bulan berjalan / Realisasi bulan lampau */}
+                <div className="flex items-center justify-between px-3 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-3.5 h-3.5 text-violet-500 shrink-0" />
+                    <span className="text-xs text-slate-600 dark:text-slate-300">{dailyStats.projectionLabel}</span>
                   </div>
-                )}
+                  <p className="text-xs font-bold text-violet-600 dark:text-violet-400">
+                    {formatRupiah(dailyStats.projection)}
+                  </p>
+                </div>
               </div>
             </div>
           )}

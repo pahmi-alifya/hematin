@@ -21,6 +21,7 @@ import { TransactionList } from "@/components/transactions/TransactionList";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { MonthlyChart } from "@/components/dashboard/MonthlyChart";
+import { NetWorthChart } from "@/components/dashboard/NetWorthChart";
 import { CategorySpendingChart } from "@/components/dashboard/CategorySpendingChart";
 import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 import { DebtReminderBanner } from "@/components/dashboard/DebtReminderBanner";
@@ -146,7 +147,11 @@ export default function DashboardPage() {
         </div>
 
         {/* Summary Cards */}
-        <div className="mx-4 mb-0 grid grid-cols-3 gap-2 pb-5">
+        <div className="mx-4 mb-0 pb-5">
+          <p className="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-2">
+            {monthLabel} — Bulan ini
+          </p>
+          <div className="grid grid-cols-3 gap-2">
           {/* Pemasukan */}
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -203,6 +208,7 @@ export default function DashboardPage() {
             </p>
             <p className="text-[10px] text-slate-400 mt-0.5">{savingTransactions.length}x</p>
           </motion.div>
+          </div>
         </div>
 
         {/* Wave bottom */}
@@ -267,6 +273,11 @@ export default function DashboardPage() {
           {/* Monthly Chart */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
             <MonthlyChart transactions={transactions} />
+          </div>
+
+          {/* Net Worth Chart */}
+          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
+            <NetWorthChart transactions={transactions} />
           </div>
 
           {/* Recent Transactions */}

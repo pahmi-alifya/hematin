@@ -11,11 +11,12 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { getCurrentMonth, formatRupiah } from '@/lib/utils'
 import { format, subMonths, addMonths, parseISO } from 'date-fns'
 import { id } from 'date-fns/locale'
-import { ChevronLeft, ChevronRight, Search, X, RefreshCw, Plus, TrendingUp, TrendingDown, ArrowUpDown, Check } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Search, X, RefreshCw, Plus, TrendingUp, TrendingDown, ArrowUpDown, Check, Download } from 'lucide-react'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from '@/lib/categories'
 import { cn } from '@/lib/utils'
+import { exportTransactionsCSV } from '@/lib/export'
 
 type TypeFilter = 'all' | 'income' | 'expense' | 'saving'
 type SortBy = 'newest' | 'oldest' | 'largest' | 'smallest'
@@ -118,6 +119,22 @@ export default function TransactionsPage() {
     }
   }, [transactions, month, search, typeFilter, categoryFilter])
 
+  const filteredTransactions = useMemo(() => {
+    let result = transactions.filter((t) => t.date.startsWith(month))
+    if (search) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (t) =>
+          t.merchant?.toLowerCase().includes(q) ||
+          t.notes?.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q),
+      )
+    }
+    if (typeFilter !== 'all') result = result.filter((t) => t.type === typeFilter)
+    if (categoryFilter !== 'all') result = result.filter((t) => t.category === categoryFilter)
+    return result
+  }, [transactions, month, search, typeFilter, categoryFilter])
+
   const activeFiltersCount = [
     typeFilter !== 'all',
     categoryFilter !== 'all',
@@ -137,6 +154,14 @@ export default function TransactionsPage() {
               <RefreshCw className="w-3.5 h-3.5" />
               Rutin
             </Link>
+            <button
+              onClick={() => exportTransactionsCSV(filteredTransactions, `hematin-${month}.csv`)}
+              disabled={filteredTransactions.length === 0}
+              className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 disabled:opacity-40"
+              title="Export CSV"
+            >
+              <Download className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setShowForm(true)}
               className="w-8 h-8 rounded-xl bg-sky-500 flex items-center justify-center"
