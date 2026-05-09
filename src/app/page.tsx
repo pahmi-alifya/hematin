@@ -101,7 +101,12 @@ export default function DashboardPage() {
     () => savingTransactions.reduce((s, t) => s + t.amount, 0),
     [savingTransactions],
   );
-  const balance = income - expense - saving;
+  const totalBalance = useMemo(() => {
+    const totalIncome = transactions.filter((t) => t.type === "income").reduce((s, t) => s + t.amount, 0);
+    const totalExpense = transactions.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+    const totalSaving = transactions.filter((t) => t.type === "saving").reduce((s, t) => s + t.amount, 0);
+    return totalIncome - totalExpense - totalSaving;
+  }, [transactions]);
 
   if (!mounted) return null;
 
@@ -127,17 +132,17 @@ export default function DashboardPage() {
           <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">
             {monthLabel}
           </p>
-          <p className="text-sm text-white/80 mb-1">Saldo Bulan Ini</p>
+          <p className="text-sm text-white/80 mb-1">Total Saldo</p>
           <motion.p
-            key={balance}
+            key={totalBalance}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-4xl font-bold text-white tracking-tight mb-2"
           >
-            {balance >= 0 ? "" : "-"}
-            {formatRupiah(Math.abs(balance))}
+            {totalBalance >= 0 ? "" : "-"}
+            {formatRupiah(Math.abs(totalBalance))}
           </motion.p>
-          <CashFlowStatus balance={balance} />
+          <CashFlowStatus balance={totalBalance} />
         </div>
 
         {/* Summary Cards */}
