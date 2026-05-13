@@ -45,6 +45,16 @@ class HematinDB extends Dexie {
       recurringTemplates: 'id, type, isActive, recurringDay, createdAt',
       debtPayments: 'id, debtId, month, paidDate, createdAt',
     })
+    // v5: goals jadi persisten per kategori (tanpa month index)
+    this.version(5).stores({
+      transactions: 'id, type, category, date, createdAt',
+      goals: 'id, category',
+      insights: 'id, date',
+      settings: 'id',
+      debts: 'id, type, status, dueDate, person, createdAt',
+      recurringTemplates: 'id, type, isActive, recurringDay, createdAt',
+      debtPayments: 'id, debtId, month, paidDate, createdAt',
+    })
   }
 }
 

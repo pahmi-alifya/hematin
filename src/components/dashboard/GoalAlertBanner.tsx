@@ -15,7 +15,6 @@ export function GoalAlertBanner() {
   const currentMonth = getCurrentMonth()
 
   const alerts = useMemo(() => {
-    const monthGoals = goals.filter((g) => g.month === currentMonth)
     const spentByCategory: Record<string, number> = {}
     transactions
       .filter((t) => t.type === 'expense' && t.date.startsWith(currentMonth))
@@ -23,7 +22,7 @@ export function GoalAlertBanner() {
         spentByCategory[t.category] = (spentByCategory[t.category] ?? 0) + t.amount
       })
 
-    return monthGoals
+    return goals
       .filter((g) => (spentByCategory[g.category] ?? 0) > g.limitAmount)
       .map((g) => {
         const cat = EXPENSE_CATEGORIES.find((c) => c.id === g.category)

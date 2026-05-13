@@ -115,11 +115,6 @@ export default function GoalsPage() {
     loadTransactions()
   }, [loadGoals, loadTransactions])
 
-  const monthGoals = useMemo(
-    () => goals.filter((g) => g.month === currentMonth),
-    [goals, currentMonth]
-  )
-
   const spentByCategory = useMemo(() => {
     const map: Record<string, number> = {}
     transactions
@@ -130,17 +125,17 @@ export default function GoalsPage() {
     return map
   }, [transactions, currentMonth])
 
-  const totalLimit = useMemo(() => monthGoals.reduce((s, g) => s + g.limitAmount, 0), [monthGoals])
+  const totalLimit = useMemo(() => goals.reduce((s, g) => s + g.limitAmount, 0), [goals])
   const totalSpent = useMemo(
-    () => monthGoals.reduce((s, g) => s + (spentByCategory[g.category] ?? 0), 0),
-    [monthGoals, spentByCategory]
+    () => goals.reduce((s, g) => s + (spentByCategory[g.category] ?? 0), 0),
+    [goals, spentByCategory]
   )
   const totalPercentage = totalLimit > 0 ? Math.min((totalSpent / totalLimit) * 100, 100) : 0
   const totalOver = totalSpent > totalLimit
 
   // Categories without a goal set yet
   const availableCategories = EXPENSE_CATEGORIES.filter(
-    (c) => !monthGoals.some((g) => g.category === c.id)
+    (c) => !goals.some((g) => g.category === c.id)
   )
 
   async function handleSave() {
@@ -212,7 +207,7 @@ export default function GoalsPage() {
           </div>
 
           {/* Summary card */}
-          {monthGoals.length > 0 && (
+          {goals.length > 0 && (
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 space-y-3">
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ringkasan Bulan Ini</p>
               <div className="grid grid-cols-3 gap-3">
@@ -263,7 +258,7 @@ export default function GoalsPage() {
                 <div key={i} className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 h-28 animate-pulse" />
               ))}
             </div>
-          ) : monthGoals.length === 0 ? (
+          ) : goals.length === 0 ? (
             <EmptyState
               icon="🎯"
               title="Belum ada batas"
@@ -272,7 +267,7 @@ export default function GoalsPage() {
           ) : (
             <AnimatePresence>
               <div className="space-y-3">
-                {monthGoals.map((goal) => (
+                {goals.map((goal) => (
                   <GoalCard
                     key={goal.id}
                     goalId={goal.id}

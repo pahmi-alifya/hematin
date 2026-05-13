@@ -30,7 +30,7 @@ export interface Goal {
   id: string
   category: string
   limitAmount: number
-  month: string // "2026-02"
+  month?: string // "2026-02" — opsional, legacy field
   createdAt: number
 }
 

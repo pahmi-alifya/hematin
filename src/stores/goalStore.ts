@@ -2,16 +2,16 @@
 
 import { create } from 'zustand'
 import { db } from '@/lib/db'
-import { generateId, getCurrentMonth } from '@/lib/utils'
+import { generateId } from '@/lib/utils'
 import type { Goal } from '@/types'
 
 interface GoalStore {
   goals: Goal[]
   isLoading: boolean
   loadGoals: () => Promise<void>
-  setGoal: (data: { category: string; limitAmount: number; month?: string }) => Promise<void>
+  setGoal: (data: { category: string; limitAmount: number }) => Promise<void>
   deleteGoal: (id: string) => Promise<void>
-  getGoalForCategory: (category: string, month?: string) => Goal | undefined
+  getGoalForCategory: (category: string) => Goal | undefined
 }
 
 export const useGoalStore = create<GoalStore>((set, get) => ({
@@ -29,9 +29,8 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
     }
   },
 
-  setGoal: async ({ category, limitAmount, month }) => {
-    const targetMonth = month ?? getCurrentMonth()
-    const existing = get().goals.find((g) => g.category === category && g.month === targetMonth)
+  setGoal: async ({ category, limitAmount }) => {
+    const existing = get().goals.find((g) => g.category === category)
     if (existing) {
       await db.goals.update(existing.id, { limitAmount })
       await get().loadGoals()
@@ -40,7 +39,6 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
         id: generateId(),
         category,
         limitAmount,
-        month: targetMonth,
         createdAt: Date.now(),
       }
       await db.goals.add(goal)
@@ -53,8 +51,7 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
     set((state) => ({ goals: state.goals.filter((g) => g.id !== id) }))
   },
 
-  getGoalForCategory: (category, month) => {
-    const targetMonth = month ?? getCurrentMonth()
-    return get().goals.find((g) => g.category === category && g.month === targetMonth)
+  getGoalForCategory: (category) => {
+    return get().goals.find((g) => g.category === category)
   },
 }))
