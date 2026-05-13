@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# HEMATIN
 
-## Getting Started
+AI daily financial assistant untuk pengguna Indonesia. Catat pemasukan & pengeluaran, scan struk via foto, dan dapatkan insight keuangan harian dari AI — semuanya berjalan di browser tanpa backend.
 
-First, run the development server:
+## Fitur
+
+- **Dashboard** — ringkasan bulan ini, cash flow status, AI insight harian, grafik mini 7 hari
+- **Transaksi** — input manual, scan struk (AI vision), filter bulan & kategori, recurring transactions
+- **Laporan** — cash flow chart 4 bulan, donut chart kategori, net worth tracker
+- **Batas Pengeluaran** — spending limits per kategori, progress bar, alert otomatis di dashboard
+- **Utang & Piutang** — tracking hutang/piutang, support cicilan bulanan, mark as paid
+- **Recurring Transactions** — template transaksi berulang, auto-generate tiap bulan
+- **Scan Struk** — foto struk → AI baca → form pre-filled otomatis
+- **PWA** — install ke homescreen, offline-first (semua data di IndexedDB)
+
+## Tech Stack
+
+| Layer | Teknologi |
+|---|---|
+| Framework | Next.js 16 App Router + TypeScript |
+| Styling | Tailwind CSS v4 |
+| Animasi | Framer Motion v12 |
+| Database | Dexie.js (IndexedDB — no backend, no auth) |
+| State | Zustand v5 |
+| AI | Multi-provider: Anthropic, OpenAI, Google Gemini |
+| Charts | Recharts |
+| PWA | @ducanh2912/next-pwa v10 |
+
+## Setup
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> **Catatan:** `npm run dev` menggunakan flag `--webpack` karena Next.js 16 Turbopack tidak kompatibel dengan `@ducanh2912/next-pwa`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Konfigurasi AI
 
-## Learn More
+Buka halaman **Settings** di app → masukkan API key dari salah satu provider:
 
-To learn more about Next.js, take a look at the following resources:
+- **Anthropic** — [console.anthropic.com](https://console.anthropic.com)
+- **OpenAI** — [platform.openai.com](https://platform.openai.com)
+- **Google Gemini** — [aistudio.google.com](https://aistudio.google.com)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+API key disimpan lokal di browser (IndexedDB), tidak dikirim ke server selain provider AI yang dipilih.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Struktur Folder
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── page.tsx              # Dashboard
+│   ├── transactions/         # Riwayat transaksi
+│   ├── reports/              # Laporan & grafik
+│   ├── goals/                # Batas pengeluaran
+│   ├── debts/                # Utang & piutang
+│   ├── recurring/            # Transaksi berulang
+│   ├── scan/                 # Scan struk
+│   ├── settings/             # Konfigurasi AI
+│   └── api/
+│       ├── insight/          # AI insight proxy
+│       └── scan/             # Receipt scan proxy
+├── components/
+│   ├── layout/               # Header, BottomNav, PageWrapper
+│   ├── transactions/         # Form, list, item, category picker
+│   ├── dashboard/            # Chart & banner komponen
+│   ├── reports/              # CashFlowChart, CategoryDonut
+│   └── ui/                   # Button, Card, Input, Badge, Toast, dll
+├── stores/                   # Zustand stores
+├── lib/                      # db.ts, ai-providers.ts, utils.ts, categories.ts
+└── types/                    # TypeScript types
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Build
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm run start
+```
