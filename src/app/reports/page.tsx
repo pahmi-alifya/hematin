@@ -19,6 +19,7 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { MonthlyChart } from "@/components/dashboard/MonthlyChart";
+import { CashFlowChart } from "@/components/reports/CashFlowChart";
 import { CategoryDonut } from "@/components/reports/CategoryDonut";
 import { DebtSummaryChart } from "@/components/reports/DebtSummaryChart";
 import { useTransactionStore } from "@/stores/transactionStore";
@@ -201,8 +202,6 @@ export default function ReportsPage() {
     [byIncomeCategory],
   );
 
-  // Bulan yang ditampilkan di chart: jika "Semua", tampilkan bulan saat ini
-  const chartMonth = showAll ? getCurrentMonth() : month;
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -300,8 +299,10 @@ export default function ReportsPage() {
                 description="Mulai catat transaksi untuk melihat laporan"
                 className="py-8"
               />
+            ) : showAll ? (
+              <CashFlowChart transactions={transactions} currentMonth={getCurrentMonth()} allTime />
             ) : (
-              <MonthlyChart transactions={transactions} externalMonth={chartMonth} />
+              <MonthlyChart transactions={transactions} externalMonth={month} />
             )}
           </div>
 
@@ -368,7 +369,7 @@ export default function ReportsPage() {
                       {isPositive ? "+" : ""}{formatRupiah(net)}
                     </p>
                     <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                      {isPositive ? "Keuangan bulan ini sehat" : "Pengeluaran melebihi pemasukan"}
+                      {isPositive ? `Keuangan ${showAll ? "keseluruhan" : "bulan ini"} sehat` : "Pengeluaran melebihi pemasukan"}
                     </p>
                   </div>
                   <div className={`px-2.5 py-1.5 rounded-xl text-xs font-bold ${isPositive ? "bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400" : "bg-rose-50 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400"}`}>

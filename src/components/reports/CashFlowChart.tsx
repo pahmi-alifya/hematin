@@ -19,6 +19,8 @@ interface CashFlowChartProps {
   currentMonth: string
   /** how many months to show, default 4 */
   months?: number
+  /** show all months derived from transactions */
+  allTime?: boolean
 }
 
 function buildData(transactions: Transaction[], currentMonth: string, count: number) {
@@ -34,6 +36,22 @@ function buildData(transactions: Transaction[], currentMonth: string, count: num
       saving: monthTx.filter((t) => t.type === 'saving').reduce((s, t) => s + t.amount, 0),
     }
   })
+}
+
+function buildAllTimeData(transactions: Transaction[]) {
+  const monthSet = new Set(transactions.map((t) => t.date.substring(0, 7)))
+  return Array.from(monthSet)
+    .sort()
+    .map((monthStr) => {
+      const label = format(parseISO(monthStr + '-01'), 'MMM yy', { locale: id })
+      const monthTx = transactions.filter((t) => t.date.startsWith(monthStr))
+      return {
+        label,
+        income: monthTx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+        expense: monthTx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+        saving: monthTx.filter((t) => t.type === 'saving').reduce((s, t) => s + t.amount, 0),
+      }
+    })
 }
 
 function formatYAxis(value: number) {
@@ -70,8 +88,8 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   )
 }
 
-export function CashFlowChart({ transactions, currentMonth, months = 4 }: CashFlowChartProps) {
-  const data = buildData(transactions, currentMonth, months)
+export function CashFlowChart({ transactions, currentMonth, months = 4, allTime = false }: CashFlowChartProps) {
+  const data = allTime ? buildAllTimeData(transactions) : buildData(transactions, currentMonth, months)
 
   return (
     <div className="w-full">
