@@ -11,6 +11,7 @@ import {
   Trash2,
   Loader2,
   Heart,
+  Key,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageWrapper } from "@/components/layout/PageWrapper";
@@ -20,7 +21,6 @@ import { toast } from "@/components/ui/Toast";
 import { useSettingsStore } from "@/stores/settingsStore";
 import {
   AI_PROVIDERS,
-  getDefaultModel,
   isValidKeyFormat,
 } from "@/lib/ai-providers";
 import { maskApiKey } from "@/lib/utils";
@@ -42,14 +42,13 @@ export default function SettingsPage() {
 
   const [selectedProvider, setSelectedProvider] =
     useState<AIProviderKey>("anthropic");
-  const [selectedModel, setSelectedModel] = useState(
-    getDefaultModel("anthropic"),
-  );
+  const [selectedModel, setSelectedModel] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [saving, setSaving] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [fetchingModels, setFetchingModels] = useState(false);
+  const [keyStep, setKeyStep] = useState<"input" | "model">("input");
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Read from per-provider cache — persists across navigations & tab switches
@@ -64,6 +63,7 @@ export default function SettingsPage() {
     if (!aiSettings) return;
     setSelectedProvider(aiSettings.provider as AIProviderKey);
     setSelectedModel(aiSettings.model);
+    setKeyStep("model");
     // Auto-fetch if this provider has no cache yet
     if (!cachedModelsByProvider[aiSettings.provider]) {
       fetchModels(aiSettings.provider as AIProviderKey, aiSettings.apiKey);
@@ -71,7 +71,7 @@ export default function SettingsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [aiSettings]);
 
-  // Debounced auto-fetch when user types a new API key
+  // Debounced auto-fetch when user types a new API key (preloads model list)
   useEffect(() => {
     if (!apiKey.trim()) return;
     if (!isValidKeyFormat(selectedProvider, apiKey.trim())) return;
@@ -107,7 +107,7 @@ export default function SettingsPage() {
       setSelectedModel((prev) =>
         json.models!.find((m) => m.id === prev)
           ? prev
-          : (json.models![0]?.id ?? getDefaultModel(provider)),
+          : (json.models![0]?.id ?? ""),
       );
     } catch {
       // silently fail on auto-fetch; user can retry manually
@@ -117,7 +117,7 @@ export default function SettingsPage() {
   }
 
   async function handleFetchModels() {
-    const activeKey = apiKey.trim() || aiSettings?.apiKey;
+    const activeKey = aiSettings?.apiKey;
     if (!activeKey) {
       toast("Masukkan API key terlebih dahulu", "error");
       return;
@@ -140,7 +140,7 @@ export default function SettingsPage() {
       setCachedModels(json.models, selectedProvider);
       if (!json.models.find((m) => m.id === selectedModel)) {
         setSelectedModel(
-          json.models[0]?.id ?? getDefaultModel(selectedProvider),
+          json.models[0]?.id ?? "",
         );
       }
       toast(`${json.models.length} model ditemukan`, "success");
@@ -156,17 +156,13 @@ export default function SettingsPage() {
 
   function handleProviderChange(p: AIProviderKey) {
     setSelectedProvider(p);
-    // Restore saved model for this provider if cached, else default
     const cached = cachedModelsByProvider[p];
-    setSelectedModel(cached?.[0]?.id ?? getDefaultModel(p));
+    setSelectedModel(cached?.[0]?.id ?? "");
     setApiKey("");
-    // If this provider has no cache AND we have saved credentials, auto-fetch
-    if (!cached && aiSettings?.apiKey && aiSettings.provider === p) {
-      fetchModels(p, aiSettings.apiKey);
-    }
+    setKeyStep("input");
   }
 
-  async function handleSave() {
+  async function handleSaveKey() {
     if (!apiKey.trim()) {
       toast("Masukkan API key terlebih dahulu", "error");
       return;
@@ -178,15 +174,35 @@ export default function SettingsPage() {
       );
       return;
     }
+    const trimmedKey = apiKey.trim();
+    setSaving(true);
+    try {
+      await saveSettings({
+        provider: selectedProvider,
+        model: "",
+        apiKey: trimmedKey,
+      });
+      setApiKey("");
+      await fetchModels(selectedProvider, trimmedKey);
+      setKeyStep("model");
+      toast("API key tersimpan, pilih model yang ingin digunakan", "success");
+    } catch {
+      toast("Gagal menyimpan API key", "error");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleSaveSettings() {
+    if (!aiSettings) return;
     setSaving(true);
     try {
       await saveSettings({
         provider: selectedProvider,
         model: selectedModel,
-        apiKey: apiKey.trim(),
+        apiKey: aiSettings.apiKey,
       });
       toast("Pengaturan AI berhasil disimpan", "success");
-      setApiKey("");
     } catch {
       toast("Gagal menyimpan pengaturan", "error");
     } finally {
@@ -198,6 +214,7 @@ export default function SettingsPage() {
     setClearing(true);
     try {
       await clearSettings();
+      setKeyStep("input");
       toast("Pengaturan AI dihapus", "success");
       setApiKey("");
     } catch {
@@ -208,7 +225,6 @@ export default function SettingsPage() {
   }
 
   const currentProviderConfig = AI_PROVIDERS[selectedProvider];
-  const canFetchModels = !!(apiKey.trim() || aiSettings?.apiKey);
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -239,9 +255,10 @@ export default function SettingsPage() {
               <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </a>
           </div>
+
           {/* Status Card */}
           <AnimatePresence>
-            {isConfigured && aiSettings && (
+            {isConfigured && aiSettings && keyStep === "model" && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -312,120 +329,154 @@ export default function SettingsPage() {
               Key disimpan hanya di perangkat kamu, tidak dikirim ke server
               kami.
             </p>
-            <div className="relative">
-              <input
-                type={showKey ? "text" : "password"}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder={currentProviderConfig.keyPlaceholder}
-                className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              >
-                {showKey ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
 
-            <Button
-              variant="primary"
-              fullWidth
-              className="mt-3"
-              loading={saving}
-              onClick={handleSave}
-            >
-              Simpan Pengaturan
-            </Button>
-          </div>
-
-          {/* Model Selector */}
-          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                  Pilih Model
-                </p>
-                {dynamicModels && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">
-                    Live
-                  </span>
-                )}
-              </div>
-              {canFetchModels && (
-                <button
-                  onClick={handleFetchModels}
-                  disabled={fetchingModels}
-                  className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 font-medium disabled:opacity-50"
-                >
-                  <RefreshCw
-                    className={`w-3 h-3 ${fetchingModels ? "animate-spin" : ""}`}
+            {keyStep === "input" ? (
+              <>
+                <div className="relative">
+                  <input
+                    type={showKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={currentProviderConfig.keyPlaceholder}
+                    className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
                   />
-                  {fetchingModels ? "Memuat..." : "Perbarui model"}
-                </button>
-              )}
-            </div>
-            {fetchingModels ? (
-              <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span className="text-sm">Memuat daftar model...</span>
-              </div>
-            ) : dynamicModels === null ? (
-              <div className="flex flex-col items-center gap-2 py-6 text-center">
-                <p className="text-sm text-slate-400 dark:text-slate-500">
-                  Masukkan API key untuk memuat daftar model
-                </p>
-                <p className="text-xs text-slate-300 dark:text-slate-600">
-                  Model akan otomatis terdeteksi setelah key valid
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {dynamicModels.map((m) => (
-                  <motion.button
-                    key={m.id}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setSelectedModel(m.id)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
-                      selectedModel === m.id
-                        ? "border-sky-500 bg-sky-50 dark:bg-sky-900/40"
-                        : "border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
-                    }`}
+                  <button
+                    type="button"
+                    onClick={() => setShowKey((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                   >
-                    <div
-                      className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                        selectedModel === m.id
-                          ? "border-sky-500"
-                          : "border-slate-300 dark:border-slate-600"
-                      }`}
-                    >
-                      {selectedModel === m.id && (
-                        <div className="w-2 h-2 rounded-full bg-sky-500" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p
-                        className={`text-sm font-semibold ${selectedModel === m.id ? "text-sky-700 dark:text-sky-400" : "text-slate-700 dark:text-slate-300"}`}
-                      >
-                        {m.name}
-                      </p>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">
-                        {m.desc}
-                      </p>
-                    </div>
-                  </motion.button>
-                ))}
+                    {showKey ? (
+                      <EyeOff className="w-4 h-4" />
+                    ) : (
+                      <Eye className="w-4 h-4" />
+                    )}
+                  </button>
+                </div>
+                <Button
+                  variant="primary"
+                  fullWidth
+                  className="mt-3"
+                  loading={saving}
+                  onClick={handleSaveKey}
+                >
+                  Simpan API Key
+                </Button>
+              </>
+            ) : (
+              <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <div className="flex items-center gap-2">
+                  <Key className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span className="text-sm font-mono text-slate-600 dark:text-slate-400">
+                    {maskApiKey(aiSettings?.apiKey ?? "")}
+                  </span>
+                </div>
+                <button
+                  onClick={() => setKeyStep("input")}
+                  className="text-xs text-sky-600 dark:text-sky-400 font-semibold"
+                >
+                  Ubah
+                </button>
               </div>
             )}
           </div>
 
+          {/* Model Selector — muncul setelah API key tersimpan */}
+          <AnimatePresence>
+            {keyStep === "model" && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
+                className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4"
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                      Pilih Model
+                    </p>
+                    {dynamicModels && (
+                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">
+                        Live
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    onClick={handleFetchModels}
+                    disabled={fetchingModels}
+                    className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 font-medium disabled:opacity-50"
+                  >
+                    <RefreshCw
+                      className={`w-3 h-3 ${fetchingModels ? "animate-spin" : ""}`}
+                    />
+                    {fetchingModels ? "Memuat..." : "Perbarui model"}
+                  </button>
+                </div>
+
+                {fetchingModels ? (
+                  <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span className="text-sm">Memuat daftar model...</span>
+                  </div>
+                ) : dynamicModels === null ? (
+                  <div className="flex flex-col items-center gap-2 py-6 text-center">
+                    <p className="text-sm text-slate-400 dark:text-slate-500">
+                      Memuat daftar model...
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
+                    {dynamicModels.map((m) => (
+                      <motion.button
+                        key={m.id}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => setSelectedModel(m.id)}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border-2 text-left transition-colors ${
+                          selectedModel === m.id
+                            ? "border-sky-500 bg-sky-50 dark:bg-sky-900/40"
+                            : "border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800"
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                            selectedModel === m.id
+                              ? "border-sky-500"
+                              : "border-slate-300 dark:border-slate-600"
+                          }`}
+                        >
+                          {selectedModel === m.id && (
+                            <div className="w-2 h-2 rounded-full bg-sky-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p
+                            className={`text-sm font-semibold ${selectedModel === m.id ? "text-sky-700 dark:text-sky-400" : "text-slate-700 dark:text-slate-300"}`}
+                          >
+                            {m.name}
+                          </p>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            {m.desc}
+                          </p>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+                )}
+
+                <Button
+                  variant="primary"
+                  fullWidth
+                  className="mt-4"
+                  loading={saving}
+                  onClick={handleSaveSettings}
+                >
+                  Simpan Pengaturan
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Test Koneksi */}
-          {isConfigured && aiSettings && (
+          {isConfigured && aiSettings && keyStep === "model" && (
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Test Koneksi
