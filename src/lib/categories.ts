@@ -8,6 +8,10 @@ export const EXPENSE_CATEGORIES: Category[] = [
   { id: 'entertainment', name: 'Hiburan', icon: '🎮', color: '#DB2777', bgColor: '#FCE7F3' },
   { id: 'bills', name: 'Tagihan', icon: '📋', color: '#DC2626', bgColor: '#FEE2E2' },
   { id: 'education', name: 'Pendidikan', icon: '📚', color: '#0891B2', bgColor: '#CFFAFE' },
+  { id: 'housing', name: 'Rumah', icon: '🏠', color: '#B45309', bgColor: '#FEF3C7' },
+  { id: 'subscription', name: 'Langganan', icon: '📱', color: '#7C3AED', bgColor: '#EDE9FE' },
+  { id: 'personal-care', name: 'Perawatan Diri', icon: '💇', color: '#DB2777', bgColor: '#FCE7F3' },
+  { id: 'pet', name: 'Hewan Peliharaan', icon: '🐾', color: '#D97706', bgColor: '#FEF3C7' },
   { id: 'other', name: 'Lainnya', icon: '📦', color: '#64748B', bgColor: '#F1F5F9' },
 ]
 
