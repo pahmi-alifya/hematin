@@ -293,6 +293,71 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* API Key Input */}
+          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                API Key
+              </p>
+              <a
+                href={currentProviderConfig.docsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 font-medium"
+              >
+                Dapatkan key <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+              Key disimpan hanya di perangkat kamu, tidak dikirim ke server
+              kami.
+            </p>
+            <div className="relative">
+              <input
+                type={showKey ? "text" : "password"}
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder={currentProviderConfig.keyPlaceholder}
+                className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey((v) => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
+              >
+                {showKey ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
+              </button>
+            </div>
+
+            <Button
+              variant="primary"
+              fullWidth
+              className="mt-3"
+              loading={saving}
+              onClick={handleSave}
+            >
+              Simpan Pengaturan
+            </Button>
+          </div>
+
+          {/* Test Koneksi */}
+          {isConfigured && aiSettings && (
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Test Koneksi
+              </p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                Pastikan API key dan model yang dipilih bisa terhubung ke
+                provider.
+              </p>
+              <ConnectionTest settings={aiSettings} />
+            </div>
+          )}
+
           {/* Model Selector */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
             <div className="flex items-center justify-between mb-3">
@@ -372,71 +437,6 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
-
-          {/* API Key Input */}
-          <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
-            <div className="flex items-center justify-between mb-1">
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                API Key
-              </p>
-              <a
-                href={currentProviderConfig.docsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 font-medium"
-              >
-                Dapatkan key <ExternalLink className="w-3 h-3" />
-              </a>
-            </div>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-              Key disimpan hanya di perangkat kamu, tidak dikirim ke server
-              kami.
-            </p>
-            <div className="relative">
-              <input
-                type={showKey ? "text" : "password"}
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder={currentProviderConfig.keyPlaceholder}
-                className="w-full px-4 py-3 pr-12 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-mono text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
-              />
-              <button
-                type="button"
-                onClick={() => setShowKey((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
-              >
-                {showKey ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-
-            <Button
-              variant="primary"
-              fullWidth
-              className="mt-3"
-              loading={saving}
-              onClick={handleSave}
-            >
-              Simpan Pengaturan
-            </Button>
-          </div>
-
-          {/* Test Koneksi */}
-          {isConfigured && aiSettings && (
-            <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Test Koneksi
-              </p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                Pastikan API key dan model yang dipilih bisa terhubung ke
-                provider.
-              </p>
-              <ConnectionTest settings={aiSettings} />
-            </div>
-          )}
 
           {/* Danger Zone */}
           {isConfigured && (
