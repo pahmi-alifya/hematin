@@ -1,4 +1,16 @@
 export const AI_PROVIDERS = {
+  gemini: {
+    name: 'Google Gemini',
+    logo: '🔵',
+    models: [
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Recommended — konteks panjang', vision: true },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Cepat & efisien', vision: true },
+      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', desc: 'Terbaru & tercepat', vision: true },
+    ],
+    keyPrefix: 'AIza',
+    keyPlaceholder: 'AIzaSy...',
+    docsUrl: 'https://aistudio.google.com/app/apikey',
+  },
   anthropic: {
     name: 'Anthropic',
     logo: '🟣',
@@ -22,18 +34,6 @@ export const AI_PROVIDERS = {
     keyPrefix: 'sk-',
     keyPlaceholder: 'sk-proj-...',
     docsUrl: 'https://platform.openai.com/api-keys',
-  },
-  gemini: {
-    name: 'Google Gemini',
-    logo: '🔵',
-    models: [
-      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro', desc: 'Recommended — konteks panjang', vision: true },
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash', desc: 'Cepat & efisien', vision: true },
-      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash', desc: 'Terbaru & tercepat', vision: true },
-    ],
-    keyPrefix: 'AIza',
-    keyPlaceholder: 'AIzaSy...',
-    docsUrl: 'https://aistudio.google.com/app/apikey',
   },
 } as const
 
