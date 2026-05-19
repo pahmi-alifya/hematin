@@ -344,20 +344,6 @@ export default function SettingsPage() {
             </Button>
           </div>
 
-          {/* Test Koneksi */}
-          {isConfigured && aiSettings && (
-            <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Test Koneksi
-              </p>
-              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                Pastikan API key dan model yang dipilih bisa terhubung ke
-                provider.
-              </p>
-              <ConnectionTest settings={aiSettings} />
-            </div>
-          )}
-
           {/* Model Selector */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
             <div className="flex items-center justify-between mb-3">
@@ -437,6 +423,20 @@ export default function SettingsPage() {
               </div>
             )}
           </div>
+
+          {/* Test Koneksi */}
+          {isConfigured && aiSettings && (
+            <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Test Koneksi
+              </p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
+                Pastikan API key dan model yang dipilih bisa terhubung ke
+                provider.
+              </p>
+              <ConnectionTest settings={aiSettings} />
+            </div>
+          )}
 
           {/* Danger Zone */}
           {isConfigured && (
