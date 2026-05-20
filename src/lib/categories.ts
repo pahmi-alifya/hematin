@@ -4,6 +4,7 @@ export const EXPENSE_CATEGORIES: Category[] = [
   { id: 'food', name: 'Makanan', icon: '🍜', color: '#D97706', bgColor: '#FEF3C7' },
   { id: 'transport', name: 'Transport', icon: '🚗', color: '#2563EB', bgColor: '#DBEAFE' },
   { id: 'shopping', name: 'Belanja', icon: '🛒', color: '#7C3AED', bgColor: '#EDE9FE' },
+  { id: 'online-shop', name: 'Belanja Online', icon: '🛍️', color: '#9333EA', bgColor: '#F3E8FF' },
   { id: 'health', name: 'Kesehatan', icon: '💊', color: '#059669', bgColor: '#D1FAE5' },
   { id: 'entertainment', name: 'Hiburan', icon: '🎮', color: '#DB2777', bgColor: '#FCE7F3' },
   { id: 'bills', name: 'Tagihan', icon: '📋', color: '#DC2626', bgColor: '#FEE2E2' },
