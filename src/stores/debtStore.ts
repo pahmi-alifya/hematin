@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { format } from 'date-fns'
 import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
+import { useWalletStore } from '@/stores/walletStore'
 import type { Debt, DebtPayment } from '@/types'
 
 interface DebtStore {
@@ -12,13 +13,13 @@ interface DebtStore {
   isLoading: boolean
 
   loadDebts: () => Promise<void>
-  addDebt: (data: Omit<Debt, 'id' | 'createdAt' | 'status'>) => Promise<void>
+  addDebt: (data: Omit<Debt, 'id' | 'createdAt' | 'status' | 'walletId'>) => Promise<void>
   markAsPaid: (id: string, notes?: string) => Promise<void>
   deleteDebt: (id: string) => Promise<void>
   updateDebt: (id: string, data: Partial<Omit<Debt, 'id'>>) => Promise<void>
 
   // Payment actions (cicilan)
-  addPayment: (data: Omit<DebtPayment, 'id' | 'createdAt'>) => Promise<{ isFullyPaid: boolean }>
+  addPayment: (data: Omit<DebtPayment, 'id' | 'createdAt' | 'walletId'>) => Promise<{ isFullyPaid: boolean }>
   deletePayment: (id: string) => Promise<void>
   getPaymentsByDebt: (debtId: string) => DebtPayment[]
   getTotalPaid: (debtId: string) => number
@@ -42,10 +43,19 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
   loadDebts: async () => {
     set({ isLoading: true })
     try {
+      const walletId = useWalletStore.getState().activeWalletId
+      if (!walletId) {
+        set({ debts: [], payments: [], isLoading: false })
+        return
+      }
       const today = format(new Date(), 'yyyy-MM-dd')
       const currentMonth = format(new Date(), 'yyyy-MM')
-      let debts = await db.debts.orderBy('createdAt').reverse().toArray()
-      const payments = await db.debtPayments.orderBy('createdAt').reverse().toArray()
+      let debts = (
+        await db.debts.where('walletId').equals(walletId).sortBy('createdAt')
+      ).reverse()
+      const payments = (
+        await db.debtPayments.where('walletId').equals(walletId).sortBy('createdAt')
+      ).reverse()
 
       // Build paid totals map
       const paidMap: Record<string, number> = {}
@@ -94,7 +104,9 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
         await Promise.all(
           updates.map(({ id, ...data }) => db.debts.update(id, data)),
         )
-        debts = await db.debts.orderBy('createdAt').reverse().toArray()
+        debts = (
+          await db.debts.where('walletId').equals(walletId).sortBy('createdAt')
+        ).reverse()
       }
 
       set({ debts, payments, isLoading: false })
@@ -104,8 +116,11 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
   },
 
   addDebt: async (data) => {
+    const walletId = useWalletStore.getState().activeWalletId
+    if (!walletId) return
     const debt: Debt = {
       ...data,
+      walletId,
       id: generateId(),
       createdAt: Date.now(),
       status: 'active',
@@ -138,8 +153,11 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
   // ─── Cicilan Payment Actions ──────────────────────────────────────────────
 
   addPayment: async (data) => {
+    const walletId = useWalletStore.getState().activeWalletId
+    if (!walletId) return { isFullyPaid: false }
     const payment: DebtPayment = {
       ...data,
+      walletId,
       id: generateId(),
       createdAt: Date.now(),
     }

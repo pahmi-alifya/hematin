@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
+import { useWalletStore } from '@/stores/walletStore'
 import type { Goal } from '@/types'
 
 interface GoalStore {
@@ -21,7 +22,12 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
   loadGoals: async () => {
     set({ isLoading: true })
     try {
-      const goals = await db.goals.toArray()
+      const walletId = useWalletStore.getState().activeWalletId
+      if (!walletId) {
+        set({ goals: [], isLoading: false })
+        return
+      }
+      const goals = await db.goals.where('walletId').equals(walletId).toArray()
       goals.sort((a, b) => b.createdAt - a.createdAt)
       set({ goals, isLoading: false })
     } catch {
@@ -30,6 +36,8 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
   },
 
   setGoal: async ({ category, limitAmount }) => {
+    const walletId = useWalletStore.getState().activeWalletId
+    if (!walletId) return
     const existing = get().goals.find((g) => g.category === category)
     if (existing) {
       await db.goals.update(existing.id, { limitAmount })
@@ -37,6 +45,7 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
     } else {
       const goal: Goal = {
         id: generateId(),
+        walletId,
         category,
         limitAmount,
         createdAt: Date.now(),

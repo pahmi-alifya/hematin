@@ -3,6 +3,7 @@
 import { create } from 'zustand'
 import { db } from '@/lib/db'
 import { generateId, getCurrentMonth } from '@/lib/utils'
+import { useWalletStore } from '@/stores/walletStore'
 import type { RecurringTemplate } from '@/types'
 
 interface RecurringStore {
@@ -10,7 +11,7 @@ interface RecurringStore {
   isLoading: boolean
 
   loadTemplates: () => Promise<void>
-  addTemplate: (data: Omit<RecurringTemplate, 'id' | 'createdAt'>) => Promise<string>
+  addTemplate: (data: Omit<RecurringTemplate, 'id' | 'createdAt' | 'walletId'>) => Promise<string>
   updateTemplate: (id: string, data: Partial<Omit<RecurringTemplate, 'id'>>) => Promise<void>
   deleteTemplate: (id: string) => Promise<void>
   toggleActive: (id: string) => Promise<void>
@@ -27,7 +28,14 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
   loadTemplates: async () => {
     set({ isLoading: true })
     try {
-      const templates = await db.recurringTemplates.orderBy('createdAt').reverse().toArray()
+      const walletId = useWalletStore.getState().activeWalletId
+      if (!walletId) {
+        set({ templates: [], isLoading: false })
+        return
+      }
+      const templates = (
+        await db.recurringTemplates.where('walletId').equals(walletId).sortBy('createdAt')
+      ).reverse()
       set({ templates, isLoading: false })
     } catch {
       set({ isLoading: false })
@@ -35,9 +43,12 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
   },
 
   addTemplate: async (data) => {
+    const walletId = useWalletStore.getState().activeWalletId
+    if (!walletId) return ''
     const id = generateId()
     const template: RecurringTemplate = {
       ...data,
+      walletId,
       id,
       createdAt: Date.now(),
     }
