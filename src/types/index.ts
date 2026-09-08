@@ -1,7 +1,23 @@
 export type AIProvider = 'anthropic' | 'openai' | 'gemini'
 
+export interface Wallet {
+  id: string
+  name: string             // "Dompet Utama", "Keuangan Kantor", dst
+  icon: string             // emoji
+  color: string            // hex, dipakai sebagai aksen di switcher & badge
+  isDefault: boolean       // true untuk "Dompet Utama" hasil migrasi/first-run
+  createdAt: number
+  order: number            // urutan tampil di switcher
+
+  // Diisi kalau dompet ini pernah cloud-linked (Fase 2/3) — belum dipakai di Fase 1
+  cloudWalletId?: string
+  ownerRole?: 'owner' | 'editor' | 'viewer'
+  isShared?: boolean
+}
+
 export interface Transaction {
   id: string
+  walletId: string
   type: 'income' | 'expense' | 'saving'
   amount: number
   category: string
@@ -15,6 +31,7 @@ export interface Transaction {
 
 export interface RecurringTemplate {
   id: string
+  walletId: string
   type: 'income' | 'expense' | 'saving'
   amount: number
   category: string
@@ -28,6 +45,7 @@ export interface RecurringTemplate {
 
 export interface Goal {
   id: string
+  walletId: string
   category: string
   limitAmount: number
   month?: string // "2026-02" — opsional, legacy field
@@ -36,6 +54,7 @@ export interface Goal {
 
 export interface InsightCache {
   id: string // "insight-2026-02-26"
+  walletId: string
   date: string
   content: string
   generatedAt: number
@@ -85,6 +104,7 @@ export interface FinancialContext {
 
 export interface Debt {
   id: string
+  walletId: string
   type: 'hutang' | 'piutang' // hutang = I owe someone, piutang = they owe me
   person: string              // nama orang
   amount: number              // TOTAL dalam Rupiah
@@ -103,6 +123,7 @@ export interface Debt {
 
 export interface DebtPayment {
   id: string
+  walletId: string
   debtId: string              // FK ke Debt.id
   amount: number              // nominal yang dibayarkan
   paidDate: string            // ISO date "YYYY-MM-DD"
