@@ -27,6 +27,7 @@ import { AIInsightCard } from "@/components/dashboard/AIInsightCard";
 import { DebtReminderBanner } from "@/components/dashboard/DebtReminderBanner";
 import { RecurringReminderBanner } from "@/components/dashboard/RecurringReminderBanner";
 import { GoalAlertBanner } from "@/components/dashboard/GoalAlertBanner";
+import { WalletSwitcher } from "@/components/wallet/WalletSwitcher";
 import { formatRupiah, getCurrentMonth } from "@/lib/utils";
 import { useDebtStore } from "@/stores/debtStore";
 import { useRecurringStore } from "@/stores/recurringStore";
@@ -128,6 +129,10 @@ export default function DashboardPage() {
         >
           <Settings className="w-5 h-5" />
         </Link>
+
+        <div className="absolute top-3 left-4">
+          <WalletSwitcher variant="light" />
+        </div>
 
         <div className="px-5 pt-4 pb-8">
           <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">

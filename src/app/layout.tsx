@@ -5,6 +5,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ui/ThemeToggle";
 import { InstallBanner } from "@/components/ui/InstallBanner";
+import { WalletProvider } from "@/components/wallet/WalletProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -267,6 +268,7 @@ export default function RootLayout({
       <body className="antialiased bg-sky-50 dark:bg-[#0B1120]">
         <ThemeProvider />
         <ToastProvider />
+        <WalletProvider />
         {children}
         <InstallBanner />
         <Analytics />
