@@ -24,13 +24,14 @@ export function formatDebtContextForAI(debts: Debt[]): string | undefined {
   return lines.join('\n')
 }
 
-export async function getCachedInsight(date: string): Promise<InsightCache | undefined> {
-  return db.insights.get(`insight-${date}`)
+export async function getCachedInsight(walletId: string, date: string): Promise<InsightCache | undefined> {
+  return db.insights.get(`insight-${walletId}-${date}`)
 }
 
-async function saveInsightCache(date: string, content: string): Promise<void> {
+async function saveInsightCache(walletId: string, date: string, content: string): Promise<void> {
   await db.insights.put({
-    id: `insight-${date}`,
+    id: `insight-${walletId}-${date}`,
+    walletId,
     date,
     content,
     generatedAt: Date.now(),
@@ -59,6 +60,7 @@ export async function fetchInsight(context: string, settings: AISettings, debtCo
 }
 
 export async function getOrFetchInsight(
+  walletId: string,
   transactions: Transaction[],
   settings: AISettings,
   forceRefresh = false,
@@ -67,7 +69,7 @@ export async function getOrFetchInsight(
   const today = format(new Date(), 'yyyy-MM-dd')
 
   if (!forceRefresh) {
-    const cached = await getCachedInsight(today)
+    const cached = await getCachedInsight(walletId, today)
     if (cached) return cached.content
   }
 
@@ -75,6 +77,6 @@ export async function getOrFetchInsight(
   const contextStr = formatContextForAI(ctx)
   const debtContext = debts ? formatDebtContextForAI(debts) : undefined
   const insight = await fetchInsight(contextStr, settings, debtContext)
-  await saveInsightCache(today, insight)
+  await saveInsightCache(walletId, today, insight)
   return insight
 }
