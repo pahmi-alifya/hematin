@@ -228,7 +228,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Pengaturan AI" showBack />
+      <Header title="Pengaturan AI" showBack hideWalletSwitcher />
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
