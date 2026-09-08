@@ -8,12 +8,14 @@ import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useDebtStore } from "@/stores/debtStore";
+import { useWalletStore } from "@/stores/walletStore";
 import { getOrFetchInsight } from "@/lib/ai-insight";
 
 export function AIInsightCard() {
   const { transactions } = useTransactionStore();
   const { aiSettings, isConfigured } = useSettingsStore();
   const debts = useDebtStore((s) => s.debts);
+  const activeWalletId = useWalletStore((s) => s.activeWalletId);
   const [insight, setInsight] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,11 +23,12 @@ export function AIInsightCard() {
 
   const loadInsight = useCallback(
     async (forceRefresh = false) => {
-      if (!aiSettings || !isConfigured) return;
+      if (!aiSettings || !isConfigured || !activeWalletId) return;
       setIsLoading(true);
       setError(null);
       try {
         const text = await getOrFetchInsight(
+          activeWalletId,
           transactions,
           aiSettings,
           forceRefresh,
@@ -38,7 +41,7 @@ export function AIInsightCard() {
         setIsLoading(false);
       }
     },
-    [transactions, aiSettings, isConfigured],
+    [activeWalletId, transactions, aiSettings, isConfigured],
   );
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { WalletSwitcher } from "@/components/wallet/WalletSwitcher";
 
 interface HeaderProps {
   title?: string;
@@ -9,6 +10,7 @@ interface HeaderProps {
   backHref?: string;
   rightElement?: React.ReactNode;
   showSettings?: boolean;
+  hideWalletSwitcher?: boolean;
   className?: string;
 }
 
@@ -17,6 +19,7 @@ export function Header({
   showBack,
   backHref = "/",
   rightElement,
+  hideWalletSwitcher,
   className,
 }: HeaderProps) {
   return (
@@ -59,6 +62,7 @@ export function Header({
         )}
 
         <div className="flex items-center gap-2 shrink-0">
+          {!hideWalletSwitcher && <WalletSwitcher />}
           {rightElement}
           <ThemeToggle />
         </div>
