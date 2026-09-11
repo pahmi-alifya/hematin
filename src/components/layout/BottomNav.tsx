@@ -3,62 +3,19 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Home,
-  List,
-  BarChart2,
-  Target,
-  Plus,
-  CreditCard,
-  Camera,
-  X,
-  Settings,
-} from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useDebtStore } from "@/stores/debtStore";
-
-const leftItems = [
-  { href: "/", icon: Home, label: "Beranda" },
-  { href: "/transactions", icon: List, label: "Transaksi" },
-];
-
-const rightItems = [
-  { href: "/reports", icon: BarChart2, label: "Laporan" },
-  { href: "/goals", icon: Target, label: "Goals" },
-];
-
-// Radial layout config
-// Angles in degrees, measured from right (counter-clockwise = upward on screen)
-const FAB_ITEMS = [
-  {
-    icon: Camera,
-    label: "Scan",
-    color: "#10B981",
-    shadow: "rgba(16,185,129,0.45)",
-    angle: 150, // upper-left
-    href: "/scan",
-  },
-  {
-    icon: CreditCard,
-    label: "Utang",
-    color: "#F59E0B",
-    shadow: "rgba(245,158,11,0.45)",
-    angle: 90, // straight up
-    href: "/debts",
-  },
-  {
-    icon: Settings,
-    label: "Setting",
-    color: "#6366F1",
-    shadow: "rgba(99,102,241,0.45)",
-    angle: 30, // upper-right
-    href: "/settings",
-  },
-];
-
-// Radius of radial spread in px
-const RADIUS = 82;
+import { useCanEditActiveWallet } from "@/hooks/useCanEditActiveWallet";
+import {
+  NAV_LEFT_ITEMS,
+  NAV_RIGHT_ITEMS,
+  FAB_ITEMS,
+  FAB_START_ANGLE,
+  FAB_END_ANGLE,
+  FAB_RADIUS,
+} from "@/lib/nav";
 
 function NavItem({
   href,
@@ -112,6 +69,11 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const overdueCount = useDebtStore((s) => s.getOverdueCount());
+  const canEdit = useCanEditActiveWallet();
+
+  const fabItems = canEdit
+    ? FAB_ITEMS
+    : FAB_ITEMS.filter((item) => item.label !== "Scan");
   const [fabOpen, setFabOpen] = useState(false);
 
   function handleItemClick(href: string) {
@@ -135,24 +97,23 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
         )}
       </AnimatePresence>
 
-      {/*
-        Radial item container anchored at the FAB center.
-        FAB: fixed bottom-0 nav (h-16=64px) + -top-5 (-20px) = top at 84px from bottom.
-        FAB h-14 (56px) → center at 84 + 28 = 112px from bottom.
-        Container: bottom: (112 - 24)px = 88px (accounts for half button size 24px)
-        so that translate(0,0) = button center lines up with FAB center.
-      */}
       <div
         className="fixed z-30 pointer-events-none"
-        style={{ bottom: "88px", left: "50%", width: 0, height: 0 }}
+        style={{ bottom: "100px", left: "50%", width: 0, height: 0 }}
       >
         <AnimatePresence>
           {fabOpen &&
-            FAB_ITEMS.map((item, i) => {
-              const rad = (item.angle * Math.PI) / 180;
-              const tx = Math.round(Math.cos(rad) * RADIUS);
-              // Negative because screen y is inverted (up = negative y)
-              const ty = Math.round(-Math.sin(rad) * RADIUS);
+            fabItems.map((item, i) => {
+              const currentAngle =
+                fabItems.length === 1
+                  ? 90
+                  : FAB_START_ANGLE -
+                    (i * (FAB_START_ANGLE - FAB_END_ANGLE)) /
+                      (fabItems.length - 1);
+
+              const rad = (currentAngle * Math.PI) / 180;
+              const tx = Math.round(Math.cos(rad) * FAB_RADIUS);
+              const ty = Math.round(-Math.sin(rad) * FAB_RADIUS);
 
               return (
                 <motion.div
@@ -170,7 +131,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
                     y: 0,
                     scale: 0,
                     opacity: 0,
-                    transition: { delay: (FAB_ITEMS.length - 1 - i) * 0.04 },
+                    transition: { delay: (fabItems.length - 1 - i) * 0.04 },
                   }}
                   transition={{
                     delay: i * 0.06,
@@ -215,7 +176,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
           <div className="flex items-center h-full">
             {/* LEFT */}
             <div className="flex flex-1 items-center h-full">
-              {leftItems.map((item) => (
+              {NAV_LEFT_ITEMS.map((item) => (
                 <NavItem
                   key={item.href}
                   {...item}
@@ -229,7 +190,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
 
             {/* RIGHT */}
             <div className="flex flex-1 items-center h-full">
-              {rightItems.map((item) => (
+              {NAV_RIGHT_ITEMS.map((item) => (
                 <NavItem
                   key={item.href}
                   {...item}
