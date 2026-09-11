@@ -1,79 +1,26 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Upload, AlertTriangle, X, Database } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { toast } from '@/components/ui/Toast'
-import {
-  downloadBackup,
-  parseBackupFile,
-  importData,
-  getImportPreview,
-  type HematinBackup,
-  type ImportMode,
-  type ImportPreview,
-} from '@/lib/export-import'
-import { useTransactionStore } from '@/stores/transactionStore'
-import { useGoalStore } from '@/stores/goalStore'
+import { useDataBackup } from '@/hooks/useDataBackup'
+import type { ImportMode } from '@/lib/export-import'
 
 export function DataBackupSection() {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [exporting, setExporting] = useState(false)
-  const [importing, setImporting] = useState(false)
-
-  // Modal state
-  const [backup, setBackup] = useState<HematinBackup | null>(null)
-  const [preview, setPreview] = useState<ImportPreview | null>(null)
-  const [mode, setMode] = useState<ImportMode>('merge')
-
-  const loadTransactions = useTransactionStore((s) => s.loadTransactions)
-  const loadGoals = useGoalStore((s) => s.loadGoals)
-
-  async function handleExport() {
-    setExporting(true)
-    try {
-      await downloadBackup()
-      toast('Data berhasil diexport', 'success')
-    } catch {
-      toast('Gagal export data', 'error')
-    } finally {
-      setExporting(false)
-    }
-  }
-
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!e.target.files) return
-    // reset input so same file can be re-selected
-    e.target.value = ''
-    if (!file) return
-
-    try {
-      const parsed = await parseBackupFile(file)
-      setBackup(parsed)
-      setPreview(getImportPreview(parsed))
-      setMode('merge')
-    } catch (err) {
-      toast(err instanceof Error ? err.message : 'File tidak valid', 'error')
-    }
-  }
-
-  async function handleConfirmImport() {
-    if (!backup) return
-    setImporting(true)
-    try {
-      await importData(backup, mode)
-      await Promise.all([loadTransactions(), loadGoals()])
-      toast('Data berhasil diimport', 'success')
-      setBackup(null)
-      setPreview(null)
-    } catch {
-      toast('Gagal import data', 'error')
-    } finally {
-      setImporting(false)
-    }
-  }
+  const {
+    exporting,
+    importing,
+    backup,
+    preview,
+    mode,
+    setMode,
+    handleExport,
+    handleFileChange,
+    handleConfirmImport,
+    cancelImport,
+  } = useDataBackup()
 
   const totalRecords = preview
     ? preview.transactions + preview.goals + preview.debts + preview.recurringTemplates
@@ -131,10 +78,7 @@ export function DataBackupSection() {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4 pb-6 sm:pb-0"
             onClick={(e) => {
-              if (e.target === e.currentTarget) {
-                setBackup(null)
-                setPreview(null)
-              }
+              if (e.target === e.currentTarget) cancelImport()
             }}
           >
             <motion.div
@@ -150,7 +94,7 @@ export function DataBackupSection() {
                   Konfirmasi Import
                 </p>
                 <button
-                  onClick={() => { setBackup(null); setPreview(null) }}
+                  onClick={cancelImport}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                 >
                   <X className="w-4 h-4" />
@@ -222,7 +166,7 @@ export function DataBackupSection() {
                   <Button
                     variant="secondary"
                     fullWidth
-                    onClick={() => { setBackup(null); setPreview(null) }}
+                    onClick={cancelImport}
                   >
                     Batal
                   </Button>
