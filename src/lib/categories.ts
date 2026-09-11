@@ -46,3 +46,10 @@ export function getCategoryById(id: string, type: 'income' | 'expense' | 'saving
 export function getCategoryName(id: string, type: 'income' | 'expense' | 'saving'): string {
   return getCategoryById(id, type)?.name ?? id
 }
+
+/** Kategori default yang dipilih saat user ganti tipe transaksi tanpa kategori aktif. */
+export function getDefaultCategoryForType(type: 'income' | 'expense' | 'saving'): string {
+  if (type === 'income') return 'salary'
+  if (type === 'saving') return 'tabungan'
+  return 'food'
+}

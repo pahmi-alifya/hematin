@@ -1,6 +1,21 @@
 import { format, subDays } from 'date-fns'
 import type { Transaction, FinancialContext } from '@/types'
-import { EXPENSE_CATEGORIES } from './categories'
+import { getCategoryById } from './categories'
+import { formatRupiahShort } from './utils'
+
+/** Total per kategori dari transaksi bertipe `type`, sebagai `{ [categoryId]: total }`. */
+export function groupSumByCategory(
+  transactions: Transaction[],
+  type: 'income' | 'expense' | 'saving',
+): Record<string, number> {
+  const map: Record<string, number> = {}
+  transactions
+    .filter((t) => t.type === type)
+    .forEach((t) => {
+      map[t.category] = (map[t.category] ?? 0) + t.amount
+    })
+  return map
+}
 
 export function getTotalIncome(transactions: Transaction[], month: string): number {
   return transactions
@@ -28,15 +43,11 @@ export function getCashFlowStatus(income: number, expense: number, saving = 0): 
 }
 
 export function getTopCategory(transactions: Transaction[], month: string): string {
-  const map: Record<string, number> = {}
-  transactions
-    .filter((t) => t.type === 'expense' && t.date.startsWith(month))
-    .forEach((t) => {
-      map[t.category] = (map[t.category] ?? 0) + t.amount
-    })
+  const monthlyTx = transactions.filter((t) => t.date.startsWith(month))
+  const map = groupSumByCategory(monthlyTx, 'expense')
   const top = Object.entries(map).sort(([, a], [, b]) => b - a)[0]
   if (!top) return 'Tidak ada'
-  const cat = EXPENSE_CATEGORIES.find((c) => c.id === top[0])
+  const cat = getCategoryById(top[0], 'expense')
   return cat ? `${cat.icon} ${cat.name}` : top[0]
 }
 
@@ -113,13 +124,7 @@ export function buildFinancialContext(transactions: Transaction[]): FinancialCon
 }
 
 export function formatContextForAI(ctx: FinancialContext): string {
-  const fmt = (v: number) => {
-    const abs = Math.abs(v)
-    const sign = v < 0 ? '-' : ''
-    if (abs >= 1_000_000) return `${sign}Rp${(abs / 1_000_000).toFixed(1)}jt`
-    if (abs >= 1_000) return `${sign}Rp${(abs / 1_000).toFixed(0)}rb`
-    return `${sign}Rp${abs}`
-  }
+  const fmt = formatRupiahShort
 
   const statusMap = { positive: 'aman', neutral: 'waspada', negative: 'defisit' }
   const trendMap = { increasing: 'naik', stable: 'stabil', decreasing: 'turun' }

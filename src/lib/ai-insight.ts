@@ -1,6 +1,7 @@
 import { format } from 'date-fns'
 import { db } from './db'
 import { buildFinancialContext, formatContextForAI } from './calculations'
+import { buildAIHeaders } from './utils'
 import type { Transaction, AISettings, InsightCache, Debt } from '@/types'
 
 export function formatDebtContextForAI(debts: Debt[]): string | undefined {
@@ -43,9 +44,7 @@ export async function fetchInsight(context: string, settings: AISettings, debtCo
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'X-AI-Provider': settings.provider,
-      'X-AI-Model': settings.model,
-      'X-AI-Key': settings.apiKey,
+      ...buildAIHeaders({ provider: settings.provider, apiKey: settings.apiKey, model: settings.model }),
     },
     body: JSON.stringify({ context, ...(debtContext ? { debtContext } : {}) }),
   })

@@ -17,21 +17,23 @@ export function formatRupiah(amount: number): string {
 }
 
 export function formatRupiahShort(amount: number): string {
-  if (amount >= 1_000_000_000) return `Rp ${(amount / 1_000_000_000).toFixed(1)}M`
-  if (amount >= 1_000_000) return `Rp ${(amount / 1_000_000).toFixed(1)}jt`
-  if (amount >= 1_000) return `Rp ${(amount / 1_000).toFixed(0)}rb`
-  return `Rp ${amount}`
+  const sign = amount < 0 ? '-' : ''
+  const abs = Math.abs(amount)
+  if (abs >= 1_000_000_000) return `${sign}Rp ${(abs / 1_000_000_000).toFixed(1)}M`
+  if (abs >= 1_000_000) return `${sign}Rp ${(abs / 1_000_000).toFixed(1)}jt`
+  if (abs >= 1_000) return `${sign}Rp ${(abs / 1_000).toFixed(0)}rb`
+  return `${sign}Rp ${abs}`
 }
 
 export function formatDate(date: string): string {
   return format(parseISO(date), 'd MMM yyyy', { locale: id })
 }
 
-export function formatRelativeDate(date: string): string {
+export function formatRelativeDate(date: string, fallbackFormat = 'EEEE, d MMM'): string {
   const d = parseISO(date)
   if (isToday(d)) return 'Hari ini'
   if (isYesterday(d)) return 'Kemarin'
-  return format(d, 'EEEE, d MMM', { locale: id })
+  return format(d, fallbackFormat, { locale: id })
 }
 
 export function formatMonthYear(date: string): string {
@@ -66,4 +68,18 @@ export function parseRupiahInput(value: string): number {
 export function formatRupiahInput(value: number): string {
   if (!value) return ''
   return new Intl.NumberFormat('id-ID').format(value)
+}
+
+/** Header request standar untuk memanggil route AI proxy (`/api/insight`, `/api/scan`, `/api/models`). */
+export function buildAIHeaders(params: {
+  provider: string
+  apiKey: string
+  model?: string
+}): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-AI-Provider': params.provider,
+    'X-AI-Key': params.apiKey,
+  }
+  if (params.model) headers['X-AI-Model'] = params.model
+  return headers
 }
