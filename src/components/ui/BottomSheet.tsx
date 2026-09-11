@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -15,6 +16,14 @@ interface BottomSheetProps {
 }
 
 export function BottomSheet({ open, onClose, title, children, className, showClose = true }: BottomSheetProps) {
+  // Portal ke document.body — kalau di-render in-place, "fixed" di sini bisa ke-contain
+  // oleh ancestor `position: sticky` (mis. Header) di sebagian browser, bikin sheet
+  // nempel di bawah header alih-alih bawah viewport. Portal menghindari itu sepenuhnya.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
   // Prevent scroll when open
   useEffect(() => {
     if (open) {
@@ -27,7 +36,9 @@ export function BottomSheet({ open, onClose, title, children, className, showClo
     }
   }, [open])
 
-  return (
+  if (!mounted) return null
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -85,6 +96,7 @@ export function BottomSheet({ open, onClose, title, children, className, showClo
           </motion.div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   )
 }
