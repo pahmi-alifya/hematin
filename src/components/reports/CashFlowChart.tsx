@@ -11,6 +11,8 @@ import {
 } from 'recharts'
 import { format, parseISO, subMonths } from 'date-fns'
 import { id } from 'date-fns/locale'
+import { formatRupiahShort } from '@/lib/utils'
+import { TYPE_COLORS } from '@/lib/constants'
 import type { Transaction } from '@/types'
 
 interface CashFlowChartProps {
@@ -68,11 +70,6 @@ interface CustomTooltipProps {
 
 function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
-  function fmt(v: number) {
-    if (v >= 1_000_000) return `Rp ${(v / 1_000_000).toFixed(1)}jt`
-    if (v >= 1_000) return `Rp ${(v / 1_000).toFixed(0)}rb`
-    return `Rp ${v}`
-  }
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-sky-100 dark:border-slate-700 px-3 py-2 text-xs space-y-1 pointer-events-none">
       <p className="font-semibold text-slate-600 dark:text-slate-300 mb-1">{label}</p>
@@ -81,7 +78,7 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
           key={p.name}
           className={p.name === 'income' ? 'text-emerald-600' : p.name === 'saving' ? 'text-teal-600' : 'text-red-500'}
         >
-          {p.name === 'income' ? '+' : p.name === 'saving' ? '→' : '-'}{fmt(p.value)}
+          {p.name === 'income' ? '+' : p.name === 'saving' ? '→' : '-'}{formatRupiahShort(p.value)}
         </p>
       ))}
     </div>
@@ -109,9 +106,9 @@ export function CashFlowChart({ transactions, currentMonth, months = 4, allTime 
             width={36}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(14,165,233,0.06)', radius: 4 }} />
-          <Bar dataKey="income" name="income" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={14} />
-          <Bar dataKey="expense" name="expense" fill="#EF4444" radius={[4, 4, 0, 0]} maxBarSize={14} />
-          <Bar dataKey="saving" name="saving" fill="#14B8A6" radius={[4, 4, 0, 0]} maxBarSize={14} />
+          <Bar dataKey="income" name="income" fill={TYPE_COLORS.income.base} radius={[4, 4, 0, 0]} maxBarSize={14} />
+          <Bar dataKey="expense" name="expense" fill={TYPE_COLORS.expense.base} radius={[4, 4, 0, 0]} maxBarSize={14} />
+          <Bar dataKey="saving" name="saving" fill={TYPE_COLORS.saving.base} radius={[4, 4, 0, 0]} maxBarSize={14} />
         </BarChart>
       </ResponsiveContainer>
       <div className="flex items-center gap-3 mt-1 justify-center flex-wrap">

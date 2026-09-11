@@ -12,7 +12,8 @@ import {
 } from 'recharts'
 import { CreditCard, AlertCircle, Clock, CheckCircle2 } from 'lucide-react'
 import { useDebtStore } from '@/stores/debtStore'
-import { formatRupiah } from '@/lib/utils'
+import { formatRupiah, formatRupiahShort } from '@/lib/utils'
+import { TYPE_COLORS } from '@/lib/constants'
 import type { Debt } from '@/types'
 
 function fmt(v: number) {
@@ -33,7 +34,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-sky-100 dark:border-slate-700 px-3 py-2 text-xs pointer-events-none">
       <p className="font-semibold text-slate-600 dark:text-slate-300 mb-1">{item.payload.label}</p>
-      <p className="font-bold text-slate-800 dark:text-slate-100">Rp {fmt(item.value)}</p>
+      <p className="font-bold text-slate-800 dark:text-slate-100">{formatRupiahShort(item.value)}</p>
     </div>
   )
 }
@@ -72,8 +73,8 @@ export function DebtSummaryChart() {
 
   const barData = useMemo(
     () => [
-      { label: 'Hutang', value: totalHutang, color: '#EF4444' },
-      { label: 'Piutang', value: totalPiutang, color: '#10B981' },
+      { label: 'Hutang', value: totalHutang, color: TYPE_COLORS.expense.base },
+      { label: 'Piutang', value: totalPiutang, color: TYPE_COLORS.income.base },
     ],
     [totalHutang, totalPiutang]
   )
