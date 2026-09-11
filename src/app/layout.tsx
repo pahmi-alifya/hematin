@@ -24,7 +24,7 @@ const APP_NAME = "HEMATIN";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app";
 
 const APP_DESCRIPTION =
-  "Catat pengeluaran & pemasukan harian, scan struk belanja dengan AI, dan dapatkan insight keuangan otomatis. Gratis, tanpa akun — data aman di perangkatmu.";
+  "Catat pengeluaran & pemasukan harian, scan struk belanja dengan AI, dan dapatkan insight keuangan otomatis. Gratis dan bisa langsung dipakai tanpa akun — dengan opsi sinkronisasi cloud & berbagi dompet kapan pun dibutuhkan.";
 
 const APP_TITLE = "HEMATIN — Aplikasi Catatan Keuangan Harian Berbasis AI";
 
@@ -140,6 +140,17 @@ export const metadata: Metadata = {
     "laporan keuangan bulanan",
     "laporan keuangan bulanan AI",
     "laporan keuangan bulanan Indonesia",
+
+    // multi dompet & sharing
+    "multi dompet keuangan",
+    "aplikasi keuangan lebih dari satu dompet",
+    "kelola keuangan keluarga bersama",
+    "aplikasi keuangan pasangan",
+    "berbagi dompet keuangan online",
+    "aplikasi budgeting keluarga bersama",
+    "catatan keuangan bersama pasangan",
+    "tracking utang piutang cicilan",
+    "aplikasi transaksi rutin bulanan",
   ],
   verification: { google: "ad5ddca25974693b" },
   authors: [{ name: APP_NAME, url: APP_URL }],
@@ -258,7 +269,11 @@ export default function RootLayout({
                 "Laporan keuangan bulanan otomatis",
                 "Grafik cash flow dan kategori pengeluaran",
                 "Pengelolaan batas anggaran per kategori",
-                "Tidak perlu akun atau login",
+                "Tracking utang dan piutang dengan cicilan",
+                "Transaksi berulang otomatis tiap bulan",
+                "Multi dompet untuk memisahkan keuangan pribadi, keluarga, atau bisnis",
+                "Berbagi dompet ke orang lain dengan kontrol akses Owner/Editor/Viewer",
+                "Bisa dipakai langsung tanpa akun, dengan opsi sinkronisasi cloud",
                 "Data tersimpan aman di perangkat (offline-first)",
                 "Tersedia sebagai Progressive Web App (PWA)",
               ],

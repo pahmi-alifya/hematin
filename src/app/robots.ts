@@ -7,6 +7,9 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
+      // Halaman akun/pengaturan/kelola dompet murni fungsional & per-pengguna — tidak ada
+      // konten unik untuk crawler anonim, jadi tidak perlu (dan sebaiknya tidak) di-index.
+      disallow: ["/login", "/register", "/settings", "/profile", "/wallets"],
     },
     sitemap: `${baseUrl}/sitemap.xml`,
   };
