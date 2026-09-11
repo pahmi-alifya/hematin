@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, ChevronRight } from 'lucide-react'
 import { useGoalStore } from '@/stores/goalStore'
 import { useTransactionStore } from '@/stores/transactionStore'
-import { EXPENSE_CATEGORIES } from '@/lib/categories'
+import { getCategoryById } from '@/lib/categories'
+import { groupSumByCategory } from '@/lib/calculations'
 import { formatRupiah, getCurrentMonth } from '@/lib/utils'
 
 export function GoalAlertBanner() {
@@ -15,17 +16,13 @@ export function GoalAlertBanner() {
   const currentMonth = getCurrentMonth()
 
   const alerts = useMemo(() => {
-    const spentByCategory: Record<string, number> = {}
-    transactions
-      .filter((t) => t.type === 'expense' && t.date.startsWith(currentMonth))
-      .forEach((t) => {
-        spentByCategory[t.category] = (spentByCategory[t.category] ?? 0) + t.amount
-      })
+    const monthlyTx = transactions.filter((t) => t.date.startsWith(currentMonth))
+    const spentByCategory = groupSumByCategory(monthlyTx, 'expense')
 
     return goals
       .filter((g) => (spentByCategory[g.category] ?? 0) > g.limitAmount)
       .map((g) => {
-        const cat = EXPENSE_CATEGORIES.find((c) => c.id === g.category)
+        const cat = getCategoryById(g.category, 'expense')
         const spent = spentByCategory[g.category] ?? 0
         return { cat, spent, limit: g.limitAmount, overage: spent - g.limitAmount }
       })

@@ -21,6 +21,7 @@ import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet } from 'luc
 import { motion } from 'framer-motion'
 import type { Transaction } from '@/types'
 import { formatRupiah, getCurrentMonth } from '@/lib/utils'
+import { TYPE_COLORS } from '@/lib/constants'
 
 interface MonthlyChartProps {
   transactions: Transaction[]
@@ -189,17 +190,17 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
               <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(14,165,233,0.06)', radius: 4 }} />
               <Bar dataKey="income" name="income" radius={[2, 2, 0, 0]} maxBarSize={6}>
                 {data.map((entry) => (
-                  <Cell key={entry.dateStr} fill={entry.isToday ? '#059669' : '#6EE7B7'} />
+                  <Cell key={entry.dateStr} fill={entry.isToday ? TYPE_COLORS.income.emphasis : TYPE_COLORS.income.muted} />
                 ))}
               </Bar>
               <Bar dataKey="expense" name="expense" radius={[2, 2, 0, 0]} maxBarSize={6}>
                 {data.map((entry) => (
-                  <Cell key={entry.dateStr} fill={entry.isToday ? '#DC2626' : '#FCA5A5'} />
+                  <Cell key={entry.dateStr} fill={entry.isToday ? TYPE_COLORS.expense.emphasis : TYPE_COLORS.expense.muted} />
                 ))}
               </Bar>
               <Bar dataKey="saving" name="saving" radius={[2, 2, 0, 0]} maxBarSize={6}>
                 {data.map((entry) => (
-                  <Cell key={entry.dateStr} fill={entry.isToday ? '#0F766E' : '#99F6E4'} />
+                  <Cell key={entry.dateStr} fill={entry.isToday ? TYPE_COLORS.saving.emphasis : TYPE_COLORS.saving.muted} />
                 ))}
               </Bar>
             </BarChart>

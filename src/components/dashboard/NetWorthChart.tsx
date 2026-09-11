@@ -12,6 +12,7 @@ import { format, parseISO } from 'date-fns'
 import { id } from 'date-fns/locale'
 import type { Transaction } from '@/types'
 import { formatRupiah, formatRupiahShort } from '@/lib/utils'
+import { TYPE_COLORS } from '@/lib/constants'
 
 interface NetWorthChartProps {
   transactions: Transaction[]
@@ -73,7 +74,7 @@ export function NetWorthChart({ transactions }: NetWorthChartProps) {
 
   const latest = data[data.length - 1]
   const isPositive = latest.cumulative >= 0
-  const color = isPositive ? '#0EA5E9' : '#EF4444'
+  const color = isPositive ? '#0EA5E9' : TYPE_COLORS.expense.base
 
   return (
     <div>

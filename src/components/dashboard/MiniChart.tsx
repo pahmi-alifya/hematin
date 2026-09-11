@@ -11,7 +11,8 @@ import {
 import { format, subDays } from "date-fns";
 import { id } from "date-fns/locale";
 import type { Transaction } from "@/types";
-import { formatRupiah } from "@/lib/utils";
+import { formatRupiah, formatRupiahShort } from "@/lib/utils";
+import { TYPE_COLORS } from "@/lib/constants";
 
 interface MiniChartProps {
   transactions: Transaction[];
@@ -47,19 +48,13 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
   const expense = payload.find((p) => p.name === "expense")?.value ?? 0;
   if (income === 0 && expense === 0) return null;
 
-  function fmt(v: number) {
-    if (v >= 1_000_000) return `Rp ${(v / 1_000_000).toFixed(1)}jt`;
-    if (v >= 1_000) return `Rp ${(v / 1_000).toFixed(0)}rb`;
-    return `Rp ${v}`;
-  }
-
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-sky-100 dark:border-slate-700 px-3 py-2 text-xs space-y-1 pointer-events-none">
       {income > 0 && (
-        <p className="text-emerald-600 font-semibold">+{fmt(income)}</p>
+        <p className="text-emerald-600 font-semibold">+{formatRupiahShort(income)}</p>
       )}
       {expense > 0 && (
-        <p className="text-red-500 font-semibold">-{fmt(expense)}</p>
+        <p className="text-red-500 font-semibold">-{formatRupiahShort(expense)}</p>
       )}
     </div>
   );
@@ -142,7 +137,7 @@ export function MiniChart({ transactions }: MiniChartProps) {
             {data.map((entry) => (
               <Cell
                 key={entry.dateStr}
-                fill={entry.dateStr === today ? "#10B981" : "#6EE7B7"}
+                fill={entry.dateStr === today ? TYPE_COLORS.income.base : TYPE_COLORS.income.muted}
               />
             ))}
           </Bar>
@@ -155,7 +150,7 @@ export function MiniChart({ transactions }: MiniChartProps) {
             {data.map((entry) => (
               <Cell
                 key={entry.dateStr}
-                fill={entry.dateStr === today ? "#EF4444" : "#FCA5A5"}
+                fill={entry.dateStr === today ? TYPE_COLORS.expense.base : TYPE_COLORS.expense.muted}
               />
             ))}
           </Bar>

@@ -2,7 +2,8 @@
 
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { EXPENSE_CATEGORIES } from '@/lib/categories'
+import { getCategoryById } from '@/lib/categories'
+import { groupSumByCategory } from '@/lib/calculations'
 import { formatRupiah, getCurrentMonth } from '@/lib/utils'
 import type { Transaction } from '@/types'
 
@@ -14,12 +15,8 @@ export function CategorySpendingChart({ transactions }: CategorySpendingChartPro
   const currentMonth = getCurrentMonth()
 
   const data = useMemo(() => {
-    const map: Record<string, number> = {}
-    transactions
-      .filter((t) => t.type === 'expense' && t.date.startsWith(currentMonth))
-      .forEach((t) => {
-        map[t.category] = (map[t.category] ?? 0) + t.amount
-      })
+    const monthlyTx = transactions.filter((t) => t.date.startsWith(currentMonth))
+    const map = groupSumByCategory(monthlyTx, 'expense')
 
     const total = Object.values(map).reduce((s, v) => s + v, 0)
     if (total === 0) return []
@@ -28,7 +25,7 @@ export function CategorySpendingChart({ transactions }: CategorySpendingChartPro
       .sort(([, a], [, b]) => b - a)
       .slice(0, 6)
       .map(([catId, amount]) => {
-        const cat = EXPENSE_CATEGORIES.find((c) => c.id === catId)
+        const cat = getCategoryById(catId, 'expense')
         return {
           id: catId,
           name: cat?.name ?? catId,
