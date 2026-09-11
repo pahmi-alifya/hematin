@@ -5,6 +5,7 @@ import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
 import { migrateSavingsFromExpense } from '@/lib/migrations'
 import { useWalletStore } from '@/stores/walletStore'
+import { pushTransaction, pushTransactionDelete } from '@/lib/sync/walletSync'
 import type { Transaction } from '@/types'
 
 interface TransactionStore {
@@ -49,17 +50,22 @@ export const useTransactionStore = create<TransactionStore>((set, get) => ({
     }
     await db.transactions.add(transaction)
     await get().loadTransactions()
+    pushTransaction(walletId, transaction)
   },
 
   updateTransaction: async (id, data) => {
     await db.transactions.update(id, data)
     await get().loadTransactions()
+    const updated = await db.transactions.get(id)
+    if (updated) pushTransaction(updated.walletId, updated)
   },
 
   deleteTransaction: async (id) => {
+    const walletId = get().transactions.find((t) => t.id === id)?.walletId
     await db.transactions.delete(id)
     set((state) => ({
       transactions: state.transactions.filter((t) => t.id !== id),
     }))
+    if (walletId) pushTransactionDelete(walletId, id)
   },
 }))

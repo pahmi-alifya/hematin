@@ -4,9 +4,15 @@ import { create } from 'zustand'
 import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
 import { MAX_WALLETS } from '@/lib/constants'
+import { pushWalletMetadata } from '@/lib/sync/walletSync'
 import type { Wallet } from '@/types'
 
 const ACTIVE_WALLET_KEY = 'hematin-active-wallet'
+
+/** Dompet cloud-linked yang aku ikuti sebagai editor/viewer — bukan milikku, cuma dibagikan owner-nya. */
+export function isSharedWithMe(wallet: Pick<Wallet, 'cloudWalletId' | 'ownerRole'>): boolean {
+  return !!wallet.cloudWalletId && wallet.ownerRole !== 'owner'
+}
 
 function readStoredActiveId(): string | null {
   if (typeof window === 'undefined') return null
@@ -30,6 +36,7 @@ interface WalletStore {
   updateWalletAppearance: (id: string, icon: string, color: string) => Promise<void>
   deleteWallet: (id: string) => Promise<void>
   reorderWallets: (orderedIds: string[]) => Promise<void>
+  clearAccountLinkedWallets: () => Promise<void>
 
   getActiveWallet: () => Wallet | undefined
   canCreateWallet: () => boolean
@@ -101,6 +108,9 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
     set((state) => ({
       wallets: state.wallets.map((w) => (w.id === id ? { ...w, name } : w)),
     }))
+    // Kalau dompet ini cloud-linked, teruskan ke cloud_wallets supaya member lain
+    // (via refresh Lapis 2) & device lain pemilik yang sama ikut lihat nama barunya.
+    await pushWalletMetadata(id, { name })
   },
 
   updateWalletAppearance: async (id, icon, color) => {
@@ -108,6 +118,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
     set((state) => ({
       wallets: state.wallets.map((w) => (w.id === id ? { ...w, icon, color } : w)),
     }))
+    await pushWalletMetadata(id, { icon, color })
   },
 
   deleteWallet: async (id) => {
@@ -131,6 +142,31 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
       const fallback = remaining.find((w) => w.isDefault) ?? remaining[0]
       get().setActiveWallet(fallback.id)
     }
+  },
+
+  /**
+   * Dipanggil saat logout — dompet yang cloud-linked (owned ATAU joined sebagai member)
+   * cuma boleh terlihat selama akun itu login, bukan nyisa jadi data "Guest" abal-abal
+   * setelah logout (Dexie tidak otomatis kosong cuma karena sesi auth berakhir). Dompet
+   * lokal murni yang belum pernah di-link tetap aman, tidak ikut kehapus.
+   */
+  clearAccountLinkedWallets: async () => {
+    const allWallets = await db.wallets.toArray()
+    const linked = allWallets.filter((w) => w.cloudWalletId)
+
+    await Promise.all(
+      linked.flatMap((w) => [
+        db.transactions.where('walletId').equals(w.id).delete(),
+        db.goals.where('walletId').equals(w.id).delete(),
+        db.insights.where('walletId').equals(w.id).delete(),
+        db.debts.where('walletId').equals(w.id).delete(),
+        db.debtPayments.where('walletId').equals(w.id).delete(),
+        db.recurringTemplates.where('walletId').equals(w.id).delete(),
+        db.wallets.delete(w.id),
+      ]),
+    )
+
+    await get().loadWallets()
   },
 
   reorderWallets: async (orderedIds) => {

@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
 import { useWalletStore } from '@/stores/walletStore'
+import { pushDebt, pushDebtDelete, pushDebtPayment, pushDebtPaymentDelete } from '@/lib/sync/walletSync'
 import type { Debt, DebtPayment } from '@/types'
 
 interface DebtStore {
@@ -127,6 +128,7 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
     }
     await db.debts.add(debt)
     await get().loadDebts()
+    pushDebt(walletId, debt)
   },
 
   markAsPaid: async (id, notes) => {
@@ -136,18 +138,24 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
       ...(notes ? { notes } : {}),
     })
     await get().loadDebts()
+    const updated = await db.debts.get(id)
+    if (updated) pushDebt(updated.walletId, updated)
   },
 
   deleteDebt: async (id) => {
+    const walletId = get().debts.find((d) => d.id === id)?.walletId
     await db.debts.delete(id)
-    // cascade delete payments
+    // cascade delete payments — cloud_debt_payments ikut cascade lewat FK on delete cascade
     await db.debtPayments.where('debtId').equals(id).delete()
     await get().loadDebts()
+    if (walletId) pushDebtDelete(walletId, id)
   },
 
   updateDebt: async (id, data) => {
     await db.debts.update(id, data)
     await get().loadDebts()
+    const updated = await db.debts.get(id)
+    if (updated) pushDebt(updated.walletId, updated)
   },
 
   // ─── Cicilan Payment Actions ──────────────────────────────────────────────
@@ -162,6 +170,7 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
       createdAt: Date.now(),
     }
     await db.debtPayments.add(payment)
+    pushDebtPayment(walletId, payment)
 
     // Check if fully paid after this payment
     const allPayments = await db.debtPayments.where('debtId').equals(data.debtId).toArray()
@@ -174,6 +183,8 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
     } else if (totalPaid > 0) {
       await db.debts.update(data.debtId, { status: 'partial' })
     }
+    const updatedDebt = await db.debts.get(data.debtId)
+    if (updatedDebt) pushDebt(walletId, updatedDebt)
 
     await get().loadDebts()
     return { isFullyPaid }
@@ -181,7 +192,9 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
 
   deletePayment: async (id) => {
     const payment = await db.debtPayments.get(id)
+    const walletId = payment?.walletId
     await db.debtPayments.delete(id)
+    if (walletId) pushDebtPaymentDelete(walletId, id)
     if (payment) {
       // recalculate status
       const remaining = await db.debtPayments.where('debtId').equals(payment.debtId).toArray()
@@ -192,6 +205,8 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
           status: totalPaid > 0 ? 'partial' : 'active',
           paidAt: undefined,
         })
+        const updatedDebt = await db.debts.get(payment.debtId)
+        if (updatedDebt && walletId) pushDebt(walletId, updatedDebt)
       }
     }
     await get().loadDebts()

@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { db } from '@/lib/db'
 import { generateId, getCurrentMonth } from '@/lib/utils'
 import { useWalletStore } from '@/stores/walletStore'
+import { pushRecurringTemplate, pushRecurringTemplateDelete } from '@/lib/sync/walletSync'
 import type { RecurringTemplate } from '@/types'
 
 interface RecurringStore {
@@ -54,17 +55,22 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
     }
     await db.recurringTemplates.add(template)
     await get().loadTemplates()
+    pushRecurringTemplate(walletId, template)
     return id
   },
 
   updateTemplate: async (id, data) => {
     await db.recurringTemplates.update(id, data)
     await get().loadTemplates()
+    const updated = await db.recurringTemplates.get(id)
+    if (updated) pushRecurringTemplate(updated.walletId, updated)
   },
 
   deleteTemplate: async (id) => {
+    const walletId = get().templates.find((t) => t.id === id)?.walletId
     await db.recurringTemplates.delete(id)
     set((state) => ({ templates: state.templates.filter((t) => t.id !== id) }))
+    if (walletId) pushRecurringTemplateDelete(walletId, id)
   },
 
   toggleActive: async (id) => {
@@ -76,6 +82,7 @@ export const useRecurringStore = create<RecurringStore>((set, get) => ({
         t.id === id ? { ...t, isActive: !t.isActive } : t,
       ),
     }))
+    pushRecurringTemplate(template.walletId, { ...template, isActive: !template.isActive })
   },
 
   getPendingToday: () => {

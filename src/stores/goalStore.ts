@@ -4,6 +4,7 @@ import { create } from 'zustand'
 import { db } from '@/lib/db'
 import { generateId } from '@/lib/utils'
 import { useWalletStore } from '@/stores/walletStore'
+import { pushGoal, pushGoalDelete } from '@/lib/sync/walletSync'
 import type { Goal } from '@/types'
 
 interface GoalStore {
@@ -42,6 +43,7 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
     if (existing) {
       await db.goals.update(existing.id, { limitAmount })
       await get().loadGoals()
+      pushGoal(walletId, { ...existing, limitAmount })
     } else {
       const goal: Goal = {
         id: generateId(),
@@ -52,12 +54,15 @@ export const useGoalStore = create<GoalStore>((set, get) => ({
       }
       await db.goals.add(goal)
       await get().loadGoals()
+      pushGoal(walletId, goal)
     }
   },
 
   deleteGoal: async (id) => {
+    const walletId = get().goals.find((g) => g.id === id)?.walletId
     await db.goals.delete(id)
     set((state) => ({ goals: state.goals.filter((g) => g.id !== id) }))
+    if (walletId) pushGoalDelete(walletId, id)
   },
 
   getGoalForCategory: (category) => {
