@@ -2,7 +2,8 @@
 
 import { motion } from 'framer-motion'
 import { getCategoryById } from '@/lib/categories'
-import { formatRupiah, formatRelativeDate } from '@/lib/utils'
+import { formatRupiah } from '@/lib/utils'
+import { TRANSACTION_TYPE_PREFIX } from '@/lib/transactions'
 import type { Transaction } from '@/types'
 
 interface TransactionItemProps {
@@ -11,15 +12,16 @@ interface TransactionItemProps {
   index?: number
 }
 
-const TYPE_CONFIG = {
-  income:  { prefix: '+', colorClass: 'text-emerald-600 dark:text-emerald-400' },
-  expense: { prefix: '-', colorClass: 'text-slate-700 dark:text-slate-300' },
-  saving:  { prefix: '→', colorClass: 'text-teal-600 dark:text-teal-400' },
+const AMOUNT_COLOR_CLASS: Record<Transaction['type'], string> = {
+  income: 'text-emerald-600 dark:text-emerald-400',
+  expense: 'text-slate-700 dark:text-slate-300',
+  saving: 'text-teal-600 dark:text-teal-400',
 }
 
 export function TransactionItem({ transaction, onPress, index = 0 }: TransactionItemProps) {
   const cat = getCategoryById(transaction.category, transaction.type)
-  const { prefix, colorClass } = TYPE_CONFIG[transaction.type] ?? TYPE_CONFIG.expense
+  const prefix = TRANSACTION_TYPE_PREFIX[transaction.type]
+  const colorClass = AMOUNT_COLOR_CLASS[transaction.type]
 
   return (
     <motion.button

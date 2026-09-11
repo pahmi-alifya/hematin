@@ -1,8 +1,6 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { format, parseISO } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { Pencil } from 'lucide-react'
 import { SkeletonTransactionItem } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
@@ -11,9 +9,11 @@ import { Button } from '@/components/ui/Button'
 import { TransactionItem } from './TransactionItem'
 import { TransactionForm } from './TransactionForm'
 import { useTransactionStore } from '@/stores/transactionStore'
+import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
 import { toast } from '@/components/ui/Toast'
-import { formatRupiah, formatDate } from '@/lib/utils'
+import { formatRupiah, formatDate, formatRelativeDate } from '@/lib/utils'
 import { getCategoryById } from '@/lib/categories'
+import { TRANSACTION_TYPE_LABELS, TRANSACTION_TYPE_PREFIX } from '@/lib/transactions'
 import type { Transaction } from '@/types'
 
 interface TransactionListProps {
@@ -35,18 +35,12 @@ function groupByDate(transactions: Transaction[]) {
 }
 
 function formatGroupDate(dateStr: string): string {
-  const d = parseISO(dateStr)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
-
-  if (dateStr === format(today, 'yyyy-MM-dd')) return 'Hari ini'
-  if (dateStr === format(yesterday, 'yyyy-MM-dd')) return 'Kemarin'
-  return format(d, 'EEEE, d MMMM', { locale: id })
+  return formatRelativeDate(dateStr, 'EEEE, d MMMM')
 }
 
 export function TransactionList({ month, onAddClick, search, typeFilter, categoryFilter, sortBy = 'newest' }: TransactionListProps) {
   const { transactions, isLoading, deleteTransaction } = useTransactionStore()
+  const canEdit = useCanEditActiveWallet()
   const [selected, setSelected] = useState<Transaction | null>(null)
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -110,7 +104,7 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
         icon="📭"
         title="Belum ada transaksi"
         description={month ? 'Belum ada transaksi bulan ini' : 'Mulai catat transaksi pertamamu'}
-        action={onAddClick ? { label: '+ Tambah Transaksi', onClick: onAddClick } : undefined}
+        action={onAddClick && canEdit ? { label: '+ Tambah Transaksi', onClick: onAddClick } : undefined}
       />
     )
   }
@@ -186,14 +180,14 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
             {/* Amount */}
             <div className="text-center py-4">
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                {selected.type === 'income' ? 'Pemasukan' : selected.type === 'saving' ? 'Tabungan / Investasi' : 'Pengeluaran'}
+                {TRANSACTION_TYPE_LABELS[selected.type]}
               </p>
               <p className={`text-3xl font-bold ${
                 selected.type === 'income' ? 'text-emerald-600 dark:text-emerald-400'
                 : selected.type === 'saving' ? 'text-teal-600 dark:text-teal-400'
                 : 'text-slate-800 dark:text-slate-100'
               }`}>
-                {selected.type === 'income' ? '+' : selected.type === 'saving' ? '→' : '-'}{formatRupiah(selected.amount)}
+                {TRANSACTION_TYPE_PREFIX[selected.type]}{formatRupiah(selected.amount)}
               </p>
             </div>
 
@@ -214,23 +208,25 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                fullWidth
-                onClick={() => { setEditing(selected); setSelected(null) }}
-              >
-                <Pencil className="w-4 h-4 mr-1.5" /> Edit
-              </Button>
-              <Button
-                variant="danger"
-                fullWidth
-                loading={deleting}
-                onClick={handleDelete}
-              >
-                Hapus
-              </Button>
-            </div>
+            {canEdit && (
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  fullWidth
+                  onClick={() => { setEditing(selected); setSelected(null) }}
+                >
+                  <Pencil className="w-4 h-4 mr-1.5" /> Edit
+                </Button>
+                <Button
+                  variant="danger"
+                  fullWidth
+                  loading={deleting}
+                  onClick={handleDelete}
+                >
+                  Hapus
+                </Button>
+              </div>
+            )}
           </div>
         )}
       </BottomSheet>
