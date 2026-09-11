@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, RefreshCw, Pencil, Trash2, Power } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
@@ -10,61 +10,17 @@ import { BottomSheet } from '@/components/ui/BottomSheet'
 import { Button } from '@/components/ui/Button'
 import { Input, Textarea } from '@/components/ui/Input'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { DayPicker } from '@/components/ui/DayPicker'
 import { CategoryPicker } from '@/components/transactions/CategoryPicker'
 import { useRecurringStore } from '@/stores/recurringStore'
+import { useRecurringTemplateForm } from '@/hooks/useRecurringTemplateForm'
+import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
 import { toast } from '@/components/ui/Toast'
-import { formatRupiah, formatRupiahInput, parseRupiahInput } from '@/lib/utils'
+import { formatRupiah } from '@/lib/utils'
 import { getCategoryById } from '@/lib/categories'
+import { TRANSACTION_TYPE_TOGGLE } from '@/lib/transactions'
 import { cn } from '@/lib/utils'
 import type { RecurringTemplate } from '@/types'
-
-// Pills 1–28 untuk pilih tanggal berulang
-function DayPicker({ value, onChange }: { value: number; onChange: (day: number) => void }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {Array.from({ length: 28 }, (_, i) => i + 1).map((day) => (
-        <motion.button
-          key={day}
-          type="button"
-          whileTap={{ scale: 0.92 }}
-          onClick={() => onChange(day)}
-          className={cn(
-            'w-9 h-9 rounded-xl text-sm font-semibold transition-all',
-            value === day
-              ? 'bg-sky-500 text-white shadow-sm'
-              : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600',
-          )}
-        >
-          {day}
-        </motion.button>
-      ))}
-    </div>
-  )
-}
-
-interface TemplateFormData {
-  type: 'income' | 'expense' | 'saving'
-  amount: string
-  amountRaw: number
-  category: string
-  merchant: string
-  notes: string
-  recurringDay: number
-  isActive: boolean
-}
-
-function getInitialForm(template?: RecurringTemplate): TemplateFormData {
-  return {
-    type: (template?.type ?? 'expense') as 'income' | 'expense' | 'saving',
-    amount: template?.amount ? formatRupiahInput(template.amount) : '',
-    amountRaw: template?.amount ?? 0,
-    category: template?.category ?? '',
-    merchant: template?.merchant ?? '',
-    notes: template?.notes ?? '',
-    recurringDay: template?.recurringDay ?? new Date().getDate() <= 28 ? new Date().getDate() : 1,
-    isActive: template?.isActive ?? true,
-  }
-}
 
 function TemplateCard({
   template,
@@ -78,6 +34,7 @@ function TemplateCard({
   onToggle: () => void
 }) {
   const cat = getCategoryById(template.category, template.type)
+  const canEdit = useCanEditActiveWallet()
 
   return (
     <motion.div
@@ -123,48 +80,59 @@ function TemplateCard({
         </div>
 
         {/* Actions */}
-        <div className="flex items-center gap-1 shrink-0">
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={onToggle}
-            title={template.isActive ? 'Nonaktifkan' : 'Aktifkan'}
-            className={cn(
-              'w-8 h-8 rounded-xl flex items-center justify-center transition-colors',
-              template.isActive
-                ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
-                : 'bg-slate-100 dark:bg-slate-700 text-slate-400',
-            )}
-          >
-            <Power className="w-3.5 h-3.5" />
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={onEdit}
-            className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </motion.button>
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={onDelete}
-            className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </motion.button>
-        </div>
+        {canEdit && (
+          <div className="flex items-center gap-1 shrink-0">
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={onToggle}
+              title={template.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+              className={cn(
+                'w-8 h-8 rounded-xl flex items-center justify-center transition-colors',
+                template.isActive
+                  ? 'bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400'
+                  : 'bg-slate-100 dark:bg-slate-700 text-slate-400',
+              )}
+            >
+              <Power className="w-3.5 h-3.5" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={onEdit}
+              className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 flex items-center justify-center"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </motion.button>
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={onDelete}
+              className="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-500 flex items-center justify-center"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </motion.button>
+          </div>
+        )}
       </div>
     </motion.div>
   )
 }
 
 export default function RecurringPage() {
-  const { templates, isLoading, loadTemplates, addTemplate, updateTemplate, deleteTemplate, toggleActive } =
-    useRecurringStore()
-
-  const [showForm, setShowForm] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [form, setForm] = useState<TemplateFormData>(getInitialForm())
-  const [submitting, setSubmitting] = useState(false)
+  const { templates, isLoading, loadTemplates, deleteTemplate, toggleActive } = useRecurringStore()
+  const {
+    showForm,
+    openAdd,
+    openEdit,
+    closeForm,
+    editingId,
+    form,
+    setField,
+    activeCategory,
+    amount,
+    handleTypeChange,
+    handleSubmit,
+    submitting,
+  } = useRecurringTemplateForm()
+  const canEdit = useCanEditActiveWallet()
 
   useEffect(() => {
     loadTemplates()
@@ -172,63 +140,6 @@ export default function RecurringPage() {
 
   const activeTemplates = templates.filter((t) => t.isActive)
   const inactiveTemplates = templates.filter((t) => !t.isActive)
-
-  function openAdd() {
-    setEditingId(null)
-    setForm(getInitialForm())
-    setShowForm(true)
-  }
-
-  function openEdit(template: RecurringTemplate) {
-    setEditingId(template.id)
-    setForm(getInitialForm(template))
-    setShowForm(true)
-  }
-
-  function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const raw = parseRupiahInput(e.target.value)
-    setForm((f) => ({ ...f, amountRaw: raw, amount: formatRupiahInput(raw) }))
-  }
-
-  function handleTypeChange(type: 'income' | 'expense' | 'saving') {
-    setForm((f) => ({ ...f, type, category: '' }))
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!form.amountRaw || form.amountRaw <= 0) {
-      toast('Masukkan nominal yang valid', 'error')
-      return
-    }
-
-    const activeCategory = form.category || (form.type === 'income' ? 'gaji' : form.type === 'saving' ? 'tabungan' : 'makanan')
-
-    setSubmitting(true)
-    try {
-      const data = {
-        type: form.type,
-        amount: form.amountRaw,
-        category: activeCategory,
-        merchant: form.merchant.trim() || undefined,
-        notes: form.notes.trim() || undefined,
-        recurringDay: form.recurringDay,
-        isActive: form.isActive,
-      }
-
-      if (editingId) {
-        await updateTemplate(editingId, data)
-        toast('Template berhasil diperbarui', 'success')
-      } else {
-        await addTemplate(data)
-        toast('Transaksi rutin berhasil ditambahkan', 'success')
-      }
-      setShowForm(false)
-    } catch {
-      toast('Gagal menyimpan template', 'error')
-    } finally {
-      setSubmitting(false)
-    }
-  }
 
   async function handleDelete(id: string) {
     try {
@@ -271,7 +182,7 @@ export default function RecurringPage() {
               icon="🔁"
               title="Belum ada transaksi rutin"
               description="Tambahkan tagihan atau pemasukan yang terjadi setiap bulan agar tidak lupa mencatat."
-              action={{ label: 'Tambah Sekarang', onClick: openAdd }}
+              action={canEdit ? { label: 'Tambah Sekarang', onClick: openAdd } : undefined}
             />
           ) : (
             <div className="space-y-4">
@@ -318,7 +229,7 @@ export default function RecurringPage() {
           )}
 
           {/* Tombol tambah */}
-          {templates.length > 0 && (
+          {canEdit && templates.length > 0 && (
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={openAdd}
@@ -332,7 +243,7 @@ export default function RecurringPage() {
       </PageWrapper>
 
       {/* FAB */}
-      {templates.length === 0 && (
+      {canEdit && templates.length === 0 && (
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={openAdd}
@@ -351,17 +262,13 @@ export default function RecurringPage() {
       {/* Form Bottom Sheet */}
       <BottomSheet
         open={showForm}
-        onClose={() => setShowForm(false)}
+        onClose={closeForm}
         title={editingId ? 'Edit Transaksi Rutin' : 'Tambah Transaksi Rutin'}
       >
         <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-5">
           {/* Type Toggle */}
           <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-            {([
-              { value: 'expense', label: '💸 Keluar',   activeClass: 'text-red-500' },
-              { value: 'income',  label: '💰 Masuk',    activeClass: 'text-emerald-500' },
-              { value: 'saving',  label: '🏦 Tabungan', activeClass: 'text-teal-600 dark:text-teal-400' },
-            ] as const).map((t) => (
+            {TRANSACTION_TYPE_TOGGLE.map((t) => (
               <motion.button
                 key={t.value}
                 type="button"
@@ -391,8 +298,8 @@ export default function RecurringPage() {
                 type="text"
                 inputMode="numeric"
                 placeholder="0"
-                value={form.amount}
-                onChange={handleAmountChange}
+                value={amount.display}
+                onChange={amount.onChange}
                 className="w-full h-14 pl-12 pr-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-2xl font-bold text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
               />
             </div>
@@ -401,8 +308,8 @@ export default function RecurringPage() {
           {/* Category */}
           <CategoryPicker
             type={form.type}
-            selected={form.category || (form.type === 'income' ? 'gaji' : form.type === 'saving' ? 'tabungan' : 'makanan')}
-            onSelect={(cat) => setForm((f) => ({ ...f, category: cat }))}
+            selected={activeCategory}
+            onSelect={(cat) => setField('category', cat)}
           />
 
           {/* Merchant */}
@@ -410,7 +317,7 @@ export default function RecurringPage() {
             label="Nama toko / keterangan"
             placeholder={form.type === 'income' ? 'misal: PT. Maju Jaya' : 'misal: Kost, Spotify, Listrik'}
             value={form.merchant}
-            onChange={(e) => setForm((f) => ({ ...f, merchant: e.target.value }))}
+            onChange={(e) => setField('merchant', e.target.value)}
           />
 
           {/* Tanggal berulang */}
@@ -418,10 +325,7 @@ export default function RecurringPage() {
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
               Ulangi setiap tanggal
             </label>
-            <DayPicker
-              value={form.recurringDay}
-              onChange={(day) => setForm((f) => ({ ...f, recurringDay: day }))}
-            />
+            <DayPicker value={form.recurringDay} onChange={(day) => setField('recurringDay', day)} />
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
               Gunakan tanggal 1–28 agar aman di semua bulan
             </p>
@@ -432,7 +336,7 @@ export default function RecurringPage() {
             label="Catatan (opsional)"
             placeholder="Tambahkan catatan..."
             value={form.notes}
-            onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+            onChange={(e) => setField('notes', e.target.value)}
             rows={2}
           />
 

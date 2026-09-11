@@ -9,97 +9,35 @@ import { PageWrapper } from '@/components/layout/PageWrapper'
 import { BottomNav } from '@/components/layout/BottomNav'
 import { BottomSheet } from '@/components/ui/BottomSheet'
 import { Button } from '@/components/ui/Button'
+import { EmptyState } from '@/components/ui/EmptyState'
 import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { toast } from '@/components/ui/Toast'
-import { useSettingsStore } from '@/stores/settingsStore'
-import { formatRupiah, getCurrentDate } from '@/lib/utils'
-import type { ScannedReceipt } from '@/types'
-import compressImage from 'browser-image-compression'
-
-type ScanState = 'idle' | 'scanning' | 'done' | 'error'
+import { useReceiptScan } from '@/hooks/useReceiptScan'
+import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
+import { formatRupiah } from '@/lib/utils'
+import { SCAN_TIPS } from '@/lib/constants'
 
 export default function ScanPage() {
-  const { aiSettings, isConfigured } = useSettingsStore()
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [preview, setPreview] = useState<string | null>(null)
-  const [scanState, setScanState] = useState<ScanState>('idle')
-  const [scanned, setScanned] = useState<ScannedReceipt | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const canEdit = useCanEditActiveWallet()
+  const { isConfigured, preview, scanState, scanned, handleFile, reset, defaultFormValues } = useReceiptScan()
 
-  async function handleFile(file: File) {
-    if (!file.type.startsWith('image/')) {
-      toast('File harus berupa gambar', 'error')
-      return
-    }
-
-    // Compress image
-    const compressed = await compressImage(file, {
-      maxSizeMB: 1,
-      maxWidthOrHeight: 1280,
-      useWebWorker: true,
-    })
-
-    const reader = new FileReader()
-    reader.onload = async (e) => {
-      const dataUrl = e.target?.result as string
-      setPreview(dataUrl)
-
-      if (!isConfigured || !aiSettings) {
-        toast('Aktifkan AI di Pengaturan terlebih dahulu', 'error')
-        return
-      }
-
-      setScanState('scanning')
-      try {
-        // Extract base64 from data URL
-        const [header, base64] = dataUrl.split(',')
-        const mimeType = header.match(/:(.*?);/)?.[1] ?? 'image/jpeg'
-
-        const res = await fetch('/api/scan', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-AI-Provider': aiSettings.provider,
-            'X-AI-Model': aiSettings.model,
-            'X-AI-Key': aiSettings.apiKey,
-          },
-          body: JSON.stringify({ imageBase64: base64, mimeType }),
-        })
-
-        if (!res.ok) {
-          const err = await res.json()
-          throw new Error(err.error ?? 'Scan gagal')
-        }
-
-        const data: ScannedReceipt = await res.json()
-        setScanned(data)
-        setScanState('done')
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Scan gagal'
-        toast(message, 'error')
-        setScanState('error')
-      }
-    }
-    reader.readAsDataURL(compressed)
+  if (!canEdit) {
+    return (
+      <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
+        <Header title="Scan Struk" showBack />
+        <PageWrapper>
+          <EmptyState
+            icon="🔒"
+            title="Akses Terbatas"
+            description="Kamu hanya bisa melihat dompet ini (viewer) — tidak bisa menambah transaksi lewat scan struk."
+          />
+        </PageWrapper>
+        <BottomNav />
+      </div>
+    )
   }
-
-  function reset() {
-    setPreview(null)
-    setScanState('idle')
-    setScanned(null)
-  }
-
-  const defaultFormValues = scanned
-    ? {
-        type: 'expense' as const,
-        amount: scanned.total ?? 0,
-        category: scanned.category ?? 'other',
-        merchant: scanned.merchant ?? '',
-        date: scanned.date ?? getCurrentDate(),
-        notes: scanned.notes ?? '',
-        source: 'scan' as const,
-      }
-    : undefined
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -265,12 +203,7 @@ export default function ScanPage() {
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
             <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Tips foto struk yang baik:</p>
             <ul className="space-y-1">
-              {[
-                'Pastikan pencahayaan cukup',
-                'Foto seluruh struk, termasuk total',
-                'Hindari bayangan atau lipatan',
-                'Foto tegak lurus, tidak miring',
-              ].map((tip) => (
+              {SCAN_TIPS.map((tip) => (
                 <li key={tip} className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <span className="text-sky-500 mt-0.5">•</span>
                   {tip}

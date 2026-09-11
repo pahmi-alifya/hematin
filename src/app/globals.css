@@ -92,6 +92,12 @@ body {
   background: #1E3A5F;
 }
 
+/* Fallback background scene auth (login/register) saat WebGL2 tidak tersedia */
+@keyframes auth-gradient {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
 /* Number input tanpa spinner */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {

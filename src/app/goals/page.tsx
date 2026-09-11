@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Target, Plus, Trash2, ChevronDown, Pencil } from 'lucide-react'
 import { Header } from '@/components/layout/Header'
@@ -12,8 +12,12 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { toast } from '@/components/ui/Toast'
 import { useGoalStore } from '@/stores/goalStore'
 import { useTransactionStore } from '@/stores/transactionStore'
-import { EXPENSE_CATEGORIES } from '@/lib/categories'
-import { formatRupiah, formatRupiahInput, parseRupiahInput, getCurrentMonth } from '@/lib/utils'
+import { useAddGoalForm } from '@/hooks/useAddGoalForm'
+import { useEditGoalForm } from '@/hooks/useEditGoalForm'
+import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
+import { getCategoryById } from '@/lib/categories'
+import { groupSumByCategory } from '@/lib/calculations'
+import { formatRupiah, getCurrentMonth } from '@/lib/utils'
 
 interface GoalCardProps {
   category: string
@@ -25,7 +29,8 @@ interface GoalCardProps {
 }
 
 function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCardProps) {
-  const cat = EXPENSE_CATEGORIES.find((c) => c.id === category)
+  const canEdit = useCanEditActiveWallet()
+  const cat = getCategoryById(category, 'expense')
   const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
   const remaining = limit - spent
   const isOver = spent > limit
@@ -57,20 +62,22 @@ function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCard
             <p className="text-xs text-slate-400 dark:text-slate-500">Limit {formatRupiah(limit)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onEdit(goalId, category, limit)}
-            className="p-1.5 text-slate-400 hover:text-sky-500 transition-colors"
-          >
-            <Pencil className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => onDelete(goalId)}
-            className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
+        {canEdit && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onEdit(goalId, category, limit)}
+              className="p-1.5 text-slate-400 hover:text-sky-500 transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onDelete(goalId)}
+              className="p-1.5 text-slate-400 hover:text-red-500 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Progress bar */}
@@ -98,15 +105,11 @@ function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCard
 }
 
 export default function GoalsPage() {
-  const { goals, isLoading, loadGoals, setGoal, deleteGoal } = useGoalStore()
+  const { goals, isLoading, loadGoals, deleteGoal } = useGoalStore()
   const { transactions, loadTransactions } = useTransactionStore()
-  const [showAdd, setShowAdd] = useState(false)
-  const [selectedCategory, setSelectedCategory] = useState(EXPENSE_CATEGORIES[0].id)
-  const [limitInput, setLimitInput] = useState('')
-  const [saving, setSaving] = useState(false)
-  const [editingGoal, setEditingGoal] = useState<{ id: string; category: string } | null>(null)
-  const [editLimitInput, setEditLimitInput] = useState('')
-  const [editSaving, setEditSaving] = useState(false)
+  const addForm = useAddGoalForm(goals)
+  const editForm = useEditGoalForm()
+  const canEdit = useCanEditActiveWallet()
 
   const currentMonth = getCurrentMonth()
 
@@ -116,13 +119,8 @@ export default function GoalsPage() {
   }, [loadGoals, loadTransactions])
 
   const spentByCategory = useMemo(() => {
-    const map: Record<string, number> = {}
-    transactions
-      .filter((t) => t.type === 'expense' && t.date.startsWith(currentMonth))
-      .forEach((t) => {
-        map[t.category] = (map[t.category] ?? 0) + t.amount
-      })
-    return map
+    const monthlyTx = transactions.filter((t) => t.date.startsWith(currentMonth))
+    return groupSumByCategory(monthlyTx, 'expense')
   }, [transactions, currentMonth])
 
   const totalLimit = useMemo(() => goals.reduce((s, g) => s + g.limitAmount, 0), [goals])
@@ -133,59 +131,12 @@ export default function GoalsPage() {
   const totalPercentage = totalLimit > 0 ? Math.min((totalSpent / totalLimit) * 100, 100) : 0
   const totalOver = totalSpent > totalLimit
 
-  // Categories without a goal set yet
-  const availableCategories = EXPENSE_CATEGORIES.filter(
-    (c) => !goals.some((g) => g.category === c.id)
-  )
-
-  async function handleSave() {
-    const amount = parseRupiahInput(limitInput)
-    if (!amount || amount <= 0) {
-      toast('Masukkan jumlah limit yang valid', 'error')
-      return
-    }
-    setSaving(true)
-    try {
-      await setGoal({ category: selectedCategory, limitAmount: amount })
-      toast('Limit berhasil disimpan', 'success')
-      setShowAdd(false)
-      setLimitInput('')
-      setSelectedCategory(availableCategories[0]?.id ?? EXPENSE_CATEGORIES[0].id)
-    } catch {
-      toast('Gagal menyimpan limit', 'error')
-    } finally {
-      setSaving(false)
-    }
-  }
-
   async function handleDelete(id: string) {
     await deleteGoal(id)
     toast('Limit dihapus', 'success')
   }
 
-  function openEdit(goalId: string, category: string, limit: number) {
-    setEditingGoal({ id: goalId, category })
-    setEditLimitInput(formatRupiahInput(limit))
-  }
-
-  async function handleEditSave() {
-    if (!editingGoal) return
-    const amount = parseRupiahInput(editLimitInput)
-    if (!amount || amount <= 0) {
-      toast('Masukkan jumlah limit yang valid', 'error')
-      return
-    }
-    setEditSaving(true)
-    try {
-      await setGoal({ category: editingGoal.category, limitAmount: amount })
-      toast('Limit berhasil diperbarui', 'success')
-      setEditingGoal(null)
-    } catch {
-      toast('Gagal memperbarui limit', 'error')
-    } finally {
-      setEditSaving(false)
-    }
-  }
+  const editingCategory = editForm.editingGoal ? getCategoryById(editForm.editingGoal.category, 'expense') : null
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -237,15 +188,8 @@ export default function GoalsPage() {
           )}
 
           {/* Add button */}
-          {availableCategories.length > 0 && (
-            <Button
-              variant="primary"
-              fullWidth
-              onClick={() => {
-                setSelectedCategory(availableCategories[0].id)
-                setShowAdd(true)
-              }}
-            >
+          {canEdit && addForm.availableCategories.length > 0 && (
+            <Button variant="primary" fullWidth onClick={addForm.open}>
               <Plus className="w-4 h-4 mr-2" />
               Tambah Batas Kategori
             </Button>
@@ -275,7 +219,7 @@ export default function GoalsPage() {
                     limit={goal.limitAmount}
                     spent={spentByCategory[goal.category] ?? 0}
                     onDelete={handleDelete}
-                    onEdit={openEdit}
+                    onEdit={editForm.open}
                   />
                 ))}
               </div>
@@ -287,22 +231,18 @@ export default function GoalsPage() {
       <BottomNav />
 
       {/* Add Goal Sheet */}
-      <BottomSheet
-        open={showAdd}
-        onClose={() => setShowAdd(false)}
-        title="Tambah Batas Pengeluaran"
-      >
+      <BottomSheet open={addForm.show} onClose={addForm.close} title="Tambah Batas Pengeluaran">
         <div className="px-5 pb-6 space-y-4">
           {/* Category Picker */}
           <div>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kategori</p>
             <div className="relative">
               <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
+                value={addForm.category}
+                onChange={(e) => addForm.setCategory(e.target.value)}
                 className="w-full appearance-none px-4 py-3 pr-10 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-medium text-slate-800 dark:text-slate-100 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
               >
-                {availableCategories.map((c) => (
+                {addForm.availableCategories.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.icon} {c.name}
                   </option>
@@ -320,59 +260,54 @@ export default function GoalsPage() {
               <input
                 type="text"
                 inputMode="numeric"
-                value={limitInput}
-                onChange={(e) => setLimitInput(formatRupiahInput(parseRupiahInput(e.target.value)))}
+                value={addForm.limit.display}
+                onChange={addForm.limit.onChange}
                 placeholder="0"
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
               />
             </div>
           </div>
 
-          <Button variant="primary" fullWidth loading={saving} onClick={handleSave}>
+          <Button variant="primary" fullWidth loading={addForm.saving} onClick={addForm.handleSave}>
             Simpan Batas
           </Button>
         </div>
       </BottomSheet>
 
       {/* Edit Goal Sheet */}
-      <BottomSheet
-        open={!!editingGoal}
-        onClose={() => setEditingGoal(null)}
-        title="Edit Batas Pengeluaran"
-      >
-        {editingGoal && (() => {
-          const cat = EXPENSE_CATEGORIES.find((c) => c.id === editingGoal.category)
-          return (
-            <div className="px-5 pb-6 space-y-4">
-              <div className="flex items-center gap-2.5 py-2">
-                <div
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                  style={{ backgroundColor: cat?.bgColor ?? '#F1F5F9' }}
-                >
-                  {cat?.icon ?? '📦'}
-                </div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{cat?.name ?? editingGoal.category}</p>
+      <BottomSheet open={!!editForm.editingGoal} onClose={editForm.close} title="Edit Batas Pengeluaran">
+        {editForm.editingGoal && (
+          <div className="px-5 pb-6 space-y-4">
+            <div className="flex items-center gap-2.5 py-2">
+              <div
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                style={{ backgroundColor: editingCategory?.bgColor ?? '#F1F5F9' }}
+              >
+                {editingCategory?.icon ?? '📦'}
               </div>
-              <div>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Jumlah</p>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 dark:text-slate-400">Rp</span>
-                  <input
-                    type="text"
-                    inputMode="numeric"
-                    value={editLimitInput}
-                    onChange={(e) => setEditLimitInput(formatRupiahInput(parseRupiahInput(e.target.value)))}
-                    placeholder="0"
-                    className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
-                  />
-                </div>
-              </div>
-              <Button variant="primary" fullWidth loading={editSaving} onClick={handleEditSave}>
-                Perbarui Batas
-              </Button>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                {editingCategory?.name ?? editForm.editingGoal.category}
+              </p>
             </div>
-          )
-        })()}
+            <div>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Jumlah</p>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 dark:text-slate-400">Rp</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  value={editForm.limit.display}
+                  onChange={editForm.limit.onChange}
+                  placeholder="0"
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-sm font-semibold text-slate-800 dark:text-slate-100 placeholder:text-slate-300 dark:placeholder:text-slate-600 focus:outline-none focus:border-sky-400 focus:bg-white dark:focus:bg-slate-700 transition-colors"
+                />
+              </div>
+            </div>
+            <Button variant="primary" fullWidth loading={editForm.saving} onClick={editForm.handleSave}>
+              Perbarui Batas
+            </Button>
+          </div>
+        )}
       </BottomSheet>
     </div>
   )

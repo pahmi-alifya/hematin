@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   CheckCircle2,
@@ -17,212 +16,36 @@ import { Header } from "@/components/layout/Header";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { Button } from "@/components/ui/Button";
-import { toast } from "@/components/ui/Toast";
-import { useSettingsStore } from "@/stores/settingsStore";
-import {
-  AI_PROVIDERS,
-  isValidKeyFormat,
-} from "@/lib/ai-providers";
+import { useAIProviderSetup } from "@/hooks/useAIProviderSetup";
+import { AI_PROVIDERS } from "@/lib/ai-providers";
 import { maskApiKey } from "@/lib/utils";
 import { ConnectionTest } from "@/components/settings/ConnectionTest";
 import { DataBackupSection } from "@/components/settings/DataBackupSection";
 import type { AIProviderKey } from "@/lib/ai-providers";
-import type { CachedModel } from "@/stores/settingsStore";
 
 export default function SettingsPage() {
   const {
     aiSettings,
     isConfigured,
-    loadSettings,
-    saveSettings,
-    clearSettings,
-    cachedModelsByProvider,
-    setCachedModels,
-  } = useSettingsStore();
-
-  const [selectedProvider, setSelectedProvider] =
-    useState<AIProviderKey>("anthropic");
-  const [selectedModel, setSelectedModel] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [showKey, setShowKey] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [clearing, setClearing] = useState(false);
-  const [fetchingModels, setFetchingModels] = useState(false);
-  const [keyStep, setKeyStep] = useState<"input" | "model">("input");
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Read from per-provider cache — persists across navigations & tab switches
-  const dynamicModels: CachedModel[] | null =
-    cachedModelsByProvider[selectedProvider] ?? null;
-
-  useEffect(() => {
-    loadSettings();
-  }, [loadSettings]);
-
-  useEffect(() => {
-    if (!aiSettings) return;
-    setSelectedProvider(aiSettings.provider as AIProviderKey);
-    setSelectedModel(aiSettings.model);
-    setKeyStep("model");
-    // Auto-fetch if this provider has no cache yet
-    if (!cachedModelsByProvider[aiSettings.provider]) {
-      fetchModels(aiSettings.provider as AIProviderKey, aiSettings.apiKey);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [aiSettings]);
-
-  // Debounced auto-fetch when user types a new API key (preloads model list)
-  useEffect(() => {
-    if (!apiKey.trim()) return;
-    if (!isValidKeyFormat(selectedProvider, apiKey.trim())) return;
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      fetchModels(selectedProvider, apiKey.trim());
-    }, 700);
-    return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [apiKey, selectedProvider]);
-
-  async function fetchModels(provider: AIProviderKey, key: string) {
-    if (!key) return;
-    setFetchingModels(true);
-    try {
-      const res = await fetch("/api/models", {
-        headers: {
-          "X-AI-Provider": provider,
-          "X-AI-Key": key,
-        },
-      });
-      const json = (await res.json()) as {
-        models?: CachedModel[];
-        error?: string;
-      };
-      if (!res.ok || !json.models) {
-        throw new Error(json.error ?? "Gagal mengambil daftar model");
-      }
-      // Save to Zustand store so it persists across navigations
-      setCachedModels(json.models, provider);
-      setSelectedModel((prev) =>
-        json.models!.find((m) => m.id === prev)
-          ? prev
-          : (json.models![0]?.id ?? ""),
-      );
-    } catch {
-      // silently fail on auto-fetch; user can retry manually
-    } finally {
-      setFetchingModels(false);
-    }
-  }
-
-  async function handleFetchModels() {
-    const activeKey = aiSettings?.apiKey;
-    if (!activeKey) {
-      toast("Masukkan API key terlebih dahulu", "error");
-      return;
-    }
-    setFetchingModels(true);
-    try {
-      const res = await fetch("/api/models", {
-        headers: {
-          "X-AI-Provider": selectedProvider,
-          "X-AI-Key": activeKey,
-        },
-      });
-      const json = (await res.json()) as {
-        models?: CachedModel[];
-        error?: string;
-      };
-      if (!res.ok || !json.models) {
-        throw new Error(json.error ?? "Gagal mengambil daftar model");
-      }
-      setCachedModels(json.models, selectedProvider);
-      if (!json.models.find((m) => m.id === selectedModel)) {
-        setSelectedModel(
-          json.models[0]?.id ?? "",
-        );
-      }
-      toast(`${json.models.length} model ditemukan`, "success");
-    } catch (err) {
-      toast(
-        err instanceof Error ? err.message : "Gagal mengambil model",
-        "error",
-      );
-    } finally {
-      setFetchingModels(false);
-    }
-  }
-
-  function handleProviderChange(p: AIProviderKey) {
-    setSelectedProvider(p);
-    const cached = cachedModelsByProvider[p];
-    setSelectedModel(cached?.[0]?.id ?? "");
-    setApiKey("");
-    setKeyStep("input");
-  }
-
-  async function handleSaveKey() {
-    if (!apiKey.trim()) {
-      toast("Masukkan API key terlebih dahulu", "error");
-      return;
-    }
-    if (!isValidKeyFormat(selectedProvider, apiKey.trim())) {
-      toast(
-        `Format API key tidak valid untuk ${AI_PROVIDERS[selectedProvider].name}`,
-        "error",
-      );
-      return;
-    }
-    const trimmedKey = apiKey.trim();
-    setSaving(true);
-    try {
-      await saveSettings({
-        provider: selectedProvider,
-        model: "",
-        apiKey: trimmedKey,
-      });
-      setApiKey("");
-      await fetchModels(selectedProvider, trimmedKey);
-      setKeyStep("model");
-      toast("API key tersimpan, pilih model yang ingin digunakan", "success");
-    } catch {
-      toast("Gagal menyimpan API key", "error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleSaveSettings() {
-    if (!aiSettings) return;
-    setSaving(true);
-    try {
-      await saveSettings({
-        provider: selectedProvider,
-        model: selectedModel,
-        apiKey: aiSettings.apiKey,
-      });
-      toast("Pengaturan AI berhasil disimpan", "success");
-    } catch {
-      toast("Gagal menyimpan pengaturan", "error");
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleClear() {
-    setClearing(true);
-    try {
-      await clearSettings();
-      setKeyStep("input");
-      toast("Pengaturan AI dihapus", "success");
-      setApiKey("");
-    } catch {
-      toast("Gagal menghapus pengaturan", "error");
-    } finally {
-      setClearing(false);
-    }
-  }
+    selectedProvider,
+    selectedModel,
+    setSelectedModel,
+    apiKey,
+    setApiKey,
+    showKey,
+    setShowKey,
+    saving,
+    clearing,
+    fetchingModels,
+    keyStep,
+    setKeyStep,
+    dynamicModels,
+    handleFetchModels,
+    handleProviderChange,
+    handleSaveKey,
+    handleSaveSettings,
+    handleClear,
+  } = useAIProviderSetup();
 
   const currentProviderConfig = AI_PROVIDERS[selectedProvider];
 
@@ -299,7 +122,6 @@ export default function SettingsPage() {
                       : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
                   }`}
                 >
-                  {/* <span className="text-xl">{AI_PROVIDERS[p].logo}</span> */}
                   <span
                     className={`text-xs font-semibold ${selectedProvider === p ? "text-sky-600 dark:text-sky-400" : "text-slate-600 dark:text-slate-400"}`}
                   >
@@ -511,7 +333,7 @@ export default function SettingsPage() {
           )}
 
           {/* Data & Backup */}
-          <DataBackupSection />
+          {/* <DataBackupSection /> */}
 
           {/* Info Note */}
           <div className="bg-sky-50 dark:bg-sky-900/20 rounded-2xl border border-sky-100 dark:border-sky-800/40 p-4">

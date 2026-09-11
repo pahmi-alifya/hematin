@@ -1,8 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { format, subMonths, addMonths, parseISO, getDaysInMonth } from "date-fns";
-import { id } from "date-fns/locale";
+import { useEffect } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -24,184 +22,35 @@ import { CategoryDonut } from "@/components/reports/CategoryDonut";
 import { DebtSummaryChart } from "@/components/reports/DebtSummaryChart";
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useDebtStore } from "@/stores/debtStore";
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from "@/lib/categories";
+import { useReportsData } from "@/hooks/useReportsData";
 import { formatRupiah, getCurrentMonth, cn } from "@/lib/utils";
 
 export default function ReportsPage() {
   const { transactions, isLoading, loadTransactions } = useTransactionStore();
   const { loadDebts } = useDebtStore();
-  const [month, setMonth] = useState(getCurrentMonth());
-  const [showAll, setShowAll] = useState(false);
+  const {
+    month,
+    monthLabel,
+    isCurrentMonth,
+    showAll,
+    showAllTime,
+    prevMonth,
+    nextMonth,
+    filteredTx,
+    income,
+    expense,
+    saving,
+    savingRate,
+    donutData,
+    incomeDonutData,
+    savingDonutData,
+    dailyStats,
+  } = useReportsData(transactions);
 
   useEffect(() => {
     loadTransactions();
     loadDebts();
   }, [loadTransactions, loadDebts]);
-
-  function prevMonth() {
-    setShowAll(false);
-    setMonth((m) => format(subMonths(parseISO(m + "-01"), 1), "yyyy-MM"));
-  }
-
-  function nextMonth() {
-    const next = format(addMonths(parseISO(month + "-01"), 1), "yyyy-MM");
-    if (next <= getCurrentMonth()) {
-      setShowAll(false);
-      setMonth(next);
-    }
-  }
-
-  const isCurrentMonth = month === getCurrentMonth();
-  const monthLabel = format(parseISO(month + "-01"), "MMMM yyyy", {
-    locale: id,
-  });
-
-  const filteredTx = useMemo(
-    () =>
-      showAll
-        ? transactions
-        : transactions.filter((t) => t.date.startsWith(month)),
-    [transactions, month, showAll],
-  );
-
-  const income = useMemo(
-    () =>
-      filteredTx
-        .filter((t) => t.type === "income")
-        .reduce((s, t) => s + t.amount, 0),
-    [filteredTx],
-  );
-  const expense = useMemo(
-    () =>
-      filteredTx
-        .filter((t) => t.type === "expense")
-        .reduce((s, t) => s + t.amount, 0),
-    [filteredTx],
-  );
-  const saving = useMemo(
-    () =>
-      filteredTx
-        .filter((t) => t.type === "saving")
-        .reduce((s, t) => s + t.amount, 0),
-    [filteredTx],
-  );
-  const savingRate = income > 0 ? Math.round((saving / income) * 100) : 0;
-
-  const byCategory = useMemo(() => {
-    const map: Record<string, number> = {};
-    filteredTx
-      .filter((t) => t.type === "expense")
-      .forEach((t) => {
-        map[t.category] = (map[t.category] ?? 0) + t.amount;
-      });
-    return Object.entries(map)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 6);
-  }, [filteredTx]);
-
-  const donutData = useMemo(
-    () =>
-      byCategory.map(([catId, amount]) => {
-        const cat = EXPENSE_CATEGORIES.find((c) => c.id === catId);
-        return {
-          id: catId,
-          name: cat?.name ?? catId,
-          icon: cat?.icon ?? "📦",
-          amount,
-          color: cat?.color ?? "#64748B",
-          bgColor: cat?.bgColor ?? "#F1F5F9",
-        };
-      }),
-    [byCategory],
-  );
-
-  // Daily stats (only for specific month, not "Semua")
-  const dailyStats = useMemo(() => {
-    if (showAll) return null
-    const monthDate = parseISO(month + "-01")
-    const daysInMonth = getDaysInMonth(monthDate)
-    const daysElapsed = isCurrentMonth ? new Date().getDate() : daysInMonth
-
-    const avgExpense = daysElapsed > 0 ? expense / daysElapsed : 0
-    const avgIncome  = daysElapsed > 0 ? income  / daysElapsed : 0
-    const avgSaving  = daysElapsed > 0 ? saving  / daysElapsed : 0
-
-    // Hari paling boros
-    const expenseByDay: Record<string, number> = {}
-    filteredTx
-      .filter((t) => t.type === "expense")
-      .forEach((t) => {
-        expenseByDay[t.date] = (expenseByDay[t.date] ?? 0) + t.amount
-      })
-    const busiestEntry = Object.entries(expenseByDay).sort(([, a], [, b]) => b - a)[0]
-    const busiestDay    = busiestEntry ? format(parseISO(busiestEntry[0]), "EEE, d MMM", { locale: id }) : null
-    const busiestAmount = busiestEntry?.[1] ?? 0
-
-    // Hari aktif (ada transaksi apapun)
-    const activeDates = new Set(filteredTx.map((t) => t.date))
-    const activeDays  = activeDates.size
-
-    // Proyeksi akhir bulan (bulan berjalan) atau realisasi (bulan lampau)
-    const projection = isCurrentMonth ? Math.round(avgExpense * daysInMonth) : expense
-    const projectionLabel = isCurrentMonth ? 'Proyeksi akhir bulan' : 'Realisasi pengeluaran'
-
-    return { avgExpense, avgIncome, avgSaving, busiestDay, busiestAmount, activeDays, daysElapsed, daysInMonth, projection, projectionLabel }
-  }, [showAll, month, isCurrentMonth, expense, income, saving, filteredTx])
-
-  const bySavingCategory = useMemo(() => {
-    const map: Record<string, number> = {};
-    filteredTx
-      .filter((t) => t.type === "saving")
-      .forEach((t) => {
-        map[t.category] = (map[t.category] ?? 0) + t.amount;
-      });
-    return Object.entries(map).sort(([, a], [, b]) => b - a).slice(0, 6);
-  }, [filteredTx]);
-
-  const savingDonutData = useMemo(
-    () =>
-      bySavingCategory.map(([catId, amount]) => {
-        const cat = SAVING_CATEGORIES.find((c) => c.id === catId);
-        return {
-          id: catId,
-          name: cat?.name ?? catId,
-          icon: cat?.icon ?? "🏦",
-          amount,
-          color: cat?.color ?? "#0D9488",
-          bgColor: cat?.bgColor ?? "#CCFBF1",
-        };
-      }),
-    [bySavingCategory],
-  );
-
-  const byIncomeCategory = useMemo(() => {
-    const map: Record<string, number> = {};
-    filteredTx
-      .filter((t) => t.type === "income")
-      .forEach((t) => {
-        map[t.category] = (map[t.category] ?? 0) + t.amount;
-      });
-    return Object.entries(map)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, 6);
-  }, [filteredTx]);
-
-  const incomeDonutData = useMemo(
-    () =>
-      byIncomeCategory.map(([catId, amount]) => {
-        const cat = INCOME_CATEGORIES.find((c) => c.id === catId);
-        return {
-          id: catId,
-          name: cat?.name ?? catId,
-          icon: cat?.icon ?? "💰",
-          amount,
-          color: cat?.color ?? "#10B981",
-          bgColor: cat?.bgColor ?? "#ECFDF5",
-        };
-      }),
-    [byIncomeCategory],
-  );
-
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -213,7 +62,7 @@ export default function ReportsPage() {
           <div className="flex items-center bg-white dark:bg-slate-800/60 rounded-2xl px-3 py-3 shadow-sm border border-sky-100 dark:border-slate-700/60 gap-2">
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setShowAll(true)}
+              onClick={showAllTime}
               className={cn(
                 "shrink-0 h-7 px-2.5 rounded-xl text-xs font-semibold transition-all",
                 showAll
