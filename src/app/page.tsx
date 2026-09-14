@@ -87,7 +87,7 @@ export default function DashboardPage() {
           <Settings className="w-5 h-5" />
         </Link>
 
-        <div className="absolute top-3 left-4">
+        <div className="absolute top-3 left-4" data-tour="wallet-switcher">
           <WalletSwitcher variant="light" />
         </div>
 
@@ -188,6 +188,7 @@ export default function DashboardPage() {
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setShowForm(true)}
+                data-tour="quick-add-transaction"
                 className="flex flex-col items-center justify-center gap-2 bg-white dark:bg-slate-800/60 rounded-2xl py-5 shadow-sm border border-sky-100 dark:border-slate-700/60 active:bg-sky-50 dark:active:bg-slate-700"
               >
                 <div className="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center">

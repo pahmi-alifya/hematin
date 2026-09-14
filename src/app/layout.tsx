@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/ui/ThemeToggle";
 import { InstallBanner } from "@/components/ui/InstallBanner";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
+import { TourController } from "@/components/tour/TourController";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -286,6 +287,7 @@ export default function RootLayout({
         <ToastProvider />
         <AuthProvider />
         <WalletProvider />
+        <TourController />
         {children}
         <InstallBanner />
         <Analytics />
