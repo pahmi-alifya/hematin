@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Download, Upload, AlertTriangle, X, Database } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { useDataBackup } from '@/hooks/useDataBackup'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { ImportMode } from '@/lib/export-import'
 
 export function DataBackupSection() {
+  const t = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const {
     exporting,
@@ -32,11 +34,11 @@ export function DataBackupSection() {
         <div className="flex items-center gap-2 mb-1">
           <Database className="w-4 h-4 text-sky-500" />
           <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-            Data & Backup
+            {t.settings.backup.title}
           </p>
         </div>
         <p className="text-xs text-slate-400 dark:text-slate-500 mb-4">
-          Export semua data ke file JSON untuk backup atau pindah perangkat. Import file backup untuk memulihkan data.
+          {t.settings.backup.description}
         </p>
 
         <div className="flex flex-col gap-2">
@@ -47,7 +49,7 @@ export function DataBackupSection() {
             onClick={handleExport}
           >
             <Download className="w-4 h-4 mr-2" />
-            Export Data
+            {t.settings.backup.export}
           </Button>
 
           <Button
@@ -56,7 +58,7 @@ export function DataBackupSection() {
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="w-4 h-4 mr-2" />
-            Import Data
+            {t.settings.backup.import}
           </Button>
 
           <input
@@ -91,7 +93,7 @@ export function DataBackupSection() {
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-4 pb-2">
                 <p className="text-base font-semibold text-slate-800 dark:text-slate-100">
-                  Konfirmasi Import
+                  {t.settings.backup.confirmTitle}
                 </p>
                 <button
                   onClick={cancelImport}
@@ -105,20 +107,20 @@ export function DataBackupSection() {
                 {/* Preview counts */}
                 <div className="bg-sky-50 dark:bg-sky-900/20 rounded-xl border border-sky-100 dark:border-sky-800/40 p-3">
                   <p className="text-xs font-semibold text-sky-700 dark:text-sky-400 mb-2">
-                    Data ditemukan: {totalRecords} record
+                    {t.settings.backup.recordsFound(totalRecords)}
                   </p>
                   <div className="grid grid-cols-2 gap-1.5 text-xs text-slate-600 dark:text-slate-400">
-                    <span>Transaksi: <b className="text-slate-800 dark:text-slate-200">{preview.transactions}</b></span>
-                    <span>Goals: <b className="text-slate-800 dark:text-slate-200">{preview.goals}</b></span>
-                    <span>Hutang: <b className="text-slate-800 dark:text-slate-200">{preview.debts}</b></span>
-                    <span>Berulang: <b className="text-slate-800 dark:text-slate-200">{preview.recurringTemplates}</b></span>
+                    <span>{t.settings.backup.transactions}: <b className="text-slate-800 dark:text-slate-200">{preview.transactions}</b></span>
+                    <span>{t.settings.backup.goals}: <b className="text-slate-800 dark:text-slate-200">{preview.goals}</b></span>
+                    <span>{t.settings.backup.debts}: <b className="text-slate-800 dark:text-slate-200">{preview.debts}</b></span>
+                    <span>{t.settings.backup.recurring}: <b className="text-slate-800 dark:text-slate-200">{preview.recurringTemplates}</b></span>
                   </div>
                 </div>
 
                 {/* Mode selector */}
                 <div>
                   <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
-                    Mode import
+                    {t.settings.backup.modeLabel}
                   </p>
                   <div className="flex gap-2">
                     {(['merge', 'replace'] as ImportMode[]).map((m) => (
@@ -131,14 +133,14 @@ export function DataBackupSection() {
                             : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400'
                         }`}
                       >
-                        {m === 'merge' ? 'Gabung' : 'Timpa'}
+                        {m === 'merge' ? t.settings.backup.modeMerge : t.settings.backup.modeReplace}
                       </button>
                     ))}
                   </div>
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
                     {mode === 'merge'
-                      ? 'Tambah data baru saja, data lama tetap aman.'
-                      : 'Hapus semua data lama, ganti dengan data dari file.'}
+                      ? t.settings.backup.modeMergeHint
+                      : t.settings.backup.modeReplaceHint}
                   </p>
                 </div>
 
@@ -154,7 +156,7 @@ export function DataBackupSection() {
                       <div className="flex items-start gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/40 rounded-xl p-3">
                         <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                         <p className="text-xs text-red-600 dark:text-red-400">
-                          Semua data yang ada sekarang akan dihapus permanen dan tidak bisa dikembalikan.
+                          {t.settings.backup.replaceWarning}
                         </p>
                       </div>
                     </motion.div>
@@ -168,7 +170,7 @@ export function DataBackupSection() {
                     fullWidth
                     onClick={cancelImport}
                   >
-                    Batal
+                    {t.common.cancel}
                   </Button>
                   <Button
                     variant={mode === 'replace' ? 'danger' : 'primary'}
@@ -176,7 +178,7 @@ export function DataBackupSection() {
                     loading={importing}
                     onClick={handleConfirmImport}
                   >
-                    {mode === 'replace' ? 'Timpa Data' : 'Import'}
+                    {mode === 'replace' ? t.settings.backup.confirmReplace : t.settings.backup.confirmImport}
                   </Button>
                 </div>
               </div>

@@ -5,16 +5,18 @@ import { UserCircle2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/authStore";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function AccountSection() {
   const router = useRouter();
   const { user, isGuest, isLoading, signOut } = useAuthStore();
+  const t = useTranslation();
 
   if (isLoading) return null;
 
   async function handleSignOut() {
     await signOut();
-    toast("Berhasil keluar", "success");
+    toast(t.profile.account.signOutSuccess, "success");
   }
 
   return (
@@ -25,15 +27,15 @@ export function AccountSection() {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
-            {isGuest ? "Guest" : (user?.user_metadata?.name as string) || user?.email}
+            {isGuest ? t.profile.account.guestName : (user?.user_metadata?.name as string) || user?.email}
           </p>
           <p className="text-xs text-slate-400 dark:text-slate-500 truncate">
-            {isGuest ? "Data tersimpan lokal di perangkat ini" : user?.email}
+            {isGuest ? t.profile.account.guestSubtitle : user?.email}
           </p>
         </div>
         {isGuest ? (
           <Button size="sm" variant="secondary" onClick={() => router.push("/login")}>
-            Masuk
+            {t.profile.account.signIn}
           </Button>
         ) : (
           <Button size="sm" variant="ghost" onClick={handleSignOut}>
@@ -43,8 +45,7 @@ export function AccountSection() {
       </div>
       {isGuest && (
         <p className="text-xs text-slate-400 dark:text-slate-500 mt-3 leading-relaxed">
-          Daftar/masuk untuk bisa membagikan dompet ke orang lain. Data lokal kamu tetap aman &
-          otomatis ikut tersimpan begitu kamu daftar.
+          {t.profile.account.guestNotice}
         </p>
       )}
     </div>
