@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import compressImage from 'browser-image-compression'
 import { useSettingsStore } from '@/stores/settingsStore'
+import { useLanguageStore } from '@/stores/languageStore'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 import { buildAIHeaders, getCurrentDate } from '@/lib/utils'
 import { IMAGE_COMPRESSION_OPTIONS } from '@/lib/constants'
 import type { ScannedReceipt } from '@/types'
@@ -12,6 +14,8 @@ type ScanState = 'idle' | 'scanning' | 'done' | 'error'
 
 /** Owns alur upload → compress → panggil /api/scan → parse hasil untuk halaman Scan Struk. */
 export function useReceiptScan() {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const { aiSettings, isConfigured } = useSettingsStore()
   const [preview, setPreview] = useState<string | null>(null)
   const [scanState, setScanState] = useState<ScanState>('idle')
@@ -19,7 +23,7 @@ export function useReceiptScan() {
 
   async function handleFile(file: File) {
     if (!file.type.startsWith('image/')) {
-      toast('File harus berupa gambar', 'error')
+      toast(t.scan.errorNotImage, 'error')
       return
     }
 
@@ -31,7 +35,7 @@ export function useReceiptScan() {
       setPreview(dataUrl)
 
       if (!isConfigured || !aiSettings) {
-        toast('Aktifkan AI di Pengaturan terlebih dahulu', 'error')
+        toast(t.scan.errorAIRequired, 'error')
         return
       }
 
@@ -44,21 +48,21 @@ export function useReceiptScan() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...buildAIHeaders({ provider: aiSettings.provider, apiKey: aiSettings.apiKey, model: aiSettings.model }),
+            ...buildAIHeaders({ provider: aiSettings.provider, apiKey: aiSettings.apiKey, model: aiSettings.model, language }),
           },
           body: JSON.stringify({ imageBase64: base64, mimeType }),
         })
 
         if (!res.ok) {
           const err = await res.json()
-          throw new Error(err.error ?? 'Scan gagal')
+          throw new Error(err.error ?? t.scan.errorScanFailed)
         }
 
         const data: ScannedReceipt = await res.json()
         setScanned(data)
         setScanState('done')
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Scan gagal'
+        const message = err instanceof Error ? err.message : t.scan.errorScanFailed
         toast(message, 'error')
         setScanState('error')
       }

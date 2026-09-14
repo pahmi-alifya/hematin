@@ -15,9 +15,11 @@ import {
 } from '@/lib/sharing'
 import { toast } from '@/components/ui/Toast'
 import type { WalletMemberRow, ActivityLogRow, WalletRole } from '@/lib/supabase/types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 /** Owns seluruh data & aksi halaman Kelola Akses (key/QR, anggota, log aktivitas) — owner-only. */
 export function useWalletSharing(walletId: string) {
+  const t = useTranslation()
   const wallet = useWalletStore((s) => s.wallets.find((w) => w.id === walletId))
   const userId = useAuthStore((s) => s.user?.id)
 
@@ -70,15 +72,15 @@ export function useWalletSharing(walletId: string) {
   }, [loadKeyInfo, loadMembers, loadLogs])
 
   async function handleActivate() {
-    if (!wallet || !userId) return toast('Silahkan login terlebih dahulu', 'info')
+    if (!wallet || !userId) return toast(t.wallets.access.loginRequiredToast, 'info')
     setActivating(true)
     try {
       const key = await activateSharing(wallet, userId)
       setShareKeyState(key)
       setShareKeyActiveState(true)
-      toast('Sharing diaktifkan', 'success')
+      toast(t.wallets.access.sharingActivatedToast, 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Gagal mengaktifkan sharing', 'error')
+      toast(e instanceof Error ? e.message : t.wallets.access.activateErrorToast, 'error')
     } finally {
       setActivating(false)
     }
@@ -91,9 +93,9 @@ export function useWalletSharing(walletId: string) {
       const key = await regenerateShareKey(wallet.cloudWalletId)
       setShareKeyState(key)
       setShareKeyActiveState(true)
-      toast('Key baru berhasil dibuat', 'success')
+      toast(t.wallets.access.newKeyToast, 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Gagal membuat key baru', 'error')
+      toast(e instanceof Error ? e.message : t.wallets.access.regenerateErrorToast, 'error')
     } finally {
       setActivating(false)
     }
@@ -104,9 +106,9 @@ export function useWalletSharing(walletId: string) {
     try {
       await setShareKeyActive(wallet.cloudWalletId, active)
       setShareKeyActiveState(active)
-      toast(active ? 'Sharing diaktifkan kembali' : 'Sharing dinonaktifkan sementara', 'success')
+      toast(active ? t.wallets.access.reactivatedToast : t.wallets.access.deactivatedToast, 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Gagal mengubah status', 'error')
+      toast(e instanceof Error ? e.message : t.wallets.access.statusErrorToast, 'error')
     }
   }
 
@@ -114,9 +116,9 @@ export function useWalletSharing(walletId: string) {
     try {
       await updateMemberRole(memberId, role)
       await loadMembers()
-      toast('Role berhasil diubah', 'success')
+      toast(t.wallets.access.roleChangedToast, 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Gagal mengubah role', 'error')
+      toast(e instanceof Error ? e.message : t.wallets.access.roleChangeErrorToast, 'error')
     }
   }
 
@@ -124,9 +126,9 @@ export function useWalletSharing(walletId: string) {
     try {
       await removeMember(memberId)
       await loadMembers()
-      toast('Anggota dihapus', 'success')
+      toast(t.wallets.access.memberRemovedToast, 'success')
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Gagal menghapus anggota', 'error')
+      toast(e instanceof Error ? e.message : t.wallets.access.memberRemoveErrorToast, 'error')
     }
   }
 

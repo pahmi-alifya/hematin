@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { format, subMonths, addMonths, parseISO } from 'date-fns'
 import { getCurrentMonth, formatMonthYear } from '@/lib/utils'
+import { useLanguageStore } from '@/stores/languageStore'
 
 /**
  * Owns navigasi bulan "yyyy-MM" (mundur/maju, dibatasi tidak lewat bulan berjalan).
@@ -11,6 +12,7 @@ import { getCurrentMonth, formatMonthYear } from '@/lib/utils'
  */
 export function useMonthNavigator(onChange?: (month: string) => void) {
   const [month, setMonth] = useState(getCurrentMonth())
+  const language = useLanguageStore((s) => s.language)
 
   function prevMonth() {
     const next = format(subMonths(parseISO(month + '-01'), 1), 'yyyy-MM')
@@ -28,7 +30,7 @@ export function useMonthNavigator(onChange?: (month: string) => void) {
 
   return {
     month,
-    monthLabel: formatMonthYear(month),
+    monthLabel: formatMonthYear(month, language),
     isCurrentMonth: month === getCurrentMonth(),
     prevMonth,
     nextMonth,

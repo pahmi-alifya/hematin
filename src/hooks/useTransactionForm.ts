@@ -7,6 +7,7 @@ import { useRupiahInput } from './useRupiahInput'
 import { toast } from '@/components/ui/Toast'
 import { getCurrentDate } from '@/lib/utils'
 import { getDefaultCategoryForType } from '@/lib/categories'
+import { useTranslation } from './useTranslation'
 import type { TransactionType } from '@/lib/transactions'
 
 interface DefaultValues {
@@ -52,6 +53,7 @@ function getInitialForm(defaultValues: DefaultValues | undefined, initialType: T
 
 /** Owns seluruh alur tambah/edit transaksi (+ toggle bikin template rutin sekaligus): state form + submit. */
 export function useTransactionForm({ defaultValues, initialType = 'expense', editId, onSuccess }: UseTransactionFormOptions) {
+  const t = useTranslation()
   const { addTransaction, updateTransaction } = useTransactionStore()
   const { addTemplate } = useRecurringStore()
   const [form, setForm] = useState<TransactionFormData>(() => getInitialForm(defaultValues, initialType))
@@ -73,7 +75,7 @@ export function useTransactionForm({ defaultValues, initialType = 'expense', edi
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.amountRaw || form.amountRaw <= 0) {
-      toast('Masukkan nominal yang valid', 'error')
+      toast(t.transactions.invalidAmountToast, 'error')
       return
     }
 
@@ -90,7 +92,7 @@ export function useTransactionForm({ defaultValues, initialType = 'expense', edi
 
       if (editId) {
         await updateTransaction(editId, data)
-        toast('Transaksi berhasil diperbarui', 'success')
+        toast(t.transactions.updatedToast, 'success')
       } else {
         await addTransaction({ ...data, source })
         if (form.isRecurring) {
@@ -104,11 +106,11 @@ export function useTransactionForm({ defaultValues, initialType = 'expense', edi
             isActive: true,
           })
         }
-        toast('Transaksi berhasil disimpan', 'success')
+        toast(t.transactions.savedToast, 'success')
       }
       onSuccess?.()
     } catch {
-      toast('Gagal menyimpan transaksi', 'error')
+      toast(t.transactions.saveFailedToast, 'error')
     } finally {
       setLoading(false)
     }

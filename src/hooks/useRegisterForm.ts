@@ -6,8 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { registerFormSchema, type RegisterFormValues } from '@/lib/validation/schemas'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useRegisterForm(redirectTo = '/') {
+  const t = useTranslation()
   const router = useRouter()
   const signUp = useAuthStore((s) => s.signUp)
   const form = useForm<RegisterFormValues>({
@@ -18,10 +20,10 @@ export function useRegisterForm(redirectTo = '/') {
   async function onSubmit(values: RegisterFormValues) {
     const result = await signUp(values)
     if (!result.success) {
-      toast(result.error ?? 'Gagal mendaftar', 'error')
+      toast(result.error ?? t.auth.register.errorToast, 'error')
       return
     }
-    toast('Akun berhasil dibuat, selamat datang!', 'success')
+    toast(t.auth.register.successToast, 'success')
     router.push(redirectTo)
   }
 

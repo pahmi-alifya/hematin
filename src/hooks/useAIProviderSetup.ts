@@ -5,9 +5,11 @@ import { useSettingsStore, type CachedModel } from '@/stores/settingsStore'
 import { toast } from '@/components/ui/Toast'
 import { AI_PROVIDERS, isValidKeyFormat, type AIProviderKey } from '@/lib/ai-providers'
 import { buildAIHeaders } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
 
 /** Owns seluruh alur pilih provider AI, simpan API key, dan pilih model untuk halaman Settings. */
 export function useAIProviderSetup() {
+  const t = useTranslation()
   const { aiSettings, isConfigured, loadSettings, saveSettings, clearSettings, cachedModelsByProvider, setCachedModels } =
     useSettingsStore()
 
@@ -62,13 +64,13 @@ export function useAIProviderSetup() {
       const res = await fetch('/api/models', { headers: buildAIHeaders({ provider, apiKey: key }) })
       const json = (await res.json()) as { models?: CachedModel[]; error?: string }
       if (!res.ok || !json.models) {
-        throw new Error(json.error ?? 'Gagal mengambil daftar model')
+        throw new Error(json.error ?? t.settings.toast.fetchModelsListError)
       }
       setCachedModels(json.models, provider)
       setSelectedModel((prev) => (json.models!.find((m) => m.id === prev) ? prev : (json.models![0]?.id ?? '')))
-      if (opts.notify) toast(`${json.models.length} model ditemukan`, 'success')
+      if (opts.notify) toast(t.settings.toast.modelsFound(json.models.length), 'success')
     } catch (err) {
-      if (opts.notify) toast(err instanceof Error ? err.message : 'Gagal mengambil model', 'error')
+      if (opts.notify) toast(err instanceof Error ? err.message : t.settings.toast.fetchModelsError, 'error')
       // auto-fetch (notify=false) gagal secara diam — user bisa retry manual
     } finally {
       setFetchingModels(false)
@@ -78,7 +80,7 @@ export function useAIProviderSetup() {
   function handleFetchModels() {
     const activeKey = aiSettings?.apiKey
     if (!activeKey) {
-      toast('Masukkan API key terlebih dahulu', 'error')
+      toast(t.settings.toast.enterApiKeyFirst, 'error')
       return
     }
     fetchModels(selectedProvider, activeKey, { notify: true })
@@ -94,11 +96,11 @@ export function useAIProviderSetup() {
 
   async function handleSaveKey() {
     if (!apiKey.trim()) {
-      toast('Masukkan API key terlebih dahulu', 'error')
+      toast(t.settings.toast.enterApiKeyFirst, 'error')
       return
     }
     if (!isValidKeyFormat(selectedProvider, apiKey.trim())) {
-      toast(`Format API key tidak valid untuk ${AI_PROVIDERS[selectedProvider].name}`, 'error')
+      toast(t.settings.toast.invalidKeyFormat(AI_PROVIDERS[selectedProvider].name), 'error')
       return
     }
     const trimmedKey = apiKey.trim()
@@ -108,9 +110,9 @@ export function useAIProviderSetup() {
       setApiKey('')
       await fetchModels(selectedProvider, trimmedKey)
       setKeyStep('model')
-      toast('API key tersimpan, pilih model yang ingin digunakan', 'success')
+      toast(t.settings.toast.keySaved, 'success')
     } catch {
-      toast('Gagal menyimpan API key', 'error')
+      toast(t.settings.toast.keySaveError, 'error')
     } finally {
       setSaving(false)
     }
@@ -121,9 +123,9 @@ export function useAIProviderSetup() {
     setSaving(true)
     try {
       await saveSettings({ provider: selectedProvider, model: selectedModel, apiKey: aiSettings.apiKey })
-      toast('Pengaturan AI berhasil disimpan', 'success')
+      toast(t.settings.toast.settingsSaved, 'success')
     } catch {
-      toast('Gagal menyimpan pengaturan', 'error')
+      toast(t.settings.toast.settingsSaveError, 'error')
     } finally {
       setSaving(false)
     }
@@ -134,10 +136,10 @@ export function useAIProviderSetup() {
     try {
       await clearSettings()
       setKeyStep('input')
-      toast('Pengaturan AI dihapus', 'success')
+      toast(t.settings.toast.settingsCleared, 'success')
       setApiKey('')
     } catch {
-      toast('Gagal menghapus pengaturan', 'error')
+      toast(t.settings.toast.settingsClearError, 'error')
     } finally {
       setClearing(false)
     }

@@ -6,6 +6,7 @@ import { toast } from '@/components/ui/Toast'
 import { db } from '@/lib/db'
 import { leaveWallet, deleteCloudWallet } from '@/lib/sharing'
 import type { Wallet } from '@/types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface WalletCounts {
   transactions: number
@@ -26,6 +27,7 @@ async function countWalletData(walletId: string): Promise<WalletCounts> {
 
 /** Owns hitung jumlah data yang akan ikut terhapus + alur konfirmasi hapus dompet. */
 export function useDeleteWalletConfirm(wallet: Wallet | null, onDeleted: () => void) {
+  const t = useTranslation()
   const deleteWallet = useWalletStore((s) => s.deleteWallet)
   const [counts, setCounts] = useState<WalletCounts | null>(null)
   const [deleting, setDeleting] = useState(false)
@@ -47,18 +49,18 @@ export function useDeleteWalletConfirm(wallet: Wallet | null, onDeleted: () => v
         // yang juga dipakai owner & anggota lain.
         await leaveWallet(wallet.cloudWalletId!)
         await deleteWallet(wallet.id)
-        toast(`Akses ke dompet "${wallet.name}" berhasil dihapus`, 'success')
+        toast(t.wallets.delete.leaveSuccessToast(wallet.name), 'success')
       } else {
         // Owner (atau dompet lokal murni) — hapus penuh. Kalau cloud-linked, hapus juga
         // row cloud_wallets-nya supaya cascade ke wallet_members/activity_log/semua data
         // anak, jadi anggota lain otomatis kehilangan akses (bukan cuma cache device ini).
         if (wallet.cloudWalletId) await deleteCloudWallet(wallet.cloudWalletId)
         await deleteWallet(wallet.id)
-        toast(`Dompet "${wallet.name}" berhasil dihapus`, 'success')
+        toast(t.wallets.delete.deleteSuccessToast(wallet.name), 'success')
       }
       onDeleted()
     } catch (e) {
-      toast(e instanceof Error ? e.message : 'Gagal menghapus dompet', 'error')
+      toast(e instanceof Error ? e.message : t.wallets.delete.errorToast, 'error')
     } finally {
       setDeleting(false)
     }

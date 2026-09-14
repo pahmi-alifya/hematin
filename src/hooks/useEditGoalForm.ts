@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useGoalStore } from '@/stores/goalStore'
 import { useRupiahInput } from './useRupiahInput'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface EditingGoal {
   id: string
@@ -12,6 +13,7 @@ interface EditingGoal {
 
 /** Owns alur edit limit goal yang sudah ada. */
 export function useEditGoalForm() {
+  const t = useTranslation()
   const setGoal = useGoalStore((s) => s.setGoal)
   const [editingGoal, setEditingGoal] = useState<EditingGoal | null>(null)
   const [limitRaw, setLimitRaw] = useState(0)
@@ -30,16 +32,16 @@ export function useEditGoalForm() {
   async function handleSave() {
     if (!editingGoal) return
     if (!limitRaw || limitRaw <= 0) {
-      toast('Masukkan jumlah limit yang valid', 'error')
+      toast(t.goals.invalidLimitToast, 'error')
       return
     }
     setSaving(true)
     try {
       await setGoal({ category: editingGoal.category, limitAmount: limitRaw })
-      toast('Limit berhasil diperbarui', 'success')
+      toast(t.goals.limitUpdatedToast, 'success')
       setEditingGoal(null)
     } catch {
-      toast('Gagal memperbarui limit', 'error')
+      toast(t.goals.limitUpdateFailedToast, 'error')
     } finally {
       setSaving(false)
     }

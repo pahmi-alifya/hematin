@@ -5,9 +5,11 @@ import { useWalletStore } from '@/stores/walletStore'
 import { toast } from '@/components/ui/Toast'
 import { MAX_WALLETS, WALLET_ICONS, WALLET_COLORS } from '@/lib/constants'
 import type { Wallet } from '@/types'
+import { useTranslation } from '@/hooks/useTranslation'
 
 /** Owns state form tambah/edit dompet (nama, ikon, warna) untuk WalletFormSheet. */
 export function useWalletForm(open: boolean, editing: Wallet | null, onSaved: () => void) {
+  const t = useTranslation()
   const { createWallet, renameWallet, updateWalletAppearance, canCreateWallet } = useWalletStore()
   const [name, setName] = useState('')
   const [icon, setIcon] = useState(WALLET_ICONS[0])
@@ -24,7 +26,7 @@ export function useWalletForm(open: boolean, editing: Wallet | null, onSaved: ()
   async function handleSave() {
     const trimmed = name.trim()
     if (!trimmed) {
-      toast('Nama dompet tidak boleh kosong', 'error')
+      toast(t.wallets.form.emptyNameToast, 'error')
       return
     }
     setSaving(true)
@@ -32,19 +34,19 @@ export function useWalletForm(open: boolean, editing: Wallet | null, onSaved: ()
       if (editing) {
         await renameWallet(editing.id, trimmed)
         await updateWalletAppearance(editing.id, icon, color)
-        toast('Dompet berhasil diperbarui', 'success')
+        toast(t.wallets.form.updatedToast, 'success')
       } else {
         if (!canCreateWallet()) {
-          toast(`Maksimal ${MAX_WALLETS} dompet`, 'error')
+          toast(t.wallets.list.maxWalletsToast(MAX_WALLETS), 'error')
           setSaving(false)
           return
         }
         await createWallet({ name: trimmed, icon, color })
-        toast('Dompet baru berhasil dibuat', 'success')
+        toast(t.wallets.form.createdToast, 'success')
       }
       onSaved()
     } catch {
-      toast('Gagal menyimpan dompet', 'error')
+      toast(t.wallets.form.saveErrorToast, 'error')
     } finally {
       setSaving(false)
     }

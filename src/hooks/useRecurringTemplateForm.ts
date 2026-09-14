@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRecurringStore } from '@/stores/recurringStore'
 import { useRupiahInput } from './useRupiahInput'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 import { getDefaultCategoryForType } from '@/lib/categories'
 import type { TransactionType } from '@/lib/transactions'
 import type { RecurringTemplate } from '@/types'
@@ -32,6 +33,7 @@ function getInitialForm(template?: RecurringTemplate): TemplateFormData {
 
 /** Owns seluruh alur tambah/edit template transaksi rutin: state form + submit. */
 export function useRecurringTemplateForm() {
+  const t = useTranslation()
   const { addTemplate, updateTemplate } = useRecurringStore()
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -69,7 +71,7 @@ export function useRecurringTemplateForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.amountRaw || form.amountRaw <= 0) {
-      toast('Masukkan nominal yang valid', 'error')
+      toast(t.recurring.invalidAmountToast, 'error')
       return
     }
 
@@ -87,14 +89,14 @@ export function useRecurringTemplateForm() {
 
       if (editingId) {
         await updateTemplate(editingId, data)
-        toast('Template berhasil diperbarui', 'success')
+        toast(t.recurring.templateUpdatedToast, 'success')
       } else {
         await addTemplate(data)
-        toast('Transaksi rutin berhasil ditambahkan', 'success')
+        toast(t.recurring.templateAddedToast, 'success')
       }
       setShowForm(false)
     } catch {
-      toast('Gagal menyimpan template', 'error')
+      toast(t.recurring.templateSaveFailedToast, 'error')
     } finally {
       setSubmitting(false)
     }

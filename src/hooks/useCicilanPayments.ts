@@ -5,12 +5,14 @@ import { format } from 'date-fns'
 import { useDebtStore } from '@/stores/debtStore'
 import { toast } from '@/components/ui/Toast'
 import { getCurrentDate } from '@/lib/utils'
+import { useTranslation } from './useTranslation'
 import type { Debt } from '@/types'
 
 /** Owns alur bayar cicilan & hapus riwayat pembayaran. */
 export function useCicilanPayments(onPaid?: () => void) {
   const { addPayment, deletePayment } = useDebtStore()
   const [cicilanPaidDate, setCicilanPaidDate] = useState(getCurrentDate())
+  const t = useTranslation()
 
   async function handlePayCicilan(debt: Debt, amount: number, notes: string) {
     try {
@@ -24,21 +26,21 @@ export function useCicilanPayments(onPaid?: () => void) {
       })
       onPaid?.()
       if (isFullyPaid) {
-        toast(`Hutang ke ${debt.person} LUNAS! 🎊`, 'success')
+        toast(t.debts.paymentToast.fullyPaid(debt.person), 'success')
       } else {
-        toast('Cicilan bulan ini berhasil dicatat', 'success')
+        toast(t.debts.paymentToast.success, 'success')
       }
     } catch {
-      toast('Gagal menyimpan pembayaran', 'error')
+      toast(t.debts.paymentToast.error, 'error')
     }
   }
 
   async function handleDeletePayment(id: string) {
     try {
       await deletePayment(id)
-      toast('Pembayaran dihapus', 'success')
+      toast(t.debts.paymentToast.deleteSuccess, 'success')
     } catch {
-      toast('Gagal menghapus', 'error')
+      toast(t.debts.paymentToast.deleteError, 'error')
     }
   }
 

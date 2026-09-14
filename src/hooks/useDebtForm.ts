@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { useDebtStore } from '@/stores/debtStore'
 import { useRupiahInput } from './useRupiahInput'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from './useTranslation'
 
 /** Owns seluruh state form tambah hutang/piutang (termasuk field cicilan) + submit. */
 export function useDebtForm(defaultType: 'hutang' | 'piutang', onSuccess: () => void) {
@@ -21,19 +22,20 @@ export function useDebtForm(defaultType: 'hutang' | 'piutang', onSuccess: () => 
   const [cicilanDay, setCicilanDay] = useState(1)
   const [cicilanStartMonth, setCicilanStartMonth] = useState(format(new Date(), 'yyyy-MM'))
   const [loading, setLoading] = useState(false)
+  const t = useTranslation()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!person.trim()) {
-      toast('Masukkan nama orang', 'error')
+      toast(t.debts.formToast.nameRequired, 'error')
       return
     }
     if (!amountRaw || amountRaw <= 0) {
-      toast('Masukkan nominal yang valid', 'error')
+      toast(t.debts.formToast.amountRequired, 'error')
       return
     }
     if (isCicilan && (!cicilanAmountRaw || cicilanAmountRaw <= 0)) {
-      toast('Masukkan nominal cicilan per bulan', 'error')
+      toast(t.debts.formToast.cicilanAmountRequired, 'error')
       return
     }
     setLoading(true)
@@ -49,10 +51,10 @@ export function useDebtForm(defaultType: 'hutang' | 'piutang', onSuccess: () => 
         cicilanDay: isCicilan ? cicilanDay : undefined,
         cicilanStartMonth: isCicilan ? cicilanStartMonth : undefined,
       })
-      toast(type === 'hutang' ? 'Hutang berhasil dicatat' : 'Piutang berhasil dicatat', 'success')
+      toast(t.debts.formToast.success(type), 'success')
       onSuccess()
     } catch {
-      toast('Gagal menyimpan catatan', 'error')
+      toast(t.debts.formToast.error, 'error')
     } finally {
       setLoading(false)
     }

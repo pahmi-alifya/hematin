@@ -13,9 +13,11 @@ import {
 import { useTransactionStore } from '@/stores/transactionStore'
 import { useGoalStore } from '@/stores/goalStore'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 
 /** Owns alur export/import backup JSON: pilih file → preview → konfirmasi mode → import. */
 export function useDataBackup() {
+  const t = useTranslation()
   const [exporting, setExporting] = useState(false)
   const [importing, setImporting] = useState(false)
   const [backup, setBackup] = useState<HematinBackup | null>(null)
@@ -29,9 +31,9 @@ export function useDataBackup() {
     setExporting(true)
     try {
       await downloadBackup()
-      toast('Data berhasil diexport', 'success')
+      toast(t.settings.backup.exportSuccess, 'success')
     } catch {
-      toast('Gagal export data', 'error')
+      toast(t.settings.backup.exportError, 'error')
     } finally {
       setExporting(false)
     }
@@ -49,7 +51,7 @@ export function useDataBackup() {
       setPreview(getImportPreview(parsed))
       setMode('merge')
     } catch (err) {
-      toast(err instanceof Error ? err.message : 'File tidak valid', 'error')
+      toast(err instanceof Error ? err.message : t.settings.backup.invalidFile, 'error')
     }
   }
 
@@ -64,10 +66,10 @@ export function useDataBackup() {
     try {
       await importData(backup, mode)
       await Promise.all([loadTransactions(), loadGoals()])
-      toast('Data berhasil diimport', 'success')
+      toast(t.settings.backup.importSuccess, 'success')
       cancelImport()
     } catch {
-      toast('Gagal import data', 'error')
+      toast(t.settings.backup.importError, 'error')
     } finally {
       setImporting(false)
     }

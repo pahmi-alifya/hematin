@@ -4,11 +4,13 @@ import { useState } from 'react'
 import { useGoalStore } from '@/stores/goalStore'
 import { useRupiahInput } from './useRupiahInput'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 import { EXPENSE_CATEGORIES } from '@/lib/categories'
 import type { Goal } from '@/types'
 
 /** Owns alur tambah batas pengeluaran kategori baru (kategori yang belum ada goal-nya). */
 export function useAddGoalForm(goals: Goal[]) {
+  const t = useTranslation()
   const setGoal = useGoalStore((s) => s.setGoal)
   const availableCategories = EXPENSE_CATEGORIES.filter((c) => !goals.some((g) => g.category === c.id))
 
@@ -29,18 +31,18 @@ export function useAddGoalForm(goals: Goal[]) {
 
   async function handleSave() {
     if (!limitRaw || limitRaw <= 0) {
-      toast('Masukkan jumlah limit yang valid', 'error')
+      toast(t.goals.invalidLimitToast, 'error')
       return
     }
     setSaving(true)
     try {
       await setGoal({ category, limitAmount: limitRaw })
-      toast('Limit berhasil disimpan', 'success')
+      toast(t.goals.limitSavedToast, 'success')
       setShow(false)
       setLimitRaw(0)
       setCategory(availableCategories[0]?.id ?? EXPENSE_CATEGORIES[0].id)
     } catch {
-      toast('Gagal menyimpan limit', 'error')
+      toast(t.goals.limitSaveFailedToast, 'error')
     } finally {
       setSaving(false)
     }

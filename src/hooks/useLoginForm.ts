@@ -6,8 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { loginSchema, type LoginFormValues } from '@/lib/validation/schemas'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function useLoginForm(redirectTo = '/') {
+  const t = useTranslation()
   const router = useRouter()
   const signIn = useAuthStore((s) => s.signIn)
   const form = useForm<LoginFormValues>({
@@ -18,10 +20,10 @@ export function useLoginForm(redirectTo = '/') {
   async function onSubmit(values: LoginFormValues) {
     const result = await signIn(values)
     if (!result.success) {
-      toast(result.error ?? 'Gagal masuk', 'error')
+      toast(result.error ?? t.auth.login.errorToast, 'error')
       return
     }
-    toast('Berhasil masuk', 'success')
+    toast(t.auth.login.successToast, 'success')
     router.push(redirectTo)
   }
 
