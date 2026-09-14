@@ -1,7 +1,8 @@
 import { format, subDays } from 'date-fns'
 import type { Transaction, FinancialContext } from '@/types'
-import { getCategoryById } from './categories'
+import { getCategoryById, getCategoryLabel } from './categories'
 import { formatRupiahShort } from './utils'
+import type { Language } from '@/stores/languageStore'
 
 /** Total per kategori dari transaksi bertipe `type`, sebagai `{ [categoryId]: total }`. */
 export function groupSumByCategory(
@@ -42,13 +43,13 @@ export function getCashFlowStatus(income: number, expense: number, saving = 0): 
   return 'neutral'
 }
 
-export function getTopCategory(transactions: Transaction[], month: string): string {
+export function getTopCategory(transactions: Transaction[], month: string, language: Language = 'id'): string {
   const monthlyTx = transactions.filter((t) => t.date.startsWith(month))
   const map = groupSumByCategory(monthlyTx, 'expense')
   const top = Object.entries(map).sort(([, a], [, b]) => b - a)[0]
-  if (!top) return 'Tidak ada'
+  if (!top) return language === 'en' ? 'None' : 'Tidak ada'
   const cat = getCategoryById(top[0], 'expense')
-  return cat ? `${cat.icon} ${cat.name}` : top[0]
+  return cat ? `${cat.icon} ${getCategoryLabel(cat, language)}` : top[0]
 }
 
 export function getSpendingTrend(transactions: Transaction[]): 'increasing' | 'stable' | 'decreasing' {
@@ -92,7 +93,7 @@ export function getConsistencyLevel(transactions: Transaction[]): 'good' | 'medi
   return 'low'
 }
 
-export function buildFinancialContext(transactions: Transaction[]): FinancialContext {
+export function buildFinancialContext(transactions: Transaction[], language: Language = 'id'): FinancialContext {
   const month = format(new Date(), 'yyyy-MM')
   const today = format(new Date(), 'yyyy-MM-dd')
 
@@ -114,7 +115,7 @@ export function buildFinancialContext(transactions: Transaction[]): FinancialCon
     saving_rate,
     cash_flow_status: getCashFlowStatus(total_income, total_expense, total_saving),
     balance,
-    top_category: getTopCategory(transactions, month),
+    top_category: getTopCategory(transactions, month, language),
     trend: getSpendingTrend(transactions),
     income_today,
     expense_today,
@@ -123,8 +124,26 @@ export function buildFinancialContext(transactions: Transaction[]): FinancialCon
   }
 }
 
-export function formatContextForAI(ctx: FinancialContext): string {
+export function formatContextForAI(ctx: FinancialContext, language: Language = 'id'): string {
   const fmt = formatRupiahShort
+
+  if (language === 'en') {
+    const statusMap = { positive: 'safe', neutral: 'caution', negative: 'deficit' }
+    const trendMap = { increasing: 'rising', stable: 'stable', decreasing: 'falling' }
+    const consistencyMap = { good: 'good', medium: 'medium', low: 'low' }
+
+    const savingLine = ctx.total_saving > 0
+      ? `saving/investing ${fmt(ctx.total_saving)} (saving rate ${ctx.saving_rate}%)`
+      : `no saving yet this month`
+
+    return [
+      `This month: income ${fmt(ctx.total_income)}, expense ${fmt(ctx.total_expense)}, ${savingLine}, balance ${fmt(ctx.balance)} (${statusMap[ctx.cash_flow_status]})`,
+      `Top category: ${ctx.top_category} | 7-day trend: ${trendMap[ctx.trend]} | consistency: ${consistencyMap[ctx.consistency_level]}`,
+      ctx.categories_today.length > 0
+        ? `Today: income ${fmt(ctx.income_today)}, expense ${fmt(ctx.expense_today)}, categories: ${ctx.categories_today.join(', ')}`
+        : `Today: income ${fmt(ctx.income_today)}, expense ${fmt(ctx.expense_today)}, no transactions yet`,
+    ].join('\n')
+  }
 
   const statusMap = { positive: 'aman', neutral: 'waspada', negative: 'defisit' }
   const trendMap = { increasing: 'naik', stable: 'stabil', decreasing: 'turun' }

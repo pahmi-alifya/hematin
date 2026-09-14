@@ -1,10 +1,15 @@
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import { format, isToday, isYesterday, parseISO } from 'date-fns'
-import { id } from 'date-fns/locale'
+import { id as idLocale, enUS } from 'date-fns/locale'
+import type { Language } from '@/stores/languageStore'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+function dateLocale(language: Language) {
+  return language === 'en' ? enUS : idLocale
 }
 
 export function formatRupiah(amount: number): string {
@@ -25,19 +30,23 @@ export function formatRupiahShort(amount: number): string {
   return `${sign}Rp ${abs}`
 }
 
-export function formatDate(date: string): string {
-  return format(parseISO(date), 'd MMM yyyy', { locale: id })
+export function formatDate(date: string, language: Language = 'id'): string {
+  return format(parseISO(date), 'd MMM yyyy', { locale: dateLocale(language) })
 }
 
-export function formatRelativeDate(date: string, fallbackFormat = 'EEEE, d MMM'): string {
+export function formatRelativeDate(
+  date: string,
+  fallbackFormat = 'EEEE, d MMM',
+  language: Language = 'id',
+): string {
   const d = parseISO(date)
-  if (isToday(d)) return 'Hari ini'
-  if (isYesterday(d)) return 'Kemarin'
-  return format(d, fallbackFormat, { locale: id })
+  if (isToday(d)) return language === 'en' ? 'Today' : 'Hari ini'
+  if (isYesterday(d)) return language === 'en' ? 'Yesterday' : 'Kemarin'
+  return format(d, fallbackFormat, { locale: dateLocale(language) })
 }
 
-export function formatMonthYear(date: string): string {
-  return format(parseISO(date + '-01'), 'MMMM yyyy', { locale: id })
+export function formatMonthYear(date: string, language: Language = 'id'): string {
+  return format(parseISO(date + '-01'), 'MMMM yyyy', { locale: dateLocale(language) })
 }
 
 export function getCurrentMonth(): string {
@@ -75,11 +84,13 @@ export function buildAIHeaders(params: {
   provider: string
   apiKey: string
   model?: string
+  language?: Language
 }): Record<string, string> {
   const headers: Record<string, string> = {
     'X-AI-Provider': params.provider,
     'X-AI-Key': params.apiKey,
   }
   if (params.model) headers['X-AI-Model'] = params.model
+  if (params.language) headers['X-Language'] = params.language
   return headers
 }

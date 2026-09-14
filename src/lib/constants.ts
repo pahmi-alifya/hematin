@@ -15,13 +15,6 @@ export const WALLET_COLORS = [
   '#6366F1', // indigo
 ]
 
-/** Label Indonesia role dompet — dipakai di halaman Kelola Dompet & Kelola Akses. */
-export const WALLET_ROLE_LABEL: Record<'owner' | 'editor' | 'viewer', string> = {
-  owner: 'Pemilik',
-  editor: 'Editor',
-  viewer: 'Viewer',
-}
-
 /**
  * Warna semantik income/expense/saving dipakai di semua chart dashboard & laporan.
  * `emphasis` = shade lebih gelap untuk highlight "hari ini" di MonthlyChart.
@@ -37,10 +30,3 @@ export const IMAGE_COMPRESSION_OPTIONS = {
   maxWidthOrHeight: 1280,
   useWebWorker: true,
 }
-
-export const SCAN_TIPS = [
-  'Pastikan pencahayaan cukup',
-  'Foto seluruh struk, termasuk total',
-  'Hindari bayangan atau lipatan',
-  'Foto tegak lurus, tidak miring',
-]
