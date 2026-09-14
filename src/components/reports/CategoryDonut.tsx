@@ -2,6 +2,7 @@
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import { formatRupiah } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface CategoryDonutProps {
   data: Array<{
@@ -34,6 +35,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export function CategoryDonut({ data, total }: CategoryDonutProps) {
+  const t = useTranslation()
   if (data.length === 0) return null
 
   return (
@@ -83,7 +85,7 @@ export function CategoryDonut({ data, total }: CategoryDonutProps) {
         })}
         {data.length > 5 && (
           <p className="text-[10px] text-slate-400 dark:text-slate-500">
-            +{data.length - 5} kategori lainnya
+            {t.reports.moreCategories(data.length - 5)}
           </p>
         )}
       </div>

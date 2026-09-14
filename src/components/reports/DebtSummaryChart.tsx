@@ -14,6 +14,7 @@ import { CreditCard, AlertCircle, Clock, CheckCircle2 } from 'lucide-react'
 import { useDebtStore } from '@/stores/debtStore'
 import { formatRupiah, formatRupiahShort } from '@/lib/utils'
 import { TYPE_COLORS } from '@/lib/constants'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { Debt } from '@/types'
 
 function fmt(v: number) {
@@ -60,6 +61,7 @@ function StatBadge({
 }
 
 export function DebtSummaryChart() {
+  const t = useTranslation()
   const debts = useDebtStore((s) => s.debts)
   const getTotalHutang = useDebtStore((s) => s.getTotalHutang)
   const getTotalPiutang = useDebtStore((s) => s.getTotalPiutang)
@@ -73,10 +75,10 @@ export function DebtSummaryChart() {
 
   const barData = useMemo(
     () => [
-      { label: 'Hutang', value: totalHutang, color: TYPE_COLORS.expense.base },
-      { label: 'Piutang', value: totalPiutang, color: TYPE_COLORS.income.base },
+      { label: t.reports.debtSummary.hutangLabel, value: totalHutang, color: TYPE_COLORS.expense.base },
+      { label: t.reports.debtSummary.piutangLabel, value: totalPiutang, color: TYPE_COLORS.income.base },
     ],
-    [totalHutang, totalPiutang]
+    [totalHutang, totalPiutang, t]
   )
 
   const hasData = totalHutang > 0 || totalPiutang > 0
@@ -118,7 +120,7 @@ export function DebtSummaryChart() {
                 : 'bg-red-50 dark:bg-red-900/20'
             }`}>
               <div>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Posisi Bersih</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t.reports.debtSummary.netPosition}</p>
                 <p className={`text-base font-bold ${
                   totalPiutang >= totalHutang ? 'text-emerald-600' : 'text-red-500'
                 }`}>
@@ -135,7 +137,7 @@ export function DebtSummaryChart() {
       ) : (
         <div className="flex flex-col items-center gap-2 py-6 text-slate-400 dark:text-slate-500">
           <CreditCard className="w-8 h-8 opacity-40" />
-          <p className="text-sm">Belum ada data hutang/piutang</p>
+          <p className="text-sm">{t.reports.debtSummary.noData}</p>
         </div>
       )}
 
@@ -143,19 +145,19 @@ export function DebtSummaryChart() {
       <div className="flex gap-2">
         <StatBadge
           icon={AlertCircle}
-          label="Terlambat"
+          label={t.reports.debtSummary.overdue}
           value={overdueCount}
           color="text-red-500"
         />
         <StatBadge
           icon={Clock}
-          label="Aktif"
+          label={t.reports.debtSummary.active}
           value={activeCount}
           color="text-amber-500"
         />
         <StatBadge
           icon={CheckCircle2}
-          label="Lunas"
+          label={t.reports.debtSummary.paid}
           value={paidCount}
           color="text-emerald-500"
         />

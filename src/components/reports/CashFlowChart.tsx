@@ -10,9 +10,11 @@ import {
   Legend,
 } from 'recharts'
 import { format, parseISO, subMonths } from 'date-fns'
-import { id } from 'date-fns/locale'
+import type { Locale } from 'date-fns'
 import { formatRupiahShort } from '@/lib/utils'
 import { TYPE_COLORS } from '@/lib/constants'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useDateLocale } from '@/hooks/useDateLocale'
 import type { Transaction } from '@/types'
 
 interface CashFlowChartProps {
@@ -25,11 +27,11 @@ interface CashFlowChartProps {
   allTime?: boolean
 }
 
-function buildData(transactions: Transaction[], currentMonth: string, count: number) {
+function buildData(transactions: Transaction[], currentMonth: string, count: number, locale: Locale) {
   return Array.from({ length: count }, (_, i) => {
     const date = subMonths(parseISO(currentMonth + '-01'), count - 1 - i)
     const monthStr = format(date, 'yyyy-MM')
-    const label = format(date, 'MMM', { locale: id })
+    const label = format(date, 'MMM', { locale })
     const monthTx = transactions.filter((t) => t.date.startsWith(monthStr))
     return {
       label,
@@ -40,12 +42,12 @@ function buildData(transactions: Transaction[], currentMonth: string, count: num
   })
 }
 
-function buildAllTimeData(transactions: Transaction[]) {
+function buildAllTimeData(transactions: Transaction[], locale: Locale) {
   const monthSet = new Set(transactions.map((t) => t.date.substring(0, 7)))
   return Array.from(monthSet)
     .sort()
     .map((monthStr) => {
-      const label = format(parseISO(monthStr + '-01'), 'MMM yy', { locale: id })
+      const label = format(parseISO(monthStr + '-01'), 'MMM yy', { locale })
       const monthTx = transactions.filter((t) => t.date.startsWith(monthStr))
       return {
         label,
@@ -86,7 +88,11 @@ function CustomTooltip({ active, payload, label }: CustomTooltipProps) {
 }
 
 export function CashFlowChart({ transactions, currentMonth, months = 4, allTime = false }: CashFlowChartProps) {
-  const data = allTime ? buildAllTimeData(transactions) : buildData(transactions, currentMonth, months)
+  const t = useTranslation()
+  const dateLocale = useDateLocale()
+  const data = allTime
+    ? buildAllTimeData(transactions, dateLocale)
+    : buildData(transactions, currentMonth, months, dateLocale)
 
   return (
     <div className="w-full">
@@ -113,13 +119,13 @@ export function CashFlowChart({ transactions, currentMonth, months = 4, allTime 
       </ResponsiveContainer>
       <div className="flex items-center gap-3 mt-1 justify-center flex-wrap">
         <span className="flex items-center gap-1.5 text-xs text-slate-400">
-          <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" /> Pemasukan
+          <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500 inline-block" /> {t.common.income}
         </span>
         <span className="flex items-center gap-1.5 text-xs text-slate-400">
-          <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> Pengeluaran
+          <span className="w-2.5 h-2.5 rounded-sm bg-red-500 inline-block" /> {t.common.expense}
         </span>
         <span className="flex items-center gap-1.5 text-xs text-slate-400">
-          <span className="w-2.5 h-2.5 rounded-sm bg-teal-500 inline-block" /> Tabungan
+          <span className="w-2.5 h-2.5 rounded-sm bg-teal-500 inline-block" /> {t.common.saving}
         </span>
       </div>
     </div>
