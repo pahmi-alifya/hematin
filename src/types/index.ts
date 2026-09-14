@@ -72,6 +72,7 @@ export interface AISettings {
 export interface Category {
   id: string
   name: string
+  nameEn: string
   icon: string
   color: string
   bgColor: string
