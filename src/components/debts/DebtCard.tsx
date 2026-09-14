@@ -1,12 +1,14 @@
 'use client'
 
 import { format } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { motion } from 'framer-motion'
 import { CheckCircle2, CreditCard, History, Trash2 } from 'lucide-react'
 import { formatRupiah } from '@/lib/utils'
 import { getDueDateLabel } from '@/lib/debts'
 import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useDateLocale } from '@/hooks/useDateLocale'
+import { useLanguageStore } from '@/stores/languageStore'
 import { StatusBadge } from './StatusBadge'
 import { CicilanProgress } from './CicilanProgress'
 import type { Debt } from '@/types'
@@ -31,9 +33,12 @@ export function DebtCard({
   onShowHistory: (debt: Debt) => void
 }) {
   const canEdit = useCanEditActiveWallet()
+  const t = useTranslation()
+  const dateLocale = useDateLocale()
+  const language = useLanguageStore((s) => s.language)
   const isPaid = debt.status === 'paid'
   const isOverdue = debt.status === 'overdue'
-  const { label: dueDateLabel } = debt.dueDate ? getDueDateLabel(debt.dueDate) : { label: '' }
+  const { label: dueDateLabel } = debt.dueDate ? getDueDateLabel(debt.dueDate, language) : { label: '' }
 
   return (
     <motion.div
@@ -68,7 +73,7 @@ export function DebtCard({
           </p>
           {debt.isCicilan && debt.cicilanAmount && (
             <p className="text-[11px] text-slate-400 dark:text-slate-500">
-              Cicilan {formatRupiah(debt.cicilanAmount)}/bln
+              {t.debts.card.cicilanPerMonth(formatRupiah(debt.cicilanAmount))}
             </p>
           )}
         </div>
@@ -79,17 +84,17 @@ export function DebtCard({
         <StatusBadge status={debt.status} dueDate={debt.dueDate} isCicilan={debt.isCicilan} />
         {!debt.isCicilan && debt.dueDate && !isPaid && (
           <span className="text-xs text-slate-400 dark:text-slate-500">
-            {debt.status === 'overdue' ? dueDateLabel : `Jatuh tempo ${dueDateLabel}`}
+            {debt.status === 'overdue' ? dueDateLabel : t.debts.card.dueDateWithLabel(dueDateLabel)}
           </span>
         )}
         {debt.isCicilan && debt.cicilanDay && !isPaid && (
           <span className="text-xs text-slate-400 dark:text-slate-500">
-            Tiap tgl {debt.cicilanDay}
+            {t.debts.card.everyDate(debt.cicilanDay)}
           </span>
         )}
         {isPaid && debt.paidAt && (
           <span className="text-xs text-slate-400 dark:text-slate-500">
-            Lunas {format(new Date(debt.paidAt), 'd MMM yyyy', { locale: id })}
+            {t.debts.card.paidOn(format(new Date(debt.paidAt), 'd MMM yyyy', { locale: dateLocale }))}
           </span>
         )}
       </div>
@@ -111,7 +116,7 @@ export function DebtCard({
                   onClick={() => onPayCicilan(debt)}
                   className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-sky-500 text-white text-sm font-semibold active:scale-95 transition-transform"
                 >
-                  <CreditCard className="w-4 h-4" /> Bayar Cicilan
+                  <CreditCard className="w-4 h-4" /> {t.debts.actions.payCicilan}
                 </button>
               )}
               <button
@@ -126,7 +131,7 @@ export function DebtCard({
               onClick={() => onMarkPaid(debt)}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-500 text-white text-sm font-semibold active:scale-95 transition-transform"
             >
-              <CheckCircle2 className="w-4 h-4" /> Tandai Lunas
+              <CheckCircle2 className="w-4 h-4" /> {t.debts.actions.markPaid}
             </button>
           ) : null}
           {canEdit && (
@@ -146,7 +151,7 @@ export function DebtCard({
               onClick={() => onShowHistory(debt)}
               className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-slate-400 dark:text-slate-500 text-xs active:scale-95"
             >
-              <History className="w-3.5 h-3.5" /> Riwayat
+              <History className="w-3.5 h-3.5" /> {t.debts.card.history}
             </button>
           )}
           {canEdit && (
@@ -154,7 +159,7 @@ export function DebtCard({
               onClick={() => onDelete(debt)}
               className="flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-xl text-slate-400 dark:text-slate-500 text-xs active:scale-95"
             >
-              <Trash2 className="w-3.5 h-3.5" /> Hapus catatan
+              <Trash2 className="w-3.5 h-3.5" /> {t.debts.card.deleteRecord}
             </button>
           )}
         </div>

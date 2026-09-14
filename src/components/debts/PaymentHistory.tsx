@@ -1,9 +1,10 @@
 'use client'
 
 import { format, parseISO } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { Trash2 } from 'lucide-react'
 import { formatRupiah } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useDateLocale } from '@/hooks/useDateLocale'
 import type { DebtPayment } from '@/types'
 
 export function PaymentHistory({
@@ -18,26 +19,28 @@ export function PaymentHistory({
   onDeletePayment: (id: string) => void
 }) {
   const sorted = [...payments].sort((a, b) => b.createdAt - a.createdAt)
+  const t = useTranslation()
+  const dateLocale = useDateLocale()
 
   return (
     <div className="px-5 pb-6 space-y-4">
       {/* Summary */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-2.5 text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Sudah Dibayar</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t.debts.paymentHistory.totalPaid}</p>
           <p className="font-bold text-emerald-600 dark:text-emerald-400 text-base">{formatRupiah(totalPaid)}</p>
         </div>
         <div className="bg-slate-50 dark:bg-slate-800 rounded-xl px-3 py-2.5 text-center">
-          <p className="text-xs text-slate-500 dark:text-slate-400">Sisa</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t.debts.paymentHistory.remaining}</p>
           <p className={`font-bold text-base ${remaining <= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-            {remaining <= 0 ? 'LUNAS 🎉' : formatRupiah(remaining)}
+            {remaining <= 0 ? t.debts.paymentHistory.fullyPaid : formatRupiah(remaining)}
           </p>
         </div>
       </div>
 
       {/* List */}
       {sorted.length === 0 ? (
-        <p className="text-center text-sm text-slate-400 py-4">Belum ada pembayaran</p>
+        <p className="text-center text-sm text-slate-400 py-4">{t.debts.paymentHistory.empty}</p>
       ) : (
         <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
           {sorted.map((p) => (
@@ -47,7 +50,7 @@ export function PaymentHistory({
                   {formatRupiah(p.amount)}
                 </p>
                 <p className="text-xs text-slate-400 dark:text-slate-500">
-                  {format(parseISO(p.paidDate), 'd MMM yyyy', { locale: id })}
+                  {format(parseISO(p.paidDate), 'd MMM yyyy', { locale: dateLocale })}
                   {p.notes && ` · ${p.notes}`}
                 </p>
               </div>

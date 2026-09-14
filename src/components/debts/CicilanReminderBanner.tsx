@@ -5,6 +5,7 @@ import { format } from 'date-fns'
 import { motion } from 'framer-motion'
 import { CreditCard, X } from 'lucide-react'
 import { formatRupiah } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { Debt } from '@/types'
 
 export function CicilanReminderBanner({
@@ -16,6 +17,7 @@ export function CicilanReminderBanner({
 }) {
   const [dismissed, setDismissed] = useState(false)
   const dismissKey = `hematin_cicilan_dismissed_${format(new Date(), 'yyyy-MM-dd')}`
+  const t = useTranslation()
 
   useEffect(() => {
     setDismissed(localStorage.getItem(dismissKey) === '1')
@@ -44,14 +46,14 @@ export function CicilanReminderBanner({
         <CreditCard className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">
-            {debts.length} cicilan jatuh tempo hari ini
+            {t.debts.cicilanBanner.dueToday(debts.length)}
           </p>
           <p className="text-xs text-amber-600 dark:text-amber-400 truncate mt-0.5">{preview}</p>
           <button
             onClick={() => onPayNow(debts[0])}
             className="mt-2 text-xs font-semibold text-amber-700 dark:text-amber-300 underline underline-offset-2"
           >
-            Catat Pembayaran
+            {t.debts.cicilanBanner.recordPayment}
           </button>
         </div>
         <button onClick={handleDismiss} className="text-amber-400 hover:text-amber-600 shrink-0">

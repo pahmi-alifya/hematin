@@ -4,8 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/Button'
 import { Input, Textarea } from '@/components/ui/Input'
 import { getCurrentDate } from '@/lib/utils'
-import { PAYMENT_MODE_OPTIONS, CICILAN_DAY_PRESETS } from '@/lib/debts'
+import { PAYMENT_MODE_VALUES, CICILAN_DAY_PRESETS } from '@/lib/debts'
 import { useDebtForm } from '@/hooks/useDebtForm'
+import { useTranslation } from '@/hooks/useTranslation'
 
 export function DebtForm({
   defaultType,
@@ -34,34 +35,35 @@ export function DebtForm({
     loading,
     handleSubmit,
   } = useDebtForm(defaultType, onSuccess)
+  const t = useTranslation()
 
   return (
     <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-4">
       {/* Type toggle */}
       <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-        {(['hutang', 'piutang'] as const).map((t) => (
+        {(['hutang', 'piutang'] as const).map((opt) => (
           <motion.button
-            key={t}
+            key={opt}
             type="button"
             whileTap={{ scale: 0.97 }}
-            onClick={() => setType(t)}
+            onClick={() => setType(opt)}
             className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-              type === t
-                ? t === 'hutang'
+              type === opt
+                ? opt === 'hutang'
                   ? 'bg-white dark:bg-slate-700 text-red-500 shadow-sm'
                   : 'bg-white dark:bg-slate-700 text-emerald-600 shadow-sm'
                 : 'text-slate-500 dark:text-slate-400'
             }`}
           >
-            {t === 'hutang' ? '🔴 Hutang' : '🟢 Piutang'}
+            {opt === 'hutang' ? t.debts.form.typeHutang : t.debts.form.typePiutang}
           </motion.button>
         ))}
       </div>
 
       {/* Nama */}
       <Input
-        label={type === 'hutang' ? 'Nama orang yang kamu hutangi' : 'Nama orang yang berhutang ke kamu'}
-        placeholder="misal: Budi, Mama, Kantor"
+        label={t.debts.form.nameLabel(type)}
+        placeholder={t.debts.form.namePlaceholder}
         value={person}
         onChange={(e) => setPerson(e.target.value)}
       />
@@ -69,7 +71,7 @@ export function DebtForm({
       {/* Nominal total */}
       <div>
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
-          Total {isCicilan ? '(keseluruhan)' : 'Nominal'}
+          {t.debts.form.totalLabel(isCicilan)}
         </label>
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
@@ -86,8 +88,8 @@ export function DebtForm({
 
       {/* Keterangan */}
       <Textarea
-        label="Keterangan (opsional)"
-        placeholder="misal: bayar makan bareng, titip belanja"
+        label={t.debts.form.descriptionLabel}
+        placeholder={t.debts.form.descriptionPlaceholder}
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={2}
@@ -95,9 +97,9 @@ export function DebtForm({
 
       {/* Mode pembayaran */}
       <div>
-        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Mode Pembayaran</p>
+        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">{t.debts.form.paymentModeLabel}</p>
         <div className="flex gap-2">
-          {PAYMENT_MODE_OPTIONS.map(({ value, label }) => (
+          {PAYMENT_MODE_VALUES.map((value) => (
             <button
               key={String(value)}
               type="button"
@@ -108,7 +110,7 @@ export function DebtForm({
                   : 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400'
               }`}
             >
-              {label}
+              {value ? t.debts.paymentMode.installment : t.debts.paymentMode.lumpSum}
             </button>
           ))}
         </div>
@@ -126,7 +128,7 @@ export function DebtForm({
             {/* Nominal per cicilan */}
             <div>
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
-                Nominal per Cicilan
+                {t.debts.form.cicilanAmountLabel}
               </label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
@@ -144,7 +146,7 @@ export function DebtForm({
             {/* Tanggal tiap bulan */}
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Jatuh Tempo Tiap Bulan (tanggal)
+                {t.debts.form.cicilanDueLabel}
               </p>
               <div className="flex gap-1.5 flex-wrap">
                 {CICILAN_DAY_PRESETS.map((d) => (
@@ -174,16 +176,16 @@ export function DebtForm({
                     setCicilanDay(v)
                   }}
                   className="w-24 h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-400"
-                  placeholder="tgl lain"
+                  placeholder={t.debts.form.cicilanDayPlaceholder}
                 />
-                <span className="text-xs text-slate-400 ml-2">angka 1–28</span>
+                <span className="text-xs text-slate-400 ml-2">{t.debts.form.cicilanDayHint}</span>
               </div>
             </div>
 
             {/* Mulai bulan */}
             <div>
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
-                Mulai Bulan
+                {t.debts.form.cicilanStartMonthLabel}
               </label>
               <input
                 type="month"
@@ -199,7 +201,7 @@ export function DebtForm({
       {/* Jatuh tempo (hanya untuk lunas sekaligus) */}
       {!isCicilan && (
         <Input
-          label="Jatuh tempo (opsional)"
+          label={t.debts.form.dueDateLabel}
           type="date"
           value={dueDate}
           min={getCurrentDate()}
@@ -208,7 +210,7 @@ export function DebtForm({
       )}
 
       <Button type="submit" fullWidth loading={loading} size="lg">
-        Simpan Catatan
+        {t.debts.form.submit}
       </Button>
     </form>
   )

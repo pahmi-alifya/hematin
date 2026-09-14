@@ -6,6 +6,7 @@ import { Input, Textarea } from '@/components/ui/Input'
 import { toast } from '@/components/ui/Toast'
 import { formatRupiah, getCurrentDate } from '@/lib/utils'
 import { useRupiahInput } from '@/hooks/useRupiahInput'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { Debt } from '@/types'
 
 export function PaymentSheet({
@@ -28,11 +29,12 @@ export function PaymentSheet({
   const amount = useRupiahInput(amountRaw, setAmountRaw)
   const [notes, setNotes] = useState('')
   const [loading, setLoading] = useState(false)
+  const t = useTranslation()
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!amountRaw || amountRaw <= 0) {
-      toast('Masukkan nominal pembayaran', 'error')
+      toast(t.debts.paymentSheet.amountRequired, 'error')
       return
     }
     setLoading(true)
@@ -47,7 +49,7 @@ export function PaymentSheet({
     <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-4">
       <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl px-4 py-3 flex justify-between items-center">
         <div>
-          <p className="text-xs text-slate-500 dark:text-slate-400">Sisa hutang ke</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{t.debts.paymentSheet.remainingTo}</p>
           <p className="font-bold text-slate-800 dark:text-slate-100">{debt.person}</p>
         </div>
         <p className={`text-lg font-bold ${debt.type === 'hutang' ? 'text-red-500' : 'text-emerald-600'}`}>
@@ -58,7 +60,7 @@ export function PaymentSheet({
       {/* Nominal bayar */}
       <div>
         <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
-          Nominal Pembayaran
+          {t.debts.paymentSheet.amountLabel}
         </label>
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">Rp</span>
@@ -72,14 +74,14 @@ export function PaymentSheet({
         </div>
         {debt.cicilanAmount && (
           <p className="text-xs text-slate-400 mt-1">
-            Cicilan normal: {formatRupiah(debt.cicilanAmount)}
+            {t.debts.paymentSheet.normalCicilan(formatRupiah(debt.cicilanAmount))}
           </p>
         )}
       </div>
 
       {/* Tanggal bayar */}
       <Input
-        label="Tanggal Bayar"
+        label={t.debts.paymentSheet.paidDateLabel}
         type="date"
         value={paidDate}
         max={getCurrentDate()}
@@ -88,15 +90,15 @@ export function PaymentSheet({
 
       {/* Catatan */}
       <Textarea
-        label="Catatan (opsional)"
-        placeholder="misal: transfer BCA, bayar tunai"
+        label={t.debts.paymentSheet.notesLabel}
+        placeholder={t.debts.paymentSheet.notesPlaceholder}
         value={notes}
         onChange={(e) => setNotes(e.target.value)}
         rows={2}
       />
 
       <Button type="submit" fullWidth loading={loading} size="lg">
-        Simpan Pembayaran
+        {t.debts.paymentSheet.submit}
       </Button>
     </form>
   )
