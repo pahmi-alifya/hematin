@@ -5,6 +5,7 @@ import { motion, useMotionValue, useSpring, useTransform, type MotionValue } fro
 import { Sparkles, Target } from 'lucide-react'
 import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
 
 interface FloatCardProps {
   className?: string
@@ -46,6 +47,7 @@ function FloatCard({ className, depth = 10, floatDuration = 6, floatDelay = 0, r
  * float loop (`animate` di-diff ulang tiap gerakan mouse, bikin loop-nya kepotong/restart).
  */
 export function AuthScene() {
+  const t = useTranslation()
   const reducedMotion = usePrefersReducedMotion()
   const pointerXRaw = useMotionValue(0)
   const pointerX = useSpring(pointerXRaw, { stiffness: 60, damping: 20 })
@@ -94,10 +96,10 @@ export function AuthScene() {
       >
         <div className="flex items-center gap-1.5 mb-2">
           <Sparkles className="w-3.5 h-3.5 text-amber-200" />
-          <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wide">Insight Hari Ini</span>
+          <span className="text-[10px] font-semibold text-white/70 uppercase tracking-wide">{t.auth.scene.insightBadge}</span>
         </div>
         <p className="text-sm text-white leading-snug">
-          Pengeluaran makan di luar naik <span className="font-bold">18%</span> minggu ini — mau atur ulang batasnya?
+          {t.auth.scene.insightTextBefore} <span className="font-bold">{t.auth.scene.insightPercent}</span> {t.auth.scene.insightTextAfter}
         </p>
       </FloatCard>
 
@@ -115,7 +117,7 @@ export function AuthScene() {
           <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
             <Target className="w-3.5 h-3.5 text-white" />
           </div>
-          <span className="text-xs font-semibold text-white">Target Menabung</span>
+          <span className="text-xs font-semibold text-white">{t.auth.scene.savingsGoalLabel}</span>
         </div>
         <div className="h-1.5 rounded-full bg-white/20 overflow-hidden mb-1.5">
           <div className="h-full w-[68%] rounded-full bg-white" />
@@ -137,11 +139,11 @@ export function AuthScene() {
         reducedMotion={reducedMotion}
       >
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-xs text-white/90">🍜 Makan Siang</span>
+          <span className="text-xs text-white/90">🍜 {t.auth.scene.lunchLabel}</span>
           <span className="text-xs font-bold text-white">-Rp 25rb</span>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-xs text-white/90">🏦 Nabung Otomatis</span>
+          <span className="text-xs text-white/90">🏦 {t.auth.scene.autoSavingsLabel}</span>
           <span className="text-xs font-bold text-white">-Rp 100rb</span>
         </div>
       </FloatCard>
