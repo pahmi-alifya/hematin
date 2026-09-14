@@ -9,6 +9,7 @@ import { CategoryPicker } from './CategoryPicker'
 import { useTransactionForm } from '@/hooks/useTransactionForm'
 import { TRANSACTION_TYPE_TOGGLE } from '@/lib/transactions'
 import { cn } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
 import type { TransactionType } from '@/lib/transactions'
 
 interface DefaultValues {
@@ -31,6 +32,7 @@ interface TransactionFormProps {
 }
 
 export function TransactionForm({ onSuccess, onClose, initialType = 'expense', defaultValues, editId }: TransactionFormProps) {
+  const t = useTranslation()
   const { form, setField, activeCategory, amount, handleTypeChange, handleSubmit, loading } = useTransactionForm({
     defaultValues,
     initialType,
@@ -45,26 +47,26 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
     <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-5">
       {/* Type Toggle */}
       <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-        {TRANSACTION_TYPE_TOGGLE.map((t) => (
+        {TRANSACTION_TYPE_TOGGLE.map((toggle) => (
           <motion.button
-            key={t.value}
+            key={toggle.value}
             type="button"
             whileTap={{ scale: 0.97 }}
-            onClick={() => handleTypeChange(t.value)}
+            onClick={() => handleTypeChange(toggle.value)}
             className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-              form.type === t.value
-                ? `bg-white dark:bg-slate-700 ${t.activeClass} shadow-sm`
+              form.type === toggle.value
+                ? `bg-white dark:bg-slate-700 ${toggle.activeClass} shadow-sm`
                 : 'text-slate-500 dark:text-slate-400'
             }`}
           >
-            {t.label}
+            {t.transactions[toggle.labelKey]}
           </motion.button>
         ))}
       </div>
 
       {/* Amount */}
       <div>
-        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">Nominal</label>
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">{t.transactions.amountFieldLabel}</label>
         <div className="relative">
           <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">Rp</span>
           <input
@@ -83,15 +85,21 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
 
       {/* Merchant */}
       <Input
-        label="Nama toko / keterangan"
-        placeholder={form.type === 'income' ? 'misal: PT. Maju Jaya' : form.type === 'saving' ? 'misal: BCA, Bibit, Pluang' : 'misal: Indomaret, Warteg Bu Sari'}
+        label={t.transactions.merchantLabel}
+        placeholder={
+          form.type === 'income'
+            ? t.transactions.merchantPlaceholderIncome
+            : form.type === 'saving'
+              ? t.transactions.merchantPlaceholderSaving
+              : t.transactions.merchantPlaceholderExpense
+        }
         value={form.merchant}
         onChange={(e) => setField('merchant', e.target.value)}
       />
 
       {/* Date */}
       <Input
-        label="Tanggal"
+        label={t.common.date}
         type="date"
         value={form.date}
         onChange={(e) => setField('date', e.target.value)}
@@ -99,8 +107,8 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
 
       {/* Notes */}
       <Textarea
-        label="Catatan (opsional)"
-        placeholder="Tambahkan catatan..."
+        label={`${t.common.notes} (${t.common.optional})`}
+        placeholder={t.common.notesPlaceholder}
         value={form.notes}
         onChange={(e) => setField('notes', e.target.value)}
         rows={2}
@@ -122,7 +130,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
             <div className="flex items-center gap-2.5">
               <RefreshCw className={cn('w-4 h-4', form.isRecurring ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400')} />
               <span className={cn('text-sm font-semibold', form.isRecurring ? 'text-sky-700 dark:text-sky-300' : 'text-slate-600 dark:text-slate-400')}>
-                Ulangi setiap bulan
+                {t.transactions.repeatMonthly}
               </span>
             </div>
             <div className={cn('w-10 h-6 rounded-full transition-all flex items-center px-0.5', form.isRecurring ? 'bg-sky-500' : 'bg-slate-200 dark:bg-slate-600')}>
@@ -143,11 +151,11 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
             >
               <div className="pt-1 space-y-2">
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                  Ulangi setiap tanggal
+                  {t.transactions.repeatOnDate}
                 </p>
                 <DayPicker value={form.recurringDay} onChange={(d) => setField('recurringDay', d)} />
                 <p className="text-xs text-slate-400 dark:text-slate-500">
-                  Template akan ditambahkan ke daftar Transaksi Rutin
+                  {t.transactions.recurringTemplateNote}
                 </p>
               </div>
             </motion.div>
@@ -157,7 +165,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
 
       {/* Submit */}
       <Button type="submit" fullWidth loading={loading} size="lg">
-        {editId ? 'Simpan Perubahan' : 'Simpan Transaksi'}
+        {editId ? t.common.saveChanges : t.transactions.saveTransaction}
       </Button>
     </form>
   )

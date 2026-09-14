@@ -2,7 +2,9 @@
 
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from '@/lib/categories'
+import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES, getCategoryLabel } from '@/lib/categories'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
 import type { Category } from '@/types'
 
 interface CategoryPickerProps {
@@ -12,6 +14,8 @@ interface CategoryPickerProps {
 }
 
 export function CategoryPicker({ type, selected, onSelect }: CategoryPickerProps) {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const categories: Category[] =
     type === 'income' ? INCOME_CATEGORIES :
     type === 'saving' ? SAVING_CATEGORIES :
@@ -19,7 +23,7 @@ export function CategoryPicker({ type, selected, onSelect }: CategoryPickerProps
 
   return (
     <div>
-      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Kategori</p>
+      <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">{t.common.category}</p>
       <div className="grid grid-cols-4 gap-2">
         {categories.map((cat) => {
           const isSelected = selected === cat.id
@@ -48,7 +52,7 @@ export function CategoryPicker({ type, selected, onSelect }: CategoryPickerProps
                   isSelected ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'
                 )}
               >
-                {cat.name}
+                {getCategoryLabel(cat, language)}
               </span>
             </motion.button>
           )

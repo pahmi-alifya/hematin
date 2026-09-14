@@ -13,7 +13,9 @@ import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
 import { toast } from '@/components/ui/Toast'
 import { formatRupiah, formatDate, formatRelativeDate } from '@/lib/utils'
 import { getCategoryById } from '@/lib/categories'
-import { TRANSACTION_TYPE_LABELS, TRANSACTION_TYPE_PREFIX } from '@/lib/transactions'
+import { TRANSACTION_TYPE_PREFIX } from '@/lib/transactions'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
 import type { Transaction } from '@/types'
 
 interface TransactionListProps {
@@ -34,16 +36,24 @@ function groupByDate(transactions: Transaction[]) {
   return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a))
 }
 
-function formatGroupDate(dateStr: string): string {
-  return formatRelativeDate(dateStr, 'EEEE, d MMMM')
-}
-
 export function TransactionList({ month, onAddClick, search, typeFilter, categoryFilter, sortBy = 'newest' }: TransactionListProps) {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const { transactions, isLoading, deleteTransaction } = useTransactionStore()
   const canEdit = useCanEditActiveWallet()
   const [selected, setSelected] = useState<Transaction | null>(null)
   const [editing, setEditing] = useState<Transaction | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  function formatGroupDate(dateStr: string): string {
+    return formatRelativeDate(dateStr, 'EEEE, d MMMM', language)
+  }
+
+  const typeLabels: Record<Transaction['type'], string> = {
+    income: t.common.income,
+    expense: t.common.expense,
+    saving: t.transactions.typeLabelSaving,
+  }
 
   const filtered = useMemo(() => {
     let result = month ? transactions.filter((t) => t.date.startsWith(month)) : transactions
@@ -79,10 +89,10 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
     setDeleting(true)
     try {
       await deleteTransaction(selected.id)
-      toast('Transaksi dihapus', 'success')
+      toast(t.transactions.deletedToast, 'success')
       setSelected(null)
     } catch {
-      toast('Gagal menghapus transaksi', 'error')
+      toast(t.transactions.deleteFailedToast, 'error')
     } finally {
       setDeleting(false)
     }
@@ -102,9 +112,9 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
     return (
       <EmptyState
         icon="📭"
-        title="Belum ada transaksi"
-        description={month ? 'Belum ada transaksi bulan ini' : 'Mulai catat transaksi pertamamu'}
-        action={onAddClick && canEdit ? { label: '+ Tambah Transaksi', onClick: onAddClick } : undefined}
+        title={t.transactions.emptyTitle}
+        description={month ? t.transactions.emptyDescMonth : t.transactions.emptyDescAll}
+        action={onAddClick && canEdit ? { label: t.transactions.addTransactionCta, onClick: onAddClick } : undefined}
       />
     )
   }
@@ -173,14 +183,14 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
       <BottomSheet
         open={!!selected}
         onClose={() => setSelected(null)}
-        title="Detail Transaksi"
+        title={t.transactions.detailTitle}
       >
         {selected && (
           <div className="px-5 pb-6 space-y-4">
             {/* Amount */}
             <div className="text-center py-4">
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                {TRANSACTION_TYPE_LABELS[selected.type]}
+                {typeLabels[selected.type]}
               </p>
               <p className={`text-3xl font-bold ${
                 selected.type === 'income' ? 'text-emerald-600 dark:text-emerald-400'
@@ -194,11 +204,11 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
             {/* Details */}
             <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl divide-y divide-slate-200 dark:divide-slate-700">
               {[
-                { label: 'Kategori', value: getCategoryById(selected.category, selected.type)?.name ?? selected.category },
-                { label: 'Toko/Keterangan', value: selected.merchant || '-' },
-                { label: 'Tanggal', value: formatDate(selected.date) },
-                { label: 'Catatan', value: selected.notes || '-' },
-                { label: 'Cara input', value: selected.source === 'scan' ? '📷 Scan struk' : '✏️ Manual' },
+                { label: t.common.category, value: getCategoryById(selected.category, selected.type)?.name ?? selected.category },
+                { label: t.transactions.merchantDetailLabel, value: selected.merchant || '-' },
+                { label: t.common.date, value: formatDate(selected.date, language) },
+                { label: t.common.notes, value: selected.notes || '-' },
+                { label: t.transactions.inputMethodLabel, value: selected.source === 'scan' ? t.transactions.scanMethod : t.transactions.manualMethod },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between items-start px-4 py-3 gap-4">
                   <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">{label}</span>
@@ -215,7 +225,7 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
                   fullWidth
                   onClick={() => { setEditing(selected); setSelected(null) }}
                 >
-                  <Pencil className="w-4 h-4 mr-1.5" /> Edit
+                  <Pencil className="w-4 h-4 mr-1.5" /> {t.common.edit}
                 </Button>
                 <Button
                   variant="danger"
@@ -223,7 +233,7 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
                   loading={deleting}
                   onClick={handleDelete}
                 >
-                  Hapus
+                  {t.common.delete}
                 </Button>
               </div>
             )}
@@ -235,7 +245,7 @@ export function TransactionList({ month, onAddClick, search, typeFilter, categor
       <BottomSheet
         open={!!editing}
         onClose={() => setEditing(null)}
-        title="Edit Transaksi"
+        title={t.transactions.editTitle}
       >
         {editing && (
           <TransactionForm

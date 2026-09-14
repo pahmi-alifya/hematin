@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { getCategoryById } from '@/lib/categories'
+import { getCategoryById, getCategoryLabel } from '@/lib/categories'
 import { formatRupiah } from '@/lib/utils'
 import { TRANSACTION_TYPE_PREFIX } from '@/lib/transactions'
+import { useLanguageStore } from '@/stores/languageStore'
 import type { Transaction } from '@/types'
 
 interface TransactionItemProps {
@@ -19,6 +20,7 @@ const AMOUNT_COLOR_CLASS: Record<Transaction['type'], string> = {
 }
 
 export function TransactionItem({ transaction, onPress, index = 0 }: TransactionItemProps) {
+  const language = useLanguageStore((s) => s.language)
   const cat = getCategoryById(transaction.category, transaction.type)
   const prefix = TRANSACTION_TYPE_PREFIX[transaction.type]
   const colorClass = AMOUNT_COLOR_CLASS[transaction.type]
@@ -43,10 +45,10 @@ export function TransactionItem({ transaction, onPress, index = 0 }: Transaction
       {/* Info */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
-          {transaction.merchant || cat?.name || transaction.category}
+          {transaction.merchant || getCategoryLabel(cat, language) || transaction.category}
         </p>
         <p className="text-xs text-slate-400 mt-0.5">
-          {cat?.name}
+          {getCategoryLabel(cat, language)}
           {transaction.notes && ` · ${transaction.notes}`}
         </p>
       </div>

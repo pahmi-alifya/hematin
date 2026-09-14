@@ -6,6 +6,9 @@ import { BottomSheet } from '@/components/ui/BottomSheet'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 import { TYPE_FILTERS, SORT_OPTIONS, type TypeFilter, type SortBy } from '@/lib/transactions'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
+import { getCategoryLabel } from '@/lib/categories'
 import type { Category } from '@/types'
 
 const TYPE_ACTIVE_CLASS: Record<Exclude<TypeFilter, 'all'>, string> = {
@@ -40,29 +43,32 @@ export function TransactionFilterSheet({
   onSortChange,
   onReset,
 }: TransactionFilterSheetProps) {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
+
   return (
-    <BottomSheet open={open} onClose={onClose} title="Filter Transaksi">
+    <BottomSheet open={open} onClose={onClose} title={t.transactions.filterSheetTitle}>
       <div className="px-5 pb-6 pt-1 space-y-5">
         {/* Tipe */}
         <div>
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-            Tipe
+            {t.transactions.sectionType}
           </p>
           <div className="flex gap-2">
-            {TYPE_FILTERS.map((t) => (
+            {TYPE_FILTERS.map((item) => (
               <motion.button
-                key={t.value}
+                key={item.value}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => onTypeChange(t.value)}
+                onClick={() => onTypeChange(item.value)}
                 className={cn(
                   'flex-1 h-9 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition-all',
-                  typeFilter === t.value
-                    ? t.value === 'all' ? 'bg-sky-500 text-white shadow-sm' : TYPE_ACTIVE_CLASS[t.value]
+                  typeFilter === item.value
+                    ? item.value === 'all' ? 'bg-sky-500 text-white shadow-sm' : TYPE_ACTIVE_CLASS[item.value]
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
                 )}
               >
-                <span>{t.icon}</span>
-                <span>{t.label}</span>
+                <span>{item.icon}</span>
+                <span>{t.transactions[item.labelKey]}</span>
               </motion.button>
             ))}
           </div>
@@ -72,7 +78,7 @@ export function TransactionFilterSheet({
         {monthCategories.length > 0 && (
           <div>
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-              Kategori
+              {t.common.category}
             </p>
             <div className="flex flex-wrap gap-2">
               <button
@@ -84,7 +90,7 @@ export function TransactionFilterSheet({
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400',
                 )}
               >
-                Semua Kategori
+                {t.transactions.allCategories}
               </button>
               {monthCategories.map((cat) => (
                 <button
@@ -99,7 +105,7 @@ export function TransactionFilterSheet({
                   style={categoryFilter === cat.id ? { backgroundColor: cat.color } : undefined}
                 >
                   <span>{cat.icon}</span>
-                  {cat.name}
+                  {getCategoryLabel(cat, language)}
                 </button>
               ))}
             </div>
@@ -109,7 +115,7 @@ export function TransactionFilterSheet({
         {/* Urutkan */}
         <div>
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-            Urutkan
+            {t.transactions.sectionSort}
           </p>
           <div className="rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden divide-y divide-slate-100 dark:divide-slate-700">
             {SORT_OPTIONS.map((opt) => (
@@ -123,7 +129,7 @@ export function TransactionFilterSheet({
                     : 'text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800/60',
                 )}
               >
-                {opt.label}
+                {t.transactions[opt.labelKey]}
                 {sortBy === opt.value && <Check className="w-4 h-4" />}
               </button>
             ))}
@@ -131,7 +137,7 @@ export function TransactionFilterSheet({
         </div>
 
         <Button variant="secondary" fullWidth onClick={onReset}>
-          Reset Filter
+          {t.transactions.resetFilter}
         </Button>
       </div>
     </BottomSheet>
