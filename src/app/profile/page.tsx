@@ -6,6 +6,7 @@ import { Header } from "@/components/layout/Header";
 import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AccountSection } from "@/components/settings/AccountSection";
+import { FaqSection } from "@/components/settings/FaqSection";
 
 export default function ProfilePage() {
   return (
@@ -33,6 +34,8 @@ export default function ProfilePage() {
             </div>
             <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />
           </Link>
+
+          <FaqSection />
         </div>
       </PageWrapper>
 
