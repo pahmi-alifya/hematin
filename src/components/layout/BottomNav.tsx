@@ -206,6 +206,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
             whileTap={{ scale: 0.9 }}
             onClick={() => setFabOpen((v) => !v)}
             aria-label="Menu aksi"
+            data-tour="fab-toggle"
             className="absolute -top-5 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full flex items-center justify-center z-40"
             style={{
               background: fabOpen
