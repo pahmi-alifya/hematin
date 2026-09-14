@@ -5,6 +5,7 @@ export async function POST(req: NextRequest) {
   const provider = req.headers.get('X-AI-Provider') as string
   const model = req.headers.get('X-AI-Model') as string
   const apiKey = req.headers.get('X-AI-Key') as string
+  const language = req.headers.get('X-Language') === 'en' ? 'en' : 'id'
 
   if (!provider || !model || !apiKey) {
     return NextResponse.json({ error: 'Missing AI configuration headers' }, { status: 400 })
@@ -23,9 +24,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Missing image data' }, { status: 400 })
   }
 
-  const systemPrompt = `OCR struk belanja Indonesia. Balas HANYA raw JSON valid, TANPA markdown, TANPA code block, TANPA penjelasan apapun. Mulai langsung dengan { dan akhiri dengan }. Gunakan null jika tidak ditemukan. Format: {"merchant":string|null,"date":"YYYY-MM-DD"|null,"total":number|null,"category":"food|transport|shopping|health|entertainment|bills|education|other","notes":string|null,"confidence":"high|medium|low"}`
+  const systemPrompt =
+    language === 'en'
+      ? `OCR an Indonesian retail receipt. Reply with ONLY valid raw JSON, NO markdown, NO code block, NO explanation whatsoever. Start directly with { and end with }. Use null when a field is not found. Format: {"merchant":string|null,"date":"YYYY-MM-DD"|null,"total":number|null,"category":"food|transport|shopping|health|entertainment|bills|education|other","notes":string|null,"confidence":"high|medium|low"}`
+      : `OCR struk belanja Indonesia. Balas HANYA raw JSON valid, TANPA markdown, TANPA code block, TANPA penjelasan apapun. Mulai langsung dengan { dan akhiri dengan }. Gunakan null jika tidak ditemukan. Format: {"merchant":string|null,"date":"YYYY-MM-DD"|null,"total":number|null,"category":"food|transport|shopping|health|entertainment|bills|education|other","notes":string|null,"confidence":"high|medium|low"}`
 
-  const userMessage = 'Ekstrak data struk ini.'
+  const userMessage = language === 'en' ? 'Extract the data from this receipt.' : 'Ekstrak data struk ini.'
 
   // Strip markdown code fences if AI wraps response in ```json ... ```
   function extractJSON(text: string): string {

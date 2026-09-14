@@ -1,9 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+const SYSTEM_PROMPTS = {
+  id: `Kamu HEMATIN, asisten keuangan personal Indonesia. Bahasa Indonesia natural, tanpa markdown, tanpa sapaan pembuka seperti "Halo", "Hai", "Waduh", atau sejenisnya. Langsung analisis data keuangan: tulis 1 paragraf max 1 paragraf — kondisi bulan ini, pola yang perlu diperhatikan, satu saran konkret. Jika ada hutang mendesak, singgung singkat berika insight langsung to the point.`,
+  en: `You are HEMATIN, a personal finance assistant. Respond in natural, professional English, with no markdown formatting and no generic greetings like "Hi" or "Hello". Go straight into analyzing the financial data: write a single paragraph, max one paragraph — covering this month's condition, any pattern worth watching, and one concrete recommendation. If there is an urgent debt, mention it briefly and give the insight directly and to the point.`,
+}
+
 export async function POST(req: NextRequest) {
   const provider = req.headers.get('X-AI-Provider') as string
   const model = req.headers.get('X-AI-Model') as string
   const apiKey = req.headers.get('X-AI-Key') as string
+  const language = req.headers.get('X-Language') === 'en' ? 'en' : 'id'
 
   if (!provider || !model || !apiKey) {
     return NextResponse.json({ error: 'Missing AI configuration headers' }, { status: 400 })
@@ -16,9 +22,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
   }
 
-  const systemPrompt = `Kamu HEMATIN, asisten keuangan personal Indonesia. Bahasa Indonesia natural, tanpa markdown, tanpa sapaan pembuka seperti "Halo", "Hai", "Waduh", atau sejenisnya. Langsung analisis data keuangan: tulis 1 paragraf max 1 paragraf — kondisi bulan ini, pola yang perlu diperhatikan, satu saran konkret. Jika ada hutang mendesak, singgung singkat berika insight langsung to the point.`
+  const systemPrompt = SYSTEM_PROMPTS[language]
 
-  const debtSection = body.debtContext ? `\nUtang: ${body.debtContext}` : ''
+  const debtLabel = language === 'en' ? 'Debt' : 'Utang'
+  const debtSection = body.debtContext ? `\n${debtLabel}: ${body.debtContext}` : ''
   const userMessage = `${body.context}${debtSection}`
 
   try {
