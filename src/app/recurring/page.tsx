@@ -15,9 +15,11 @@ import { CategoryPicker } from '@/components/transactions/CategoryPicker'
 import { useRecurringStore } from '@/stores/recurringStore'
 import { useRecurringTemplateForm } from '@/hooks/useRecurringTemplateForm'
 import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
 import { toast } from '@/components/ui/Toast'
 import { formatRupiah } from '@/lib/utils'
-import { getCategoryById } from '@/lib/categories'
+import { getCategoryById, getCategoryLabel } from '@/lib/categories'
 import { TRANSACTION_TYPE_TOGGLE } from '@/lib/transactions'
 import { cn } from '@/lib/utils'
 import type { RecurringTemplate } from '@/types'
@@ -33,6 +35,8 @@ function TemplateCard({
   onDelete: () => void
   onToggle: () => void
 }) {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const cat = getCategoryById(template.category, template.type)
   const canEdit = useCanEditActiveWallet()
 
@@ -60,10 +64,10 @@ function TemplateCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
             <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
-              {template.merchant || cat?.name || template.category}
+              {template.merchant || getCategoryLabel(cat, language) || template.category}
             </p>
             <span className="shrink-0 text-[10px] font-medium text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-700 px-1.5 py-0.5 rounded-full">
-              tgl {template.recurringDay}
+              {t.recurring.dayLabel(template.recurringDay)}
             </span>
           </div>
           <p
@@ -85,7 +89,7 @@ function TemplateCard({
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={onToggle}
-              title={template.isActive ? 'Nonaktifkan' : 'Aktifkan'}
+              title={template.isActive ? t.recurring.deactivate : t.recurring.activate}
               className={cn(
                 'w-8 h-8 rounded-xl flex items-center justify-center transition-colors',
                 template.isActive
@@ -117,6 +121,7 @@ function TemplateCard({
 }
 
 export default function RecurringPage() {
+  const t = useTranslation()
   const { templates, isLoading, loadTemplates, deleteTemplate, toggleActive } = useRecurringStore()
   const {
     showForm,
@@ -144,9 +149,9 @@ export default function RecurringPage() {
   async function handleDelete(id: string) {
     try {
       await deleteTemplate(id)
-      toast('Template dihapus', 'success')
+      toast(t.recurring.templateDeletedToast, 'success')
     } catch {
-      toast('Gagal menghapus template', 'error')
+      toast(t.recurring.templateDeleteFailedToast, 'error')
     }
   }
 
@@ -156,7 +161,7 @@ export default function RecurringPage() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Transaksi Rutin" />
+      <Header title={t.recurring.pageTitle} />
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
@@ -168,8 +173,7 @@ export default function RecurringPage() {
             <div className="flex items-start gap-2.5">
               <RefreshCw className="w-4 h-4 text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
               <p className="text-xs text-sky-700 dark:text-sky-300 leading-relaxed">
-                Transaksi rutin akan muncul sebagai pengingat di dashboard setiap bulan pada
-                tanggal yang ditentukan. Kamu tetap konfirmasi sebelum data dicatat.
+                {t.recurring.infoBanner}
               </p>
             </div>
           </div>
@@ -183,9 +187,9 @@ export default function RecurringPage() {
           ) : templates.length === 0 ? (
             <EmptyState
               icon="🔁"
-              title="Belum ada transaksi rutin"
-              description="Tambahkan tagihan atau pemasukan yang terjadi setiap bulan agar tidak lupa mencatat."
-              action={canEdit ? { label: 'Tambah Sekarang', onClick: openAdd } : undefined}
+              title={t.recurring.emptyTitle}
+              description={t.recurring.emptyDescription}
+              action={canEdit ? { label: t.recurring.emptyAction, onClick: openAdd } : undefined}
             />
           ) : (
             <div className="space-y-4">
@@ -193,7 +197,7 @@ export default function RecurringPage() {
               {activeTemplates.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide px-1">
-                    Aktif · {activeTemplates.length} template
+                    {t.recurring.activeCount(activeTemplates.length)}
                   </p>
                   <AnimatePresence>
                     {activeTemplates.map((t) => (
@@ -213,7 +217,7 @@ export default function RecurringPage() {
               {inactiveTemplates.length > 0 && (
                 <div className="space-y-2">
                   <p className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide px-1">
-                    Nonaktif
+                    {t.recurring.inactive}
                   </p>
                   <AnimatePresence>
                     {inactiveTemplates.map((t) => (
@@ -239,7 +243,7 @@ export default function RecurringPage() {
               className="w-full h-12 rounded-2xl border-2 border-dashed border-sky-300 dark:border-sky-700 text-sky-600 dark:text-sky-400 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-sky-50 dark:hover:bg-sky-900/20 transition-colors"
             >
               <Plus className="w-4 h-4" />
-              Tambah Transaksi Rutin
+              {t.recurring.addTemplate}
             </motion.button>
           )}
         </div>
@@ -266,24 +270,24 @@ export default function RecurringPage() {
       <BottomSheet
         open={showForm}
         onClose={closeForm}
-        title={editingId ? 'Edit Transaksi Rutin' : 'Tambah Transaksi Rutin'}
+        title={editingId ? t.recurring.editTemplate : t.recurring.addTemplate}
       >
         <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-5">
           {/* Type Toggle */}
           <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-            {TRANSACTION_TYPE_TOGGLE.map((t) => (
+            {TRANSACTION_TYPE_TOGGLE.map((opt) => (
               <motion.button
-                key={t.value}
+                key={opt.value}
                 type="button"
                 whileTap={{ scale: 0.97 }}
-                onClick={() => handleTypeChange(t.value)}
+                onClick={() => handleTypeChange(opt.value)}
                 className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
-                  form.type === t.value
-                    ? `bg-white dark:bg-slate-700 ${t.activeClass} shadow-sm`
+                  form.type === opt.value
+                    ? `bg-white dark:bg-slate-700 ${opt.activeClass} shadow-sm`
                     : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
-                {t.label}
+                {t.transactions[opt.labelKey]}
               </motion.button>
             ))}
           </div>
@@ -291,7 +295,7 @@ export default function RecurringPage() {
           {/* Amount */}
           <div>
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
-              Nominal
+              {t.common.amount}
             </label>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">
@@ -317,8 +321,8 @@ export default function RecurringPage() {
 
           {/* Merchant */}
           <Input
-            label="Nama toko / keterangan"
-            placeholder={form.type === 'income' ? 'misal: PT. Maju Jaya' : 'misal: Kost, Spotify, Listrik'}
+            label={t.recurring.merchantLabel}
+            placeholder={form.type === 'income' ? t.recurring.merchantPlaceholderIncome : t.recurring.merchantPlaceholderExpense}
             value={form.merchant}
             onChange={(e) => setField('merchant', e.target.value)}
           />
@@ -326,25 +330,25 @@ export default function RecurringPage() {
           {/* Tanggal berulang */}
           <div>
             <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-2">
-              Ulangi setiap tanggal
+              {t.recurring.repeatsOnLabel}
             </label>
             <DayPicker value={form.recurringDay} onChange={(day) => setField('recurringDay', day)} />
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-              Gunakan tanggal 1–28 agar aman di semua bulan
+              {t.recurring.dayHelperText}
             </p>
           </div>
 
           {/* Notes */}
           <Textarea
-            label="Catatan (opsional)"
-            placeholder="Tambahkan catatan..."
+            label={`${t.common.notes} (${t.common.optional})`}
+            placeholder={t.common.notesPlaceholder}
             value={form.notes}
             onChange={(e) => setField('notes', e.target.value)}
             rows={2}
           />
 
           <Button type="submit" fullWidth loading={submitting} size="lg">
-            {editingId ? 'Simpan Perubahan' : 'Tambah Transaksi Rutin'}
+            {editingId ? t.common.saveChanges : t.recurring.addTemplate}
           </Button>
         </form>
       </BottomSheet>

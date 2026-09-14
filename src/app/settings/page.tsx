@@ -21,9 +21,11 @@ import { AI_PROVIDERS } from "@/lib/ai-providers";
 import { maskApiKey } from "@/lib/utils";
 import { ConnectionTest } from "@/components/settings/ConnectionTest";
 import { DataBackupSection } from "@/components/settings/DataBackupSection";
+import { useTranslation } from "@/hooks/useTranslation";
 import type { AIProviderKey } from "@/lib/ai-providers";
 
 export default function SettingsPage() {
+  const t = useTranslation();
   const {
     aiSettings,
     isConfigured,
@@ -51,7 +53,7 @@ export default function SettingsPage() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Pengaturan AI" showBack hideWalletSwitcher />
+      <Header title={t.settings.pageTitle} showBack hideWalletSwitcher />
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
@@ -60,12 +62,11 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2 mb-1">
               <Heart className="w-4 h-4 text-rose-500" />
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                Dukung Pengembangan
+                {t.settings.support.title}
               </p>
             </div>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-3 leading-relaxed">
-              HEMATIN gratis selamanya. Jika aplikasi ini membantu keuanganmu,
-              kamu bisa support pengembang lewat Trakteer — secara sukarela 🙏
+              {t.settings.support.description}
             </p>
             <a
               href="https://trakteer.id/pahmi_alifya/tip"
@@ -74,7 +75,7 @@ export default function SettingsPage() {
               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 active:bg-rose-700 transition-colors text-white text-sm font-semibold"
             >
               <Heart className="w-4 h-4" />
-              Support di Trakteer
+              {t.settings.support.cta}
               <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </a>
           </div>
@@ -91,7 +92,7 @@ export default function SettingsPage() {
                 <CheckCircle2 className="w-5 h-5 text-emerald-500 mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-emerald-700">
-                    AI Aktif
+                    {t.settings.status.active}
                   </p>
                   <p className="text-xs text-emerald-600 mt-0.5">
                     {AI_PROVIDERS[aiSettings.provider as AIProviderKey]?.name} —{" "}
@@ -108,7 +109,7 @@ export default function SettingsPage() {
           {/* Provider Selector */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              Pilih Provider AI
+              {t.settings.provider.title}
             </p>
             <div className="grid grid-cols-3 gap-2">
               {(Object.keys(AI_PROVIDERS) as AIProviderKey[]).map((p) => (
@@ -136,7 +137,7 @@ export default function SettingsPage() {
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
             <div className="flex items-center justify-between mb-1">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                API Key
+                {t.settings.apiKey.title}
               </p>
               <a
                 href={currentProviderConfig.docsUrl}
@@ -144,12 +145,11 @@ export default function SettingsPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-1 text-xs text-sky-600 dark:text-sky-400 font-medium"
               >
-                Dapatkan key <ExternalLink className="w-3 h-3" />
+                {t.settings.apiKey.getKey} <ExternalLink className="w-3 h-3" />
               </a>
             </div>
             <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-              Key disimpan hanya di perangkat kamu, tidak dikirim ke server
-              kami.
+              {t.settings.apiKey.hint}
             </p>
 
             {keyStep === "input" ? (
@@ -181,7 +181,7 @@ export default function SettingsPage() {
                   loading={saving}
                   onClick={handleSaveKey}
                 >
-                  Simpan API Key
+                  {t.settings.apiKey.save}
                 </Button>
               </>
             ) : (
@@ -196,7 +196,7 @@ export default function SettingsPage() {
                   onClick={() => setKeyStep("input")}
                   className="text-xs text-sky-600 dark:text-sky-400 font-semibold"
                 >
-                  Ubah
+                  {t.settings.apiKey.change}
                 </button>
               </div>
             )}
@@ -214,11 +214,11 @@ export default function SettingsPage() {
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                      Pilih Model
+                      {t.settings.model.title}
                     </p>
                     {dynamicModels && (
                       <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400">
-                        Live
+                        {t.settings.model.live}
                       </span>
                     )}
                   </div>
@@ -230,19 +230,21 @@ export default function SettingsPage() {
                     <RefreshCw
                       className={`w-3 h-3 ${fetchingModels ? "animate-spin" : ""}`}
                     />
-                    {fetchingModels ? "Memuat..." : "Perbarui model"}
+                    {fetchingModels
+                      ? t.settings.model.loadingModels
+                      : t.settings.model.refresh}
                   </button>
                 </div>
 
                 {fetchingModels ? (
                   <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">Memuat daftar model...</span>
+                    <span className="text-sm">{t.settings.model.loadingList}</span>
                   </div>
                 ) : dynamicModels === null ? (
                   <div className="flex flex-col items-center gap-2 py-6 text-center">
                     <p className="text-sm text-slate-400 dark:text-slate-500">
-                      Memuat daftar model...
+                      {t.settings.model.loadingList}
                     </p>
                   </div>
                 ) : (
@@ -291,7 +293,7 @@ export default function SettingsPage() {
                   loading={saving}
                   onClick={handleSaveSettings}
                 >
-                  Simpan Pengaturan
+                  {t.settings.model.save}
                 </Button>
               </motion.div>
             )}
@@ -301,11 +303,10 @@ export default function SettingsPage() {
           {isConfigured && aiSettings && keyStep === "model" && (
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                Test Koneksi
+                {t.settings.connectionTest.sectionTitle}
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500 mb-3">
-                Pastikan API key dan model yang dipilih bisa terhubung ke
-                provider.
+                {t.settings.connectionTest.sectionDescription}
               </p>
               <ConnectionTest settings={aiSettings} />
             </div>
@@ -315,10 +316,10 @@ export default function SettingsPage() {
           {isConfigured && (
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-red-100 dark:border-red-900/40 p-4">
               <p className="text-sm font-semibold text-red-600 dark:text-red-400 mb-1">
-                Hapus Konfigurasi
+                {t.settings.dangerZone.title}
               </p>
               <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-                API key akan dihapus dari perangkat ini.
+                {t.settings.dangerZone.description}
               </p>
               <Button
                 variant="danger"
@@ -327,7 +328,7 @@ export default function SettingsPage() {
                 onClick={handleClear}
               >
                 <Trash2 className="w-4 h-4 mr-2" />
-                Hapus API Key
+                {t.settings.dangerZone.button}
               </Button>
             </div>
           )}
@@ -339,15 +340,13 @@ export default function SettingsPage() {
           <div className="bg-sky-50 dark:bg-sky-900/20 rounded-2xl border border-sky-100 dark:border-sky-800/40 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
               <span className="font-semibold text-sky-700 dark:text-sky-400">
-                Keamanan:
+                {t.settings.securityNote.label}
               </span>{" "}
-              API key disimpan secara lokal di perangkat menggunakan IndexedDB
-              dan{" "}
+              {t.settings.securityNote.text}{" "}
               <span className="font-medium">
-                tidak pernah dikirim ke server HEMATIN
+                {t.settings.securityNote.bold}
               </span>
-              . Key hanya digunakan untuk komunikasi langsung ke provider AI
-              pilihanmu.
+              {t.settings.securityNote.suffix}
             </p>
           </div>
 
@@ -355,7 +354,7 @@ export default function SettingsPage() {
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4 flex items-center justify-between">
             <div>
               <p className="text-xs text-slate-400 dark:text-slate-500">
-                Dibuat oleh
+                {t.settings.createdBy.label}
               </p>
               <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                 Pahmi Alifya Bahri

@@ -20,7 +20,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { toast } from "@/components/ui/Toast";
 import { cn } from "@/lib/utils";
-import { MAX_WALLETS, WALLET_ICONS, WALLET_COLORS, WALLET_ROLE_LABEL } from "@/lib/constants";
+import { MAX_WALLETS, WALLET_ICONS, WALLET_COLORS } from "@/lib/constants";
 import { useWalletStore, isSharedWithMe } from "@/stores/walletStore";
 import { useSharedSyncStore } from "@/stores/sharedSyncStore";
 import { useWalletForm } from "@/hooks/useWalletForm";
@@ -30,18 +30,20 @@ import { useJoinWallet } from "@/hooks/useJoinWallet";
 import { QrScanButton } from "@/components/wallet/QrScanButton";
 import type { Wallet } from "@/types";
 import { useAuthStore } from "@/stores/authStore";
+import { useTranslation } from "@/hooks/useTranslation";
 
 function JoinWalletForm({ onSuccess }: { onSuccess: () => void }) {
+  const t = useTranslation();
   const { key, setKey, loading, handleJoin } = useJoinWallet(onSuccess);
 
   return (
     <div className="space-y-4">
       <p className="text-sm text-slate-500 dark:text-slate-400">
-        Masukkan key yang dibagikan pemilik dompet, atau scan QR-nya.
+        {t.wallets.join.instructions}
       </p>
       <div className="flex gap-2">
         <Input
-          placeholder="Tempel key di sini"
+          placeholder={t.wallets.join.keyPlaceholder}
           value={key}
           onChange={(e) => setKey(e.target.value)}
           className="flex-1"
@@ -49,7 +51,7 @@ function JoinWalletForm({ onSuccess }: { onSuccess: () => void }) {
         <QrScanButton onScan={setKey} />
       </div>
       <Button fullWidth onClick={handleJoin} loading={loading}>
-        Gabung ke Dompet
+        {t.wallets.join.submitButton}
       </Button>
     </div>
   );
@@ -66,6 +68,7 @@ function WalletFormSheet({
   editing: Wallet | null;
   initialMode: "create" | "join";
 }) {
+  const t = useTranslation();
   const [mode, setMode] = useState<"create" | "join">(initialMode);
   const { name, setName, icon, setIcon, color, setColor, saving, handleSave } =
     useWalletForm(open, editing, onClose);
@@ -80,10 +83,10 @@ function WalletFormSheet({
       onClose={onClose}
       title={
         editing
-          ? "Edit Dompet"
+          ? t.wallets.form.editTitle
           : mode === "create"
-            ? "Dompet Baru"
-            : "Gabung Dompet"
+            ? t.wallets.form.newTitle
+            : t.wallets.form.joinTitle
       }
     >
       <div className="px-5 pb-8 pt-1 space-y-5">
@@ -100,7 +103,7 @@ function WalletFormSheet({
                     : "text-slate-500 dark:text-slate-400",
                 )}
               >
-                {m === "create" ? "Buat Baru" : "Dari Key Sharing"}
+                {m === "create" ? t.wallets.form.createTab : t.wallets.form.joinTab}
               </button>
             ))}
           </div>
@@ -111,8 +114,8 @@ function WalletFormSheet({
         ) : (
           <>
             <Input
-              label="Nama Dompet"
-              placeholder="Misal: Keuangan Kantor"
+              label={t.wallets.form.nameLabel}
+              placeholder={t.wallets.form.namePlaceholder}
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={30}
@@ -121,7 +124,7 @@ function WalletFormSheet({
 
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Ikon
+                {t.wallets.form.iconLabel}
               </p>
               <div className="grid grid-cols-6 gap-2">
                 {WALLET_ICONS.map((i) => (
@@ -143,7 +146,7 @@ function WalletFormSheet({
 
             <div>
               <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                Warna
+                {t.wallets.form.colorLabel}
               </p>
               <div className="flex flex-wrap gap-2.5">
                 {WALLET_COLORS.map((c) => (
@@ -160,7 +163,7 @@ function WalletFormSheet({
             </div>
 
             <Button fullWidth onClick={handleSave} loading={saving}>
-              {editing ? "Simpan Perubahan" : "Buat Dompet"}
+              {editing ? t.common.saveChanges : t.wallets.form.createButton}
             </Button>
           </>
         )}
@@ -176,6 +179,7 @@ function DeleteWalletSheet({
   wallet: Wallet | null;
   onClose: () => void;
 }) {
+  const t = useTranslation();
   const { counts, deleting, handleConfirm, isLeaving } = useDeleteWalletConfirm(
     wallet,
     onClose,
@@ -185,38 +189,37 @@ function DeleteWalletSheet({
     <BottomSheet
       open={!!wallet}
       onClose={onClose}
-      title={isLeaving ? "Hapus Akses ke Dompet Ini?" : "Hapus Dompet?"}
+      title={isLeaving ? t.wallets.delete.leaveTitle : t.wallets.delete.deleteTitle}
     >
       {wallet && (
         <div className="px-5 pb-8 pt-1 space-y-4">
           {isLeaving ? (
             <p className="text-sm text-slate-600 dark:text-slate-300">
-              Kamu nggak akan bisa lihat atau edit dompet{" "}
+              {t.wallets.delete.leaveDescriptionBefore}{" "}
               <span className="font-semibold">&ldquo;{wallet.name}&rdquo;</span>{" "}
-              lagi. Data tetap aman untuk pemilik dan anggota lain — kamu bisa
-              diundang lagi kapan saja kalau berubah pikiran.
+              {t.wallets.delete.leaveDescriptionAfter}
             </p>
           ) : (
             <>
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                Semua data di dalam dompet{" "}
+                {t.wallets.delete.deleteDescriptionBefore}{" "}
                 <span className="font-semibold">&ldquo;{wallet.name}&rdquo;</span>{" "}
-                akan ikut terhapus permanen dan tidak bisa dikembalikan
-                {wallet.isShared && " — termasuk untuk semua anggota yang di-share"}:
+                {t.wallets.delete.deleteDescriptionAfter}
+                {wallet.isShared && t.wallets.delete.deleteDescriptionSharedSuffix}:
               </p>
               {counts && (
                 <ul className="text-sm text-slate-600 dark:text-slate-300 space-y-1 bg-slate-50 dark:bg-slate-800/60 rounded-xl p-4">
-                  <li>• {counts.transactions} transaksi</li>
-                  <li>• {counts.goals} goals</li>
-                  <li>• {counts.debts} catatan utang/piutang</li>
-                  <li>• {counts.recurringTemplates} template transaksi rutin</li>
+                  <li>• {t.wallets.delete.countTransactions(counts.transactions)}</li>
+                  <li>• {t.wallets.delete.countGoals(counts.goals)}</li>
+                  <li>• {t.wallets.delete.countDebts(counts.debts)}</li>
+                  <li>• {t.wallets.delete.countRecurring(counts.recurringTemplates)}</li>
                 </ul>
               )}
             </>
           )}
           <div className="flex gap-2">
             <Button variant="secondary" fullWidth onClick={onClose}>
-              Batal
+              {t.common.cancel}
             </Button>
             <Button
               variant="danger"
@@ -224,7 +227,7 @@ function DeleteWalletSheet({
               onClick={handleConfirm}
               loading={deleting}
             >
-              {isLeaving ? "Ya, Hapus Akses" : "Ya, Hapus"}
+              {isLeaving ? t.wallets.delete.confirmLeaveButton : t.wallets.delete.confirmDeleteButton}
             </Button>
           </div>
         </div>
@@ -242,6 +245,7 @@ export default function WalletsPage() {
 }
 
 function WalletsPageContent() {
+  const t = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { wallets, activeWalletId, setActiveWallet, canCreateWallet } =
@@ -270,14 +274,14 @@ function WalletsPageContent() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Kelola Dompet" showBack hideWalletSwitcher />
+      <Header title={t.wallets.list.pageTitle} showBack hideWalletSwitcher />
 
       <PageWrapper>
         <div className="px-2 pb-4">
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-3">
-            Tahan &amp; geser{" "}
-            <GripVertical className="w-3 h-3 inline -mt-0.5" /> untuk mengubah
-            urutan
+            {t.wallets.list.dragHintBefore}{" "}
+            <GripVertical className="w-3 h-3 inline -mt-0.5" />{" "}
+            {t.wallets.list.dragHintAfter}
           </p>
 
           <Reorder.Group
@@ -312,12 +316,14 @@ function WalletsPageContent() {
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {wallet.id === activeWalletId && (
                           <span className="text-xs font-medium text-sky-500">
-                            Aktif
+                            {t.wallets.list.activeLabel}
                           </span>
                         )}
                         {isSharedWithMe(wallet) && (
                           <span className="text-xs font-medium text-violet-500 dark:text-violet-400">
-                            Dibagikan · {WALLET_ROLE_LABEL[wallet.ownerRole as "editor" | "viewer"]}
+                            {t.wallets.list.sharedWithRole(
+                              t.wallets.role[wallet.ownerRole as "editor" | "viewer"],
+                            )}
                           </span>
                         )}
                       </div>
@@ -328,7 +334,7 @@ function WalletsPageContent() {
                     <button
                       onClick={() => refreshWallet(wallet.id)}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0"
-                      title="Refresh data dompet"
+                      title={t.wallets.list.refreshTooltip}
                     >
                       <RefreshCw
                         className={cn(
@@ -347,7 +353,7 @@ function WalletsPageContent() {
                           router.push(`/wallets/${wallet.id}/kelola-akses`)
                         }
                         className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0"
-                        title="Bagikan / Kelola Akses"
+                        title={t.wallets.list.manageAccessTooltip}
                       >
                         <Share2 className="w-3.5 h-3.5" />
                       </button>
@@ -360,7 +366,7 @@ function WalletsPageContent() {
                         setFormOpen(true);
                       }}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0"
-                      title="Edit dompet"
+                      title={t.wallets.list.editTooltip}
                     >
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
@@ -370,7 +376,7 @@ function WalletsPageContent() {
                     <button
                       onClick={() => setDeleteTarget(wallet)}
                       className="w-8 h-8 rounded-full flex items-center justify-center text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0"
-                      title={isSharedWithMe(wallet) ? "Hapus akses ke dompet ini" : "Hapus dompet"}
+                      title={isSharedWithMe(wallet) ? t.wallets.list.deleteAccessTooltip : t.wallets.list.deleteWalletTooltip}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -384,7 +390,7 @@ function WalletsPageContent() {
             whileTap={{ scale: 0.98 }}
             onClick={() => {
               if (!canCreateWallet()) {
-                toast(`Maksimal ${MAX_WALLETS} dompet`, "error");
+                toast(t.wallets.list.maxWalletsToast(MAX_WALLETS), "error");
                 return;
               }
               setEditing(null);
@@ -399,7 +405,7 @@ function WalletsPageContent() {
             )}
           >
             <Plus className="w-4 h-4" />
-            Tambah Dompet {!canCreateWallet() && `(maks ${MAX_WALLETS})`}
+            {t.wallets.list.addWallet} {!canCreateWallet() && t.wallets.list.addWalletMax(MAX_WALLETS)}
           </motion.button>
         </div>
       </PageWrapper>

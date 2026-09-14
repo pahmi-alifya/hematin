@@ -8,11 +8,14 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AccountSection } from "@/components/settings/AccountSection";
 import { FaqSection } from "@/components/settings/FaqSection";
+import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { useTourStore } from "@/stores/tourStore";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ProfilePage() {
   const router = useRouter();
   const startTour = useTourStore((s) => s.startTour);
+  const t = useTranslation();
 
   function handleReplayTour() {
     router.push("/");
@@ -21,7 +24,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Profil" hideWalletSwitcher />
+      <Header title={t.profile.title} hideWalletSwitcher rightElement={<LanguageToggle />} />
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
@@ -37,10 +40,10 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                Kelola Dompet
+                {t.profile.manageWalletTitle}
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500">
-                Buat, ganti, atau atur dompet kamu
+                {t.profile.manageWalletSubtitle}
               </p>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />
@@ -57,10 +60,10 @@ export default function ProfilePage() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                Lihat Tutorial Lagi
+                {t.profile.replayTourTitle}
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500">
-                Ulangi pengenalan fitur-fitur HEMATIN
+                {t.profile.replayTourSubtitle}
               </p>
             </div>
             <ChevronRight className="w-4 h-4 text-slate-300 dark:text-slate-600 shrink-0" />

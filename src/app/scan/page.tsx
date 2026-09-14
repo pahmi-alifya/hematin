@@ -14,10 +14,11 @@ import { TransactionForm } from '@/components/transactions/TransactionForm'
 import { toast } from '@/components/ui/Toast'
 import { useReceiptScan } from '@/hooks/useReceiptScan'
 import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
+import { useTranslation } from '@/hooks/useTranslation'
 import { formatRupiah } from '@/lib/utils'
-import { SCAN_TIPS } from '@/lib/constants'
 
 export default function ScanPage() {
+  const t = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [showForm, setShowForm] = useState(false)
   const canEdit = useCanEditActiveWallet()
@@ -26,12 +27,12 @@ export default function ScanPage() {
   if (!canEdit) {
     return (
       <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-        <Header title="Scan Struk" showBack />
+        <Header title={t.scan.pageTitle} showBack />
         <PageWrapper>
           <EmptyState
             icon="🔒"
-            title="Akses Terbatas"
-            description="Kamu hanya bisa melihat dompet ini (viewer) — tidak bisa menambah transaksi lewat scan struk."
+            title={t.scan.restrictedTitle}
+            description={t.scan.restrictedDescription}
           />
         </PageWrapper>
         <BottomNav />
@@ -41,7 +42,7 @@ export default function ScanPage() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Scan Struk" showBack />
+      <Header title={t.scan.pageTitle} showBack />
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
@@ -49,8 +50,8 @@ export default function ScanPage() {
             <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/40 rounded-2xl p-4 flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-amber-500 mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">AI Belum Aktif</p>
-                <p className="text-xs text-amber-600 dark:text-amber-500">Buka Pengaturan dan hubungkan API key untuk menggunakan fitur ini.</p>
+                <p className="text-sm font-semibold text-amber-700 dark:text-amber-400">{t.scan.aiNotActiveTitle}</p>
+                <p className="text-xs text-amber-600 dark:text-amber-500">{t.scan.aiNotActiveDescription}</p>
               </div>
             </div>
           )}
@@ -69,8 +70,8 @@ export default function ScanPage() {
                   <Camera className="w-8 h-8 text-sky-500" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Foto atau Upload Struk</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500">AI akan membaca detail transaksi secara otomatis</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">{t.scan.uploadTitle}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500">{t.scan.uploadDescription}</p>
                 </div>
                 <div className="flex gap-3 w-full">
                   <Button
@@ -84,7 +85,7 @@ export default function ScanPage() {
                     }}
                   >
                     <Camera className="w-4 h-4 mr-2" />
-                    Kamera
+                    {t.scan.cameraButton}
                   </Button>
                   <Button
                     variant="secondary"
@@ -97,7 +98,7 @@ export default function ScanPage() {
                     }}
                   >
                     <Upload className="w-4 h-4 mr-2" />
-                    Upload
+                    {t.scan.uploadButton}
                   </Button>
                 </div>
                 <input
@@ -123,7 +124,7 @@ export default function ScanPage() {
                 <div className="relative">
                   <Image
                     src={preview}
-                    alt="Struk"
+                    alt={t.scan.receiptAlt}
                     width={400}
                     height={300}
                     className="w-full object-cover max-h-64"
@@ -141,7 +142,7 @@ export default function ScanPage() {
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                       <div className="bg-white dark:bg-slate-800 rounded-2xl px-5 py-4 flex items-center gap-3">
                         <Loader2 className="w-5 h-5 text-sky-500 animate-spin" />
-                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Membaca struk...</span>
+                        <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t.scan.scanningText}</span>
                       </div>
                     </div>
                   )}
@@ -152,22 +153,22 @@ export default function ScanPage() {
                   <div className="p-4 space-y-3">
                     <div className="flex items-center gap-2 mb-1">
                       <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                      <span className="text-sm font-semibold text-emerald-600">Struk berhasil dibaca</span>
+                      <span className="text-sm font-semibold text-emerald-600">{t.scan.scanSuccessText}</span>
                       <span className={`ml-auto text-xs px-2 py-0.5 rounded-full font-medium ${
                         scanned.confidence === 'high' ? 'bg-emerald-50 text-emerald-600'
                         : scanned.confidence === 'medium' ? 'bg-amber-50 text-amber-600'
                         : 'bg-red-50 text-red-500'
                       }`}>
-                        {scanned.confidence === 'high' ? 'Akurat' : scanned.confidence === 'medium' ? 'Cukup akurat' : 'Perlu cek ulang'}
+                        {scanned.confidence === 'high' ? t.scan.confidenceHigh : scanned.confidence === 'medium' ? t.scan.confidenceMedium : t.scan.confidenceLow}
                       </span>
                     </div>
 
                     <div className="bg-slate-50 dark:bg-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-700">
                       {[
-                        { label: 'Merchant', value: scanned.merchant ?? '-' },
-                        { label: 'Total', value: scanned.total ? formatRupiah(scanned.total) : '-' },
-                        { label: 'Tanggal', value: scanned.date ?? '-' },
-                        { label: 'Kategori', value: scanned.category ?? '-' },
+                        { label: t.scan.fieldMerchant, value: scanned.merchant ?? '-' },
+                        { label: t.scan.fieldTotal, value: scanned.total ? formatRupiah(scanned.total) : '-' },
+                        { label: t.common.date, value: scanned.date ?? '-' },
+                        { label: t.common.category, value: scanned.category ?? '-' },
                       ].map(({ label, value }) => (
                         <div key={label} className="flex justify-between px-3 py-2 text-sm">
                           <span className="text-slate-500 dark:text-slate-400">{label}</span>
@@ -178,10 +179,10 @@ export default function ScanPage() {
 
                     <div className="flex gap-3">
                       <Button variant="secondary" fullWidth onClick={reset}>
-                        Ulangi
+                        {t.scan.retryButton}
                       </Button>
                       <Button variant="primary" fullWidth onClick={() => setShowForm(true)}>
-                        Simpan Transaksi
+                        {t.scan.saveTransactionButton}
                       </Button>
                     </div>
                   </div>
@@ -189,9 +190,9 @@ export default function ScanPage() {
 
                 {scanState === 'error' && (
                   <div className="p-4">
-                    <p className="text-sm text-red-500 text-center mb-3">Gagal membaca struk. Coba foto yang lebih jelas.</p>
+                    <p className="text-sm text-red-500 text-center mb-3">{t.scan.scanErrorText}</p>
                     <Button variant="secondary" fullWidth onClick={reset}>
-                      Coba Lagi
+                      {t.scan.tryAgainButton}
                     </Button>
                   </div>
                 )}
@@ -201,9 +202,9 @@ export default function ScanPage() {
 
           {/* Tips */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">Tips foto struk yang baik:</p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2">{t.scan.tipsTitle}</p>
             <ul className="space-y-1">
-              {SCAN_TIPS.map((tip) => (
+              {t.scan.tips.map((tip) => (
                 <li key={tip} className="flex items-start gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <span className="text-sky-500 mt-0.5">•</span>
                   {tip}
@@ -220,14 +221,14 @@ export default function ScanPage() {
       <BottomSheet
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Simpan Transaksi"
+        title={t.scan.saveTransactionButton}
       >
         <TransactionForm
           defaultValues={defaultFormValues}
           onSuccess={() => {
             setShowForm(false)
             reset()
-            toast('Transaksi berhasil disimpan', 'success')
+            toast(t.scan.successToast, 'success')
           }}
         />
       </BottomSheet>

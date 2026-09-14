@@ -4,6 +4,7 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { ToastProvider } from "@/components/ui/Toast";
 import { ThemeProvider } from "@/components/ui/ThemeToggle";
+import { LanguageProvider } from "@/components/ui/LanguageToggle";
 import { InstallBanner } from "@/components/ui/InstallBanner";
 import { WalletProvider } from "@/components/wallet/WalletProvider";
 import { AuthProvider } from "@/components/auth/AuthProvider";
@@ -284,6 +285,7 @@ export default function RootLayout({
       </head>
       <body className="antialiased bg-sky-50 dark:bg-[#0B1120]">
         <ThemeProvider />
+        <LanguageProvider />
         <ToastProvider />
         <AuthProvider />
         <WalletProvider />

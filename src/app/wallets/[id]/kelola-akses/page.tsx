@@ -22,22 +22,25 @@ import { MemberRoleSelect } from "@/components/wallet/MemberRoleSelect";
 import { cn, formatDate } from "@/lib/utils";
 import { useWalletSharing } from "@/hooks/useWalletSharing";
 import { useSharedSyncStore } from "@/stores/sharedSyncStore";
-import { WALLET_ROLE_LABEL } from "@/lib/constants";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLanguageStore } from "@/stores/languageStore";
 
 type Tab = "anggota" | "log" | "key";
 
-const TABS: { value: Tab; label: string; icon: typeof Users }[] = [
-  { value: "key", label: "Key & QR", icon: KeyRound },
-  { value: "anggota", label: "Anggota", icon: Users },
-  { value: "log", label: "Log Aktivitas", icon: History },
-];
-
 export default function KelolaAksesPage() {
+  const t = useTranslation();
+  const language = useLanguageStore((s) => s.language);
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const walletId = params.id;
   const [tab, setTab] = useState<Tab>("key");
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  const TABS: { value: Tab; label: string; icon: typeof Users }[] = [
+    { value: "key", label: t.wallets.access.tabKey, icon: KeyRound },
+    { value: "anggota", label: t.wallets.access.tabMembers, icon: Users },
+    { value: "log", label: t.wallets.access.tabLog, icon: History },
+  ];
 
   const {
     wallet,
@@ -59,10 +62,10 @@ export default function KelolaAksesPage() {
 
   useEffect(() => {
     if (wallet && wallet.ownerRole && wallet.ownerRole !== "owner") {
-      toast("Halaman ini khusus pemilik dompet", "error");
+      toast(t.wallets.access.ownerOnlyToast, "error");
       router.replace("/wallets");
     }
-  }, [wallet, router]);
+  }, [wallet, router, t]);
 
   useEffect(() => {
     if (!shareKey) {
@@ -77,7 +80,7 @@ export default function KelolaAksesPage() {
   function handleCopy() {
     if (!shareKey) return;
     navigator.clipboard.writeText(shareKey);
-    toast("Key disalin ke clipboard", "success");
+    toast(t.wallets.access.keyCopiedToast, "success");
   }
 
   if (!wallet) return null;
@@ -85,7 +88,7 @@ export default function KelolaAksesPage() {
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
       <Header
-        title={`Kelola Akses - ${wallet.name}`}
+        title={t.wallets.access.pageTitle(wallet.name)}
         showBack
         backHref="/wallets"
         hideWalletSwitcher
@@ -94,7 +97,7 @@ export default function KelolaAksesPage() {
             <button
               onClick={() => refreshWallet(wallet.id)}
               className="w-9 h-9 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0"
-              title="Refresh data dompet"
+              title={t.wallets.access.refreshTooltip}
             >
               <RefreshCw
                 className={cn(
@@ -110,19 +113,19 @@ export default function KelolaAksesPage() {
       <PageWrapper>
         <div className="pb-28 space-y-4">
           <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-            {TABS.map((t) => (
+            {TABS.map((tabItem) => (
               <button
-                key={t.value}
-                onClick={() => setTab(t.value)}
+                key={tabItem.value}
+                onClick={() => setTab(tabItem.value)}
                 className={cn(
                   "flex-1 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all",
-                  tab === t.value
+                  tab === tabItem.value
                     ? "bg-white dark:bg-slate-700 text-sky-600 dark:text-sky-400 shadow-sm"
                     : "text-slate-500 dark:text-slate-400",
                 )}
               >
-                <t.icon className="w-3.5 h-3.5" />
-                {t.label}
+                <tabItem.icon className="w-3.5 h-3.5" />
+                {tabItem.label}
               </button>
             ))}
           </div>
@@ -136,15 +139,14 @@ export default function KelolaAksesPage() {
                 <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-5 text-center space-y-3">
                   <ShieldCheck className="w-8 h-8 text-sky-500 mx-auto" />
                   <p className="text-sm text-slate-600 dark:text-slate-300">
-                    Aktifkan sharing untuk mendapatkan key & QR yang bisa
-                    dibagikan ke orang lain.
+                    {t.wallets.access.activatePrompt}
                   </p>
                   <Button
                     fullWidth
                     onClick={handleActivate}
                     loading={activating}
                   >
-                    Aktifkan Sharing
+                    {t.wallets.access.activateButton}
                   </Button>
                 </div>
               ) : (
@@ -158,7 +160,7 @@ export default function KelolaAksesPage() {
                           : "bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400",
                       )}
                     >
-                      {shareKeyActive ? "Aktif" : "Nonaktif"}
+                      {shareKeyActive ? t.wallets.access.statusActive : t.wallets.access.statusInactive}
                     </span>
                     <button
                       onClick={() => handleToggleActive(!shareKeyActive)}
@@ -166,8 +168,8 @@ export default function KelolaAksesPage() {
                     >
                       <Power className="w-3.5 h-3.5" />
                       {shareKeyActive
-                        ? "Nonaktifkan sementara"
-                        : "Aktifkan kembali"}
+                        ? t.wallets.access.deactivateButton
+                        : t.wallets.access.reactivateButton}
                     </button>
                   </div>
 
@@ -175,7 +177,7 @@ export default function KelolaAksesPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={qrDataUrl}
-                      alt="QR key dompet"
+                      alt={t.wallets.access.qrAlt}
                       className="w-48 h-48 mx-auto rounded-xl"
                     />
                   )}
@@ -198,12 +200,10 @@ export default function KelolaAksesPage() {
                     onClick={handleRegenerate}
                     loading={activating}
                   >
-                    <RefreshCw className="w-4 h-4 mr-1.5" /> Buat Key Baru
+                    <RefreshCw className="w-4 h-4 mr-1.5" /> {t.wallets.access.regenerateButton}
                   </Button>
                   <p className="text-[11px] text-slate-400 dark:text-slate-500 text-center">
-                    Key lama tidak bisa dipakai untuk bergabung di dompet ini,
-                    tapi anggota yang sudah bergabung tetap bisa mengakses
-                    dompet.
+                    {t.wallets.access.regenerateNote}
                   </p>
                 </div>
               )}
@@ -217,7 +217,7 @@ export default function KelolaAksesPage() {
                 <div className="h-20 rounded-2xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
               ) : members.length === 0 ? (
                 <p className="text-center text-sm text-slate-400 py-8">
-                  Belum ada anggota lain
+                  {t.wallets.access.noMembers}
                 </p>
               ) : (
                 members.map((m) => (
@@ -230,15 +230,15 @@ export default function KelolaAksesPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
-                        {m.profiles?.name ?? "Pengguna"}
+                        {m.profiles?.name ?? t.wallets.access.unknownUser}
                       </p>
                       <p className="text-xs text-slate-400 dark:text-slate-500">
-                        Bergabung {formatDate(m.joined_at.slice(0, 10))}
+                        {t.wallets.access.joinedPrefix(formatDate(m.joined_at.slice(0, 10), language))}
                       </p>
                     </div>
                     {m.role === "owner" ? (
                       <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 shrink-0">
-                        {WALLET_ROLE_LABEL.owner}
+                        {t.wallets.role.owner}
                       </span>
                     ) : (
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -267,7 +267,7 @@ export default function KelolaAksesPage() {
                 <div className="h-20 rounded-2xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
               ) : logs.length === 0 ? (
                 <p className="text-center text-sm text-slate-400 py-8">
-                  Belum ada aktivitas
+                  {t.wallets.access.noActivity}
                 </p>
               ) : (
                 <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm divide-y divide-slate-100 dark:divide-slate-700/60">
@@ -275,12 +275,12 @@ export default function KelolaAksesPage() {
                     <div key={log.id} className="px-4 py-3">
                       <p className="text-sm text-slate-700 dark:text-slate-200">
                         <span className="font-semibold">
-                          {log.profiles?.name ?? "Pengguna"}
+                          {log.profiles?.name ?? t.wallets.access.unknownUser}
                         </span>{" "}
                         {log.description}
                       </p>
                       <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
-                        {new Date(log.created_at).toLocaleString("id-ID")}
+                        {new Date(log.created_at).toLocaleString(language === "en" ? "en-US" : "id-ID")}
                       </p>
                     </div>
                   ))}

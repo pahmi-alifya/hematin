@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { useRegisterForm } from "@/hooks/useRegisterForm";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function RegisterPage() {
   return (
@@ -19,6 +20,7 @@ export default function RegisterPage() {
 }
 
 function RegisterPageContent() {
+  const t = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
@@ -39,55 +41,55 @@ function RegisterPageContent() {
             <UserPlus className="w-6 h-6" />
           </div>
           <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-            Buat Akun HEMATIN
+            {t.auth.register.title}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Untuk sharing dompet ke orang lain, kamu perlu punya akun
+            {t.auth.register.subtitle}
           </p>
         </motion.div>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <Input
-            label="Nama"
-            placeholder="Nama kamu"
+            label={t.auth.register.nameLabel}
+            placeholder={t.auth.register.namePlaceholder}
             autoComplete="name"
             error={errors.name?.message}
             {...register("name")}
           />
           <Input
-            label="Email"
+            label={t.auth.register.emailLabel}
             type="email"
-            placeholder="nama@email.com"
+            placeholder={t.auth.register.emailPlaceholder}
             autoComplete="email"
             error={errors.email?.message}
             {...register("email")}
           />
           <Input
-            label="Password"
+            label={t.auth.register.passwordLabel}
             type="password"
-            placeholder="Minimal 8 karakter"
+            placeholder={t.auth.register.passwordPlaceholder}
             autoComplete="new-password"
             error={errors.password?.message}
             {...register("password")}
           />
           <Input
-            label="Konfirmasi Password"
+            label={t.auth.register.confirmPasswordLabel}
             type="password"
-            placeholder="Ulangi password"
+            placeholder={t.auth.register.confirmPasswordPlaceholder}
             autoComplete="new-password"
             error={errors.confirmPassword?.message}
             {...register("confirmPassword")}
           />
 
           <Button type="submit" fullWidth loading={isSubmitting} className="mt-2">
-            Daftar
+            {t.auth.register.submitButton}
           </Button>
         </form>
 
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-          Sudah punya akun?{" "}
+          {t.auth.register.haveAccountPrompt}{" "}
           <Link href={`/login?redirect=${encodeURIComponent(redirectTo)}`} className="text-sky-600 dark:text-sky-400 font-semibold">
-            Masuk
+            {t.auth.register.loginLink}
           </Link>
         </p>
 
@@ -95,7 +97,7 @@ function RegisterPageContent() {
           onClick={() => router.push("/")}
           className="text-center text-sm text-slate-400 dark:text-slate-500 mt-3 mx-auto block"
         >
-          Lanjutkan sebagai Guest
+          {t.auth.register.continueAsGuest}
         </button>
       </div>
     </AuthLayout>

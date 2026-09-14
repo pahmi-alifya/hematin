@@ -26,24 +26,26 @@ import { GoalAlertBanner } from "@/components/dashboard/GoalAlertBanner";
 import { WalletSwitcher } from "@/components/wallet/WalletSwitcher";
 import { useDashboardSummary } from "@/hooks/useDashboardSummary";
 import { useCanEditActiveWallet } from "@/hooks/useCanEditActiveWallet";
+import { useTranslation } from "@/hooks/useTranslation";
 import { formatRupiah } from "@/lib/utils";
+import type { Dictionary } from "@/lib/i18n";
 
-function CashFlowStatus({ balance }: { balance: number }) {
+function CashFlowStatus({ balance, t }: { balance: number; t: Dictionary }) {
   if (balance > 0)
     return (
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50/80 px-2 py-0.5 rounded-full">
-        <TrendingUp className="w-3 h-3" /> Aman
+        <TrendingUp className="w-3 h-3" /> {t.dashboard.cashFlowSafe}
       </span>
     );
   if (balance < 0)
     return (
       <span className="inline-flex items-center gap-1 text-xs font-semibold text-red-500 bg-red-50/80 px-2 py-0.5 rounded-full">
-        <TrendingDown className="w-3 h-3" /> Perlu Hati-hati
+        <TrendingDown className="w-3 h-3" /> {t.dashboard.cashFlowCareful}
       </span>
     );
   return (
     <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50/80 px-2 py-0.5 rounded-full">
-      <Minus className="w-3 h-3" /> Waspada
+      <Minus className="w-3 h-3" /> {t.dashboard.cashFlowWarning}
     </span>
   );
 }
@@ -51,6 +53,7 @@ function CashFlowStatus({ balance }: { balance: number }) {
 export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false);
   const canEdit = useCanEditActiveWallet();
+  const t = useTranslation();
   const {
     transactions,
     mounted,
@@ -95,7 +98,7 @@ export default function DashboardPage() {
           <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">
             {monthLabel}
           </p>
-          <p className="text-sm text-white/80 mb-1">Total Saldo</p>
+          <p className="text-sm text-white/80 mb-1">{t.dashboard.totalBalance}</p>
           <motion.p
             key={totalBalance}
             initial={{ opacity: 0, y: 8 }}
@@ -105,13 +108,13 @@ export default function DashboardPage() {
             {totalBalance >= 0 ? "" : "-"}
             {formatRupiah(Math.abs(totalBalance))}
           </motion.p>
-          <CashFlowStatus balance={totalBalance} />
+          <CashFlowStatus balance={totalBalance} t={t} />
         </div>
 
         {/* Summary Cards */}
         <div className="mx-4 mb-0 pb-5">
           <p className="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-2">
-            {monthLabel} — Bulan ini
+            {monthLabel} — {t.dashboard.thisMonthSuffix}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {/* Pemasukan */}
@@ -124,7 +127,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-1 mb-1.5">
                 <TrendingUp className="w-3 h-3 text-emerald-500" />
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                  Masuk
+                  {t.dashboard.incomeShort}
                 </span>
               </div>
               <p className="text-sm font-bold text-emerald-500 dark:text-emerald-400 leading-tight">
@@ -145,7 +148,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-1 mb-1.5">
                 <TrendingDown className="w-3 h-3 text-rose-500" />
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                  Keluar
+                  {t.dashboard.expenseShort}
                 </span>
               </div>
               <p className="text-sm font-bold text-rose-500 dark:text-rose-400 leading-tight">
@@ -166,7 +169,7 @@ export default function DashboardPage() {
               <div className="flex items-center gap-1 mb-1.5">
                 <span className="text-[10px]">🏦</span>
                 <span className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">
-                  Tabungan
+                  {t.common.saving}
                 </span>
               </div>
               <p className="text-sm font-bold text-teal-600 dark:text-teal-400 leading-tight">
@@ -195,7 +198,7 @@ export default function DashboardPage() {
                   <Plus className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                  Catat Transaksi
+                  {t.dashboard.recordTransaction}
                 </span>
               </motion.button>
 
@@ -208,7 +211,7 @@ export default function DashboardPage() {
                     <Camera className="w-5 h-5 text-white" />
                   </div>
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                    Scan Struk
+                    {t.dashboard.scanReceipt}
                   </span>
                 </motion.div>
               </Link>
@@ -230,7 +233,7 @@ export default function DashboardPage() {
           {/* Category Spending Chart */}
           <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 p-4">
             <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-3">
-              Top Pengeluaran Bulan Ini
+              {t.dashboard.topExpensesThisMonth}
             </p>
             <CategorySpendingChart transactions={transactions} />
           </div>
@@ -249,13 +252,13 @@ export default function DashboardPage() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-base font-bold text-slate-800 dark:text-slate-100">
-                Transaksi Bulan Ini
+                {t.dashboard.thisMonthTransactions}
               </h2>
               <Link
                 href="/transactions"
                 className="text-xs font-semibold text-sky-600 dark:text-sky-400"
               >
-                Lihat semua →
+                {t.common.seeAll} →
               </Link>
             </div>
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl shadow-sm border border-sky-100 dark:border-slate-700/60 overflow-hidden">
@@ -275,7 +278,7 @@ export default function DashboardPage() {
       <BottomSheet
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Catat Transaksi"
+        title={t.dashboard.recordTransaction}
       >
         <TransactionForm onSuccess={() => setShowForm(false)} />
       </BottomSheet>

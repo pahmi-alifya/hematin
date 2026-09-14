@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { AuthLayout } from "@/components/auth/AuthLayout";
 import { useLoginForm } from "@/hooks/useLoginForm";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export default function LoginPage() {
   return (
@@ -19,6 +20,7 @@ export default function LoginPage() {
 }
 
 function LoginPageContent() {
+  const t = useTranslation();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
@@ -39,26 +41,26 @@ function LoginPageContent() {
             <LogIn className="w-6 h-6" />
           </div>
           <h1 className="text-xl font-bold text-slate-800 dark:text-slate-100">
-            Masuk ke HEMATIN
+            {t.auth.login.title}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Akses dompet yang kamu bagikan atau lanjutkan di device lain
+            {t.auth.login.subtitle}
           </p>
         </motion.div>
 
         <form onSubmit={onSubmit} className="space-y-4" noValidate>
           <Input
-            label="Email"
+            label={t.auth.login.emailLabel}
             type="email"
-            placeholder="nama@email.com"
+            placeholder={t.auth.login.emailPlaceholder}
             autoComplete="email"
             error={errors.email?.message}
             {...register("email")}
           />
           <Input
-            label="Password"
+            label={t.auth.login.passwordLabel}
             type="password"
-            placeholder="Password kamu"
+            placeholder={t.auth.login.passwordPlaceholder}
             autoComplete="current-password"
             error={errors.password?.message}
             {...register("password")}
@@ -70,17 +72,17 @@ function LoginPageContent() {
             loading={isSubmitting}
             className="mt-2"
           >
-            Masuk
+            {t.auth.login.submitButton}
           </Button>
         </form>
 
         <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-          Belum punya akun?{" "}
+          {t.auth.login.noAccountPrompt}{" "}
           <Link
             href={`/register?redirect=${encodeURIComponent(redirectTo)}`}
             className="text-sky-600 dark:text-sky-400 font-semibold"
           >
-            Daftar
+            {t.auth.login.registerLink}
           </Link>
         </p>
 
@@ -88,7 +90,7 @@ function LoginPageContent() {
           onClick={() => router.push("/")}
           className="text-center text-sm text-slate-400 dark:text-slate-500 mt-3 mx-auto block"
         >
-          Lanjutkan sebagai Guest
+          {t.auth.login.continueAsGuest}
         </button>
       </div>
     </AuthLayout>

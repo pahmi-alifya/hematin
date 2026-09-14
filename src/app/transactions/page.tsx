@@ -11,6 +11,8 @@ import { TransactionFilterSheet } from "@/components/transactions/TransactionFil
 import { useTransactionStore } from "@/stores/transactionStore";
 import { useTransactionFilters } from "@/hooks/useTransactionFilters";
 import { useCanEditActiveWallet } from "@/hooks/useCanEditActiveWallet";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useLanguageStore } from "@/stores/languageStore";
 import { formatRupiah } from "@/lib/utils";
 import {
   ChevronLeft,
@@ -35,6 +37,8 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from "@/lib/
 const ALL_CATEGORIES = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES, ...SAVING_CATEGORIES];
 
 export default function TransactionsPage() {
+  const t = useTranslation();
+  const language = useLanguageStore((s) => s.language);
   const { transactions, loadTransactions } = useTransactionStore();
   const canEdit = useCanEditActiveWallet();
   const [showForm, setShowForm] = useState(false);
@@ -66,23 +70,25 @@ export default function TransactionsPage() {
     loadTransactions();
   }, [loadTransactions]);
 
-  const activeTypeLabel = TYPE_FILTERS.find((t) => t.value === typeFilter)?.label;
+  const activeTypeFilter = TYPE_FILTERS.find((item) => item.value === typeFilter);
+  const activeTypeLabel = activeTypeFilter ? t.transactions[activeTypeFilter.labelKey] : undefined;
   const activeCategory =
     categoryFilter !== "all"
       ? ALL_CATEGORIES.find((c) => c.id === categoryFilter)
       : undefined;
-  const activeSortLabel = SORT_OPTIONS.find((s) => s.value === sortBy)?.label;
+  const activeSortOption = SORT_OPTIONS.find((s) => s.value === sortBy);
+  const activeSortLabel = activeSortOption ? t.transactions[activeSortOption.labelKey] : undefined;
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
       <Header
-        title="Transaksi"
+        title={t.nav.transactions}
         rightElement={
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowMoreMenu(true)}
               className="w-8 h-8 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400"
-              title="Menu lainnya"
+              title={t.transactions.moreMenuTooltip}
             >
               <MoreVertical className="w-4 h-4" />
             </button>
@@ -101,7 +107,7 @@ export default function TransactionsPage() {
       <BottomSheet
         open={showMoreMenu}
         onClose={() => setShowMoreMenu(false)}
-        title="Menu Lainnya"
+        title={t.transactions.moreMenuTitle}
       >
         <div className="px-4 pb-6 pt-1 flex flex-col gap-1.5">
           <Link
@@ -114,10 +120,10 @@ export default function TransactionsPage() {
             </span>
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                Transaksi Rutin
+                {t.transactions.recurringTransactions}
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500">
-                Kelola template transaksi bulanan
+                {t.transactions.manageRecurringDesc}
               </p>
             </div>
           </Link>
@@ -127,6 +133,7 @@ export default function TransactionsPage() {
               exportTransactionsCSV(
                 filteredTransactions,
                 `hematin-${month}.csv`,
+                language,
               );
               setShowMoreMenu(false);
             }}
@@ -138,12 +145,12 @@ export default function TransactionsPage() {
             </span>
             <div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                Export CSV
+                {t.transactions.exportCSV}
               </p>
               <p className="text-xs text-slate-400 dark:text-slate-500">
                 {filteredTransactions.length === 0
-                  ? "Tidak ada transaksi untuk diexport"
-                  : `Export ${filteredTransactions.length} transaksi bulan ini`}
+                  ? t.transactions.noTransactionsToExport
+                  : t.transactions.exportCount(filteredTransactions.length)}
               </p>
             </div>
           </button>
@@ -183,7 +190,7 @@ export default function TransactionsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="Cari transaksi..."
+                placeholder={t.transactions.searchPlaceholder}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="w-full h-10 pl-9 pr-9 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 text-sm text-slate-800 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-transparent transition-all"
@@ -214,7 +221,7 @@ export default function TransactionsPage() {
               )}
             >
               <SlidersHorizontal className="w-3.5 h-3.5" />
-              Filter
+              {t.transactions.filterButton}
               {activeSheetFiltersCount > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-sky-500 text-white text-[10px] font-bold flex items-center justify-center">
                   {activeSheetFiltersCount}
@@ -278,7 +285,7 @@ export default function TransactionsPage() {
                 <div className="flex items-center gap-1 mb-0.5">
                   <TrendingUp className="w-3 h-3 text-emerald-500 shrink-0" />
                   <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                    Masuk
+                    {t.transactions.typeShortIncome}
                   </span>
                 </div>
                 <p className="text-[13px] font-bold text-emerald-500 dark:text-emerald-400 leading-tight truncate">
@@ -294,7 +301,7 @@ export default function TransactionsPage() {
                 <div className="flex items-center gap-1 mb-0.5">
                   <TrendingDown className="w-3 h-3 text-rose-500 shrink-0" />
                   <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                    Keluar
+                    {t.transactions.typeShortExpense}
                   </span>
                 </div>
                 <p className="text-[13px] font-bold text-rose-500 dark:text-rose-400 leading-tight truncate">
@@ -310,7 +317,7 @@ export default function TransactionsPage() {
                 <div className="flex items-center gap-1 mb-0.5">
                   <span className="text-[10px]">🏦</span>
                   <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">
-                    Tabungan
+                    {t.transactions.typeShortSaving}
                   </span>
                 </div>
                 <p className="text-[13px] font-bold text-teal-600 dark:text-teal-400 leading-tight truncate">
@@ -355,7 +362,7 @@ export default function TransactionsPage() {
       <BottomSheet
         open={showForm}
         onClose={() => setShowForm(false)}
-        title="Catat Transaksi"
+        title={t.transactions.addTransactionSheetTitle}
       >
         <TransactionForm onSuccess={() => setShowForm(false)} />
       </BottomSheet>

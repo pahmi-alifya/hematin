@@ -15,7 +15,9 @@ import { useTransactionStore } from '@/stores/transactionStore'
 import { useAddGoalForm } from '@/hooks/useAddGoalForm'
 import { useEditGoalForm } from '@/hooks/useEditGoalForm'
 import { useCanEditActiveWallet } from '@/hooks/useCanEditActiveWallet'
-import { getCategoryById } from '@/lib/categories'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
+import { getCategoryById, getCategoryLabel } from '@/lib/categories'
 import { groupSumByCategory } from '@/lib/calculations'
 import { formatRupiah, getCurrentMonth } from '@/lib/utils'
 
@@ -29,6 +31,8 @@ interface GoalCardProps {
 }
 
 function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCardProps) {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const canEdit = useCanEditActiveWallet()
   const cat = getCategoryById(category, 'expense')
   const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
@@ -58,8 +62,8 @@ function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCard
             {cat?.icon ?? '📦'}
           </div>
           <div>
-            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{cat?.name ?? category}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">Limit {formatRupiah(limit)}</p>
+            <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{getCategoryLabel(cat, language) ?? category}</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500">{t.goals.limitAmount(formatRupiah(limit))}</p>
           </div>
         </div>
         {canEdit && (
@@ -92,12 +96,12 @@ function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCard
 
       <div className="flex justify-between text-xs">
         <span className="text-slate-500 dark:text-slate-400">
-          Terpakai <span className="font-semibold text-slate-700 dark:text-slate-200">{formatRupiah(spent)}</span>
+          {t.goals.used} <span className="font-semibold text-slate-700 dark:text-slate-200">{formatRupiah(spent)}</span>
         </span>
         <span className={isOver ? 'text-red-500 font-semibold' : 'text-slate-500'}>
           {isOver
-            ? `Lebih ${formatRupiah(Math.abs(remaining))}`
-            : `Sisa ${formatRupiah(remaining)}`}
+            ? t.goals.cardOverBy(formatRupiah(Math.abs(remaining)))
+            : t.goals.cardRemaining(formatRupiah(remaining))}
         </span>
       </div>
     </motion.div>
@@ -105,6 +109,8 @@ function GoalCard({ category, limit, spent, goalId, onDelete, onEdit }: GoalCard
 }
 
 export default function GoalsPage() {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const { goals, isLoading, loadGoals, deleteGoal } = useGoalStore()
   const { transactions, loadTransactions } = useTransactionStore()
   const addForm = useAddGoalForm(goals)
@@ -133,14 +139,14 @@ export default function GoalsPage() {
 
   async function handleDelete(id: string) {
     await deleteGoal(id)
-    toast('Limit dihapus', 'success')
+    toast(t.goals.limitDeletedToast, 'success')
   }
 
   const editingCategory = editForm.editingGoal ? getCategoryById(editForm.editingGoal.category, 'expense') : null
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Batas Pengeluaran" />
+      <Header title={t.goals.pageTitle} />
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
@@ -151,8 +157,8 @@ export default function GoalsPage() {
                 <Target className="w-5 h-5 text-sky-600 dark:text-sky-400" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">Atur Batas Pengeluaran</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400">Pantau dan kendalikan pengeluaran per kategori</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">{t.goals.setLimitsTitle}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">{t.goals.setLimitsSubtitle}</p>
               </div>
             </div>
           </div>
@@ -160,18 +166,18 @@ export default function GoalsPage() {
           {/* Summary card */}
           {goals.length > 0 && (
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4 space-y-3">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Ringkasan Bulan Ini</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">{t.goals.summaryTitle}</p>
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">Total Budget</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{t.goals.totalBudget}</p>
                   <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{formatRupiah(totalLimit)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">Terpakai</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{t.goals.used}</p>
                   <p className={`text-sm font-bold ${totalOver ? 'text-red-500' : 'text-slate-800 dark:text-slate-100'}`}>{formatRupiah(totalSpent)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{totalOver ? 'Melebihi' : 'Sisa'}</p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mb-0.5">{totalOver ? t.goals.summaryOverLabel : t.goals.summaryRemainingLabel}</p>
                   <p className={`text-sm font-bold ${totalOver ? 'text-red-500' : 'text-emerald-500'}`}>{formatRupiah(Math.abs(totalLimit - totalSpent))}</p>
                 </div>
               </div>
@@ -183,7 +189,7 @@ export default function GoalsPage() {
                   className={`h-full rounded-full ${totalOver ? 'bg-red-500' : totalPercentage >= 80 ? 'bg-amber-400' : 'bg-sky-500'}`}
                 />
               </div>
-              <p className="text-xs text-slate-400 dark:text-slate-500 text-right">{totalPercentage.toFixed(0)}% dari total budget</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500 text-right">{t.goals.percentOfBudget(Number(totalPercentage.toFixed(0)))}</p>
             </div>
           )}
 
@@ -191,7 +197,7 @@ export default function GoalsPage() {
           {canEdit && addForm.availableCategories.length > 0 && (
             <Button variant="primary" fullWidth onClick={addForm.open} data-tour="goal-add-button">
               <Plus className="w-4 h-4 mr-2" />
-              Tambah Batas Kategori
+              {t.goals.addLimitButton}
             </Button>
           )}
 
@@ -205,8 +211,8 @@ export default function GoalsPage() {
           ) : goals.length === 0 ? (
             <EmptyState
               icon="🎯"
-              title="Belum ada batas"
-              description="Atur batas pengeluaran per kategori untuk kontrol lebih baik"
+              title={t.goals.emptyTitle}
+              description={t.goals.emptyDescription}
             />
           ) : (
             <AnimatePresence>
@@ -231,11 +237,11 @@ export default function GoalsPage() {
       <BottomNav />
 
       {/* Add Goal Sheet */}
-      <BottomSheet open={addForm.show} onClose={addForm.close} title="Tambah Batas Pengeluaran">
+      <BottomSheet open={addForm.show} onClose={addForm.close} title={t.goals.addSheetTitle}>
         <div className="px-5 pb-6 space-y-4">
           {/* Category Picker */}
           <div>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Kategori</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t.common.category}</p>
             <div className="relative">
               <select
                 value={addForm.category}
@@ -244,7 +250,7 @@ export default function GoalsPage() {
               >
                 {addForm.availableCategories.map((c) => (
                   <option key={c.id} value={c.id}>
-                    {c.icon} {c.name}
+                    {c.icon} {getCategoryLabel(c, language)}
                   </option>
                 ))}
               </select>
@@ -254,7 +260,7 @@ export default function GoalsPage() {
 
           {/* Amount */}
           <div>
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Jumlah</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t.goals.limitAmountLabel}</p>
             <div className="relative">
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 dark:text-slate-400">Rp</span>
               <input
@@ -269,13 +275,13 @@ export default function GoalsPage() {
           </div>
 
           <Button variant="primary" fullWidth loading={addForm.saving} onClick={addForm.handleSave}>
-            Simpan Batas
+            {t.goals.saveLimitButton}
           </Button>
         </div>
       </BottomSheet>
 
       {/* Edit Goal Sheet */}
-      <BottomSheet open={!!editForm.editingGoal} onClose={editForm.close} title="Edit Batas Pengeluaran">
+      <BottomSheet open={!!editForm.editingGoal} onClose={editForm.close} title={t.goals.editSheetTitle}>
         {editForm.editingGoal && (
           <div className="px-5 pb-6 space-y-4">
             <div className="flex items-center gap-2.5 py-2">
@@ -286,11 +292,11 @@ export default function GoalsPage() {
                 {editingCategory?.icon ?? '📦'}
               </div>
               <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                {editingCategory?.name ?? editForm.editingGoal.category}
+                {getCategoryLabel(editingCategory, language) ?? editForm.editingGoal.category}
               </p>
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Batas Jumlah</p>
+              <p className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">{t.goals.limitAmountLabel}</p>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-slate-500 dark:text-slate-400">Rp</span>
                 <input
@@ -304,7 +310,7 @@ export default function GoalsPage() {
               </div>
             </div>
             <Button variant="primary" fullWidth loading={editForm.saving} onClick={editForm.handleSave}>
-              Perbarui Batas
+              {t.goals.updateLimitButton}
             </Button>
           </div>
         )}

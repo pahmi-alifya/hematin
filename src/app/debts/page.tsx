@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { format, parseISO } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus,
@@ -32,6 +31,8 @@ import { MarkPaidSheet } from '@/components/debts/MarkPaidSheet'
 import { PaymentSheet } from '@/components/debts/PaymentSheet'
 import { PaymentHistory } from '@/components/debts/PaymentHistory'
 import { formatRupiah } from '@/lib/utils'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useDateLocale } from '@/hooks/useDateLocale'
 import type { Debt } from '@/types'
 
 export default function DebtsPage() {
@@ -52,6 +53,8 @@ export default function DebtsPage() {
   const tabs = useDebtTabs(debts)
   const sheets = useDebtSheets()
   const cicilan = useCicilanPayments(sheets.closePaymentSheet)
+  const t = useTranslation()
+  const dateLocale = useDateLocale()
 
   useEffect(() => {
     setMounted(true)
@@ -64,20 +67,20 @@ export default function DebtsPage() {
     if (!sheets.showPaidSheet) return
     try {
       await markAsPaid(sheets.showPaidSheet.id, notes)
-      toast('Alhamdulillah, hutang lunas! 🎉', 'success')
+      toast(t.debts.toast.markPaidSuccess, 'success')
       sheets.closePaidSheet()
     } catch {
-      toast('Gagal memperbarui', 'error')
+      toast(t.debts.toast.markPaidError, 'error')
     }
   }
 
   async function handleDelete(debt: Debt) {
     try {
       await deleteDebt(debt.id)
-      toast('Catatan dihapus', 'success')
+      toast(t.debts.toast.deleteSuccess, 'success')
       sheets.closeDetail()
     } catch {
-      toast('Gagal menghapus', 'error')
+      toast(t.debts.toast.deleteError, 'error')
     }
   }
 
@@ -85,21 +88,21 @@ export default function DebtsPage() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title="Utang & Piutang" />
+      <Header title={t.debts.pageTitle} />
 
       <PageWrapper>
         <div className="space-y-4 pb-28">
           {/* Summary Cards */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl p-4 border border-red-100 dark:border-red-900/40 shadow-sm">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Total Hutangku</p>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{t.debts.summary.totalHutang}</p>
               <p className="text-xl font-bold text-red-500 dark:text-red-400">{formatRupiah(tabs.totalHutang)}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{tabs.activeHutang.length} catatan aktif</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{t.debts.summary.activeCount(tabs.activeHutang.length)}</p>
             </div>
             <div className="bg-white dark:bg-slate-800/60 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/40 shadow-sm">
-              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Total Piutangku</p>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">{t.debts.summary.totalPiutang}</p>
               <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{formatRupiah(tabs.totalPiutang)}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{tabs.activePiutang.length} catatan aktif</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{t.debts.summary.activeCount(tabs.activePiutang.length)}</p>
             </div>
           </div>
 
@@ -124,7 +127,7 @@ export default function DebtsPage() {
               >
                 <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
                 <p className="text-sm font-medium text-red-700 dark:text-red-300">
-                  {tabs.overdueCount} hutang sudah melewati jatuh tempo!
+                  {t.debts.overdueWarning(tabs.overdueCount)}
                 </p>
               </motion.div>
             )}
@@ -132,18 +135,18 @@ export default function DebtsPage() {
 
           {/* Tab toggle */}
           <div data-tour="debt-tabs" className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
-            {(['hutang', 'piutang'] as const).map((t) => (
+            {(['hutang', 'piutang'] as const).map((tabType) => (
               <motion.button
-                key={t}
+                key={tabType}
                 whileTap={{ scale: 0.97 }}
-                onClick={() => tabs.setActiveTab(t)}
+                onClick={() => tabs.setActiveTab(tabType)}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                  tabs.activeTab === t
-                    ? 'bg-white dark:bg-slate-700 shadow-sm ' + (t === 'hutang' ? 'text-red-500' : 'text-emerald-600')
+                  tabs.activeTab === tabType
+                    ? 'bg-white dark:bg-slate-700 shadow-sm ' + (tabType === 'hutang' ? 'text-red-500' : 'text-emerald-600')
                     : 'text-slate-500 dark:text-slate-400'
                 }`}
               >
-                {t === 'hutang' ? `🔴 Hutangku (${tabs.activeHutang.length})` : `🟢 Piutangku (${tabs.activePiutang.length})`}
+                {t.debts.tabs.label(tabType, tabType === 'hutang' ? tabs.activeHutang.length : tabs.activePiutang.length)}
               </motion.button>
             ))}
           </div>
@@ -158,13 +161,9 @@ export default function DebtsPage() {
           ) : tabs.sortedActive.length === 0 ? (
             <EmptyState
               icon={tabs.activeTab === 'hutang' ? '🎉' : '💸'}
-              title={tabs.activeTab === 'hutang' ? 'Tidak ada hutang' : 'Tidak ada piutang'}
-              description={
-                tabs.activeTab === 'hutang'
-                  ? 'Kamu tidak punya hutang aktif saat ini'
-                  : 'Tidak ada orang yang hutang ke kamu saat ini'
-              }
-              action={canEdit ? { label: `+ Tambah ${tabs.activeTab === 'hutang' ? 'Hutang' : 'Piutang'}`, onClick: sheets.openAdd } : undefined}
+              title={t.debts.empty.title(tabs.activeTab)}
+              description={t.debts.empty.description(tabs.activeTab)}
+              action={canEdit ? { label: t.debts.empty.action(tabs.activeTab), onClick: sheets.openAdd } : undefined}
             />
           ) : (
             <div className="space-y-3">
@@ -191,7 +190,7 @@ export default function DebtsPage() {
                 onClick={sheets.togglePaidList}
                 className="w-full flex items-center justify-between px-1 py-2 text-sm font-semibold text-slate-500 dark:text-slate-400"
               >
-                <span>Sudah Lunas ({tabs.paidList.length})</span>
+                <span>{t.debts.paidSection.label(tabs.paidList.length)}</span>
                 {sheets.showPaidList ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </button>
               <AnimatePresence>
@@ -228,7 +227,7 @@ export default function DebtsPage() {
               onClick={sheets.openAdd}
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border-2 border-dashed border-sky-200 dark:border-sky-800/60 text-sky-600 dark:text-sky-400 text-sm font-semibold"
             >
-              <Plus className="w-4 h-4" /> Tambah {tabs.activeTab === 'hutang' ? 'Hutang' : 'Piutang'}
+              <Plus className="w-4 h-4" /> {t.debts.addButton(tabs.activeTab)}
             </motion.button>
           )}
         </div>
@@ -240,7 +239,7 @@ export default function DebtsPage() {
       <BottomSheet
         open={sheets.showAdd}
         onClose={sheets.closeAdd}
-        title={`Catat ${tabs.activeTab === 'hutang' ? 'Hutang' : 'Piutang'}`}
+        title={t.debts.sheets.addTitle(tabs.activeTab)}
       >
         <DebtForm defaultType={tabs.activeTab} onSuccess={sheets.closeAdd} />
       </BottomSheet>
@@ -249,7 +248,7 @@ export default function DebtsPage() {
       <BottomSheet
         open={!!sheets.showPaidSheet}
         onClose={sheets.closePaidSheet}
-        title="Tandai Lunas"
+        title={t.debts.sheets.markPaidTitle}
       >
         {sheets.showPaidSheet && (
           <MarkPaidSheet
@@ -264,7 +263,7 @@ export default function DebtsPage() {
       <BottomSheet
         open={!!sheets.showPaymentSheet}
         onClose={sheets.closePaymentSheet}
-        title="Catat Pembayaran"
+        title={t.debts.sheets.paymentTitle}
       >
         {sheets.showPaymentSheet && (
           <PaymentSheet
@@ -282,7 +281,7 @@ export default function DebtsPage() {
       <BottomSheet
         open={!!sheets.showHistory}
         onClose={sheets.closeHistory}
-        title={`Riwayat Pembayaran — ${sheets.showHistory?.person ?? ''}`}
+        title={t.debts.sheets.historyTitle(sheets.showHistory?.person ?? '')}
       >
         {sheets.showHistory && (
           <PaymentHistory
@@ -298,13 +297,13 @@ export default function DebtsPage() {
       <BottomSheet
         open={!!sheets.showDetail}
         onClose={sheets.closeDetail}
-        title="Detail Catatan"
+        title={t.debts.sheets.detailTitle}
       >
         {sheets.showDetail && (
           <div className="px-5 pb-6 space-y-4">
             <div className="text-center py-4">
               <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
-                {sheets.showDetail.type === 'hutang' ? 'Hutang ke' : 'Piutang dari'} {sheets.showDetail.person}
+                {t.debts.detail.owedTo(sheets.showDetail.type, sheets.showDetail.person)}
               </p>
               <p className={`text-3xl font-bold ${sheets.showDetail.type === 'hutang' ? 'text-red-500' : 'text-emerald-600'}`}>
                 {formatRupiah(sheets.showDetail.amount)}
@@ -312,13 +311,13 @@ export default function DebtsPage() {
             </div>
             <div className="bg-slate-50 dark:bg-slate-800 rounded-2xl divide-y divide-slate-200 dark:divide-slate-700">
               {[
-                { label: 'Jenis', value: sheets.showDetail.type === 'hutang' ? '🔴 Hutang' : '🟢 Piutang' },
-                { label: 'Mode', value: sheets.showDetail.isCicilan ? `📅 Cicilan ${formatRupiah(sheets.showDetail.cicilanAmount ?? 0)}/bln (tgl ${sheets.showDetail.cicilanDay})` : '💵 Lunas Sekaligus' },
-                { label: 'Keterangan', value: sheets.showDetail.description || '-' },
-                ...(!sheets.showDetail.isCicilan ? [{ label: 'Jatuh Tempo', value: sheets.showDetail.dueDate ? format(parseISO(sheets.showDetail.dueDate), 'd MMMM yyyy', { locale: id }) : 'Tidak ditentukan' }] : []),
-                { label: 'Status', value: sheets.showDetail.status === 'paid' ? '✅ Lunas' : sheets.showDetail.status === 'overdue' ? '⚠️ Terlambat' : sheets.showDetail.status === 'partial' ? '📊 Dicicil' : '🕐 Aktif' },
-                ...(sheets.showDetail.notes ? [{ label: 'Catatan Lunas', value: sheets.showDetail.notes }] : []),
-                { label: 'Dicatat', value: format(new Date(sheets.showDetail.createdAt), 'd MMM yyyy', { locale: id }) },
+                { label: t.debts.detail.fieldType, value: t.debts.detail.typeValue(sheets.showDetail.type) },
+                { label: t.debts.detail.fieldMode, value: sheets.showDetail.isCicilan ? t.debts.detail.modeCicilan(formatRupiah(sheets.showDetail.cicilanAmount ?? 0), sheets.showDetail.cicilanDay ?? 1) : t.debts.detail.modeLumpSum },
+                { label: t.debts.detail.fieldDescription, value: sheets.showDetail.description || t.debts.detail.noValue },
+                ...(!sheets.showDetail.isCicilan ? [{ label: t.debts.detail.fieldDueDate, value: sheets.showDetail.dueDate ? format(parseISO(sheets.showDetail.dueDate), 'd MMMM yyyy', { locale: dateLocale }) : t.debts.detail.noDueDate }] : []),
+                { label: t.debts.detail.fieldStatus, value: sheets.showDetail.status === 'paid' ? t.debts.detail.statusPaid : sheets.showDetail.status === 'overdue' ? t.debts.detail.statusOverdue : sheets.showDetail.status === 'partial' ? t.debts.detail.statusPartial : t.debts.detail.statusActive },
+                ...(sheets.showDetail.notes ? [{ label: t.debts.detail.fieldPaidNotes, value: sheets.showDetail.notes }] : []),
+                { label: t.debts.detail.fieldCreatedAt, value: format(new Date(sheets.showDetail.createdAt), 'd MMM yyyy', { locale: dateLocale }) },
               ].map(({ label, value }) => (
                 <div key={label} className="flex justify-between items-start px-4 py-3 gap-4">
                   <span className="text-sm text-slate-500 dark:text-slate-400 shrink-0">{label}</span>
@@ -332,20 +331,20 @@ export default function DebtsPage() {
                   fullWidth
                   onClick={() => { sheets.openPaymentSheet(sheets.showDetail); sheets.closeDetail() }}
                 >
-                  <CreditCard className="w-4 h-4 mr-1.5" /> Bayar Cicilan
+                  <CreditCard className="w-4 h-4 mr-1.5" /> {t.debts.actions.payCicilan}
                 </Button>
               ) : (
                 <Button
                   fullWidth
                   onClick={() => { sheets.openPaidSheet(sheets.showDetail); sheets.closeDetail() }}
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-1.5" /> Tandai Lunas
+                  <CheckCircle2 className="w-4 h-4 mr-1.5" /> {t.debts.actions.markPaid}
                 </Button>
               )
             )}
             {canEdit && (
               <Button variant="danger" fullWidth onClick={() => handleDelete(sheets.showDetail!)}>
-                <Trash2 className="w-4 h-4 mr-1.5" /> Hapus Catatan
+                <Trash2 className="w-4 h-4 mr-1.5" /> {t.debts.actions.deleteRecord}
               </Button>
             )}
           </div>
