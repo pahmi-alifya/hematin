@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { QrCode, X } from 'lucide-react'
 import { toast } from '@/components/ui/Toast'
+import { useTranslation } from '@/hooks/useTranslation'
 
 // BarcodeDetector belum ada di lib.dom.d.ts TypeScript bawaan — deklarasi minimal di sini.
 interface BarcodeDetectorResult {
@@ -15,6 +16,7 @@ interface BarcodeDetectorInstance {
 type BarcodeDetectorCtor = new (options: { formats: string[] }) => BarcodeDetectorInstance
 
 export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
+  const t = useTranslation()
   const [supported, setSupported] = useState(false)
   const [scanning, setScanning] = useState(false)
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -31,7 +33,7 @@ export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
       streamRef.current = stream
       setScanning(true)
     } catch {
-      toast('Tidak bisa mengakses kamera', 'error')
+      toast(t.wallets.qr.cameraErrorToast, 'error')
     }
   }
 
@@ -85,7 +87,7 @@ export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
         onClick={startScan}
         className="flex items-center justify-center gap-1.5 h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm font-semibold text-slate-600 dark:text-slate-300"
       >
-        <QrCode className="w-4 h-4" /> Scan QR
+        <QrCode className="w-4 h-4" /> {t.wallets.qr.scanButton}
       </button>
 
       <AnimatePresence>
@@ -106,7 +108,7 @@ export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
             >
               <X className="w-5 h-5" />
             </button>
-            <p className="absolute bottom-10 text-white/80 text-sm">Arahkan kamera ke QR key dompet</p>
+            <p className="absolute bottom-10 text-white/80 text-sm">{t.wallets.qr.instruction}</p>
           </motion.div>
         )}
       </AnimatePresence>

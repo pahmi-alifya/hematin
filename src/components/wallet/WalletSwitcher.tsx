@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useWalletStore } from "@/stores/walletStore";
 import { useSharedSyncStore } from "@/stores/sharedSyncStore";
 import { BottomSheet } from "@/components/ui/BottomSheet";
+import { useTranslation } from "@/hooks/useTranslation";
 
 interface WalletSwitcherProps {
   /** Varian tampilan tombol trigger — light dipakai di atas background gradient (hero dashboard) */
@@ -19,6 +20,7 @@ export function WalletSwitcher({
   variant = "default",
   className,
 }: WalletSwitcherProps) {
+  const t = useTranslation();
   const router = useRouter();
   const { wallets, activeWalletId, setActiveWallet } = useWalletStore();
   const { refreshingWalletId, refreshWallet } = useSharedSyncStore();
@@ -29,45 +31,50 @@ export function WalletSwitcher({
 
   return (
     <>
-      <motion.button
-        whileTap={{ scale: 0.96 }}
-        onClick={() => setOpen(true)}
-        className={cn(
-          "inline-flex items-center gap-1.5 h-9 pl-2 pr-3 rounded-full text-sm font-semibold transition-colors max-w-50",
-          variant === "light"
-            ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-            : "bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-slate-700",
-          className,
-        )}
-      >
-        <span
-          className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] shrink-0"
-          style={{ backgroundColor: `${activeWallet.color}33` }}
+      <div className={cn("inline-flex items-center gap-1", className)}>
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={() => setOpen(true)}
+          className={cn(
+            "inline-flex items-center gap-1.5 h-9 pl-2 pr-3 rounded-full text-sm font-semibold transition-colors max-w-50",
+            variant === "light"
+              ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+              : "bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-slate-700",
+          )}
         >
-          {activeWallet.icon}
-        </span>
-        <span className="truncate">{activeWallet.name}</span>
+          <span
+            className="w-5 h-5 rounded-full flex items-center justify-center text-[11px] shrink-0"
+            style={{ backgroundColor: `${activeWallet.color}33` }}
+          >
+            {activeWallet.icon}
+          </span>
+          <span className="truncate">{activeWallet.name}</span>
+          <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-70" />
+        </motion.button>
+
         {activeWallet.isShared && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              refreshWallet(activeWallet.id);
-            }}
-            title="Refresh data dompet"
-            className="shrink-0 -mr-1 p-0.5"
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => refreshWallet(activeWallet.id)}
+            title={t.wallets.switcher.refreshTooltip}
+            className={cn(
+              "w-9 h-9 rounded-full flex items-center justify-center shrink-0 transition-colors",
+              variant === "light"
+                ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+                : "bg-sky-50 dark:bg-slate-800 text-sky-700 dark:text-sky-300 hover:bg-sky-100 dark:hover:bg-slate-700",
+            )}
           >
             <RefreshCw
-              className={cn("w-3 h-3", refreshingWalletId === activeWallet.id && "animate-spin")}
+              className={cn("w-3.5 h-3.5", refreshingWalletId === activeWallet.id && "animate-spin")}
             />
-          </button>
+          </motion.button>
         )}
-        <ChevronDown className="w-3.5 h-3.5 shrink-0 opacity-70" />
-      </motion.button>
+      </div>
 
       <BottomSheet
         open={open}
         onClose={() => setOpen(false)}
-        title="Pilih Dompet"
+        title={t.wallets.switcher.title}
       >
         <div className="px-4 pb-6 pt-1 flex flex-col gap-1.5">
           {wallets.map((wallet) => {
@@ -98,7 +105,7 @@ export function WalletSwitcher({
                   </p>
                   {wallet.isShared && (
                     <p className="text-xs text-slate-400 dark:text-slate-500 flex items-center gap-1">
-                      <Users className="w-3 h-3" /> Dibagikan
+                      <Users className="w-3 h-3" /> {t.wallets.switcher.shared}
                     </p>
                   )}
                 </div>
@@ -119,7 +126,7 @@ export function WalletSwitcher({
             <span className="w-10 h-10 rounded-xl bg-sky-50 dark:bg-sky-900/30 flex items-center justify-center shrink-0">
               <Plus className="w-4 h-4" />
             </span>
-            <p className="text-sm font-semibold">Tambah Dompet Baru</p>
+            <p className="text-sm font-semibold">{t.wallets.switcher.addNew}</p>
           </button>
 
           <button
@@ -132,7 +139,7 @@ export function WalletSwitcher({
             <span className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
               <Settings2 className="w-4 h-4" />
             </span>
-            <p className="text-sm font-semibold">Kelola Dompet</p>
+            <p className="text-sm font-semibold">{t.wallets.switcher.manage}</p>
           </button>
         </div>
       </BottomSheet>
