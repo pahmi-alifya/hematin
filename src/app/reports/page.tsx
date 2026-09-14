@@ -138,7 +138,10 @@ export default function ReportsPage() {
           </div>
 
           {/* Daily Chart — mengikuti filter bulan */}
-          <div className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4">
+          <div
+            data-tour="cashflow-chart"
+            className="bg-white dark:bg-slate-800/60 rounded-2xl border border-sky-100 dark:border-slate-700/60 shadow-sm p-4"
+          >
             {isLoading ? (
               <div className="h-40 bg-slate-100 dark:bg-slate-700 rounded-xl animate-pulse" />
             ) : transactions.length === 0 ? (

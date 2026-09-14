@@ -189,7 +189,7 @@ export default function GoalsPage() {
 
           {/* Add button */}
           {canEdit && addForm.availableCategories.length > 0 && (
-            <Button variant="primary" fullWidth onClick={addForm.open}>
+            <Button variant="primary" fullWidth onClick={addForm.open} data-tour="goal-add-button">
               <Plus className="w-4 h-4 mr-2" />
               Tambah Batas Kategori
             </Button>

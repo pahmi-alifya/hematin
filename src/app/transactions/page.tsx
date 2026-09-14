@@ -153,7 +153,10 @@ export default function TransactionsPage() {
       <PageWrapper>
         <div className="pb-28 space-y-3">
           {/* Month Navigator */}
-          <div className="flex items-center justify-between bg-white dark:bg-slate-800/60 rounded-2xl px-4 py-3 shadow-sm border border-sky-100 dark:border-slate-700/60">
+          <div
+            data-tour="month-navigator"
+            className="flex items-center justify-between bg-white dark:bg-slate-800/60 rounded-2xl px-4 py-3 shadow-sm border border-sky-100 dark:border-slate-700/60"
+          >
             <motion.button
               whileTap={{ scale: 0.9 }}
               onClick={prevMonth}

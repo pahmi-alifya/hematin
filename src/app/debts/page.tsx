@@ -131,7 +131,7 @@ export default function DebtsPage() {
           </AnimatePresence>
 
           {/* Tab toggle */}
-          <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
+          <div data-tour="debt-tabs" className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
             {(['hutang', 'piutang'] as const).map((t) => (
               <motion.button
                 key={t}

@@ -161,7 +161,10 @@ export default function RecurringPage() {
       <PageWrapper>
         <div className="pb-28 space-y-4">
           {/* Info card */}
-          <div className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/40 rounded-2xl px-4 py-3">
+          <div
+            data-tour="recurring-info"
+            className="bg-sky-50 dark:bg-sky-900/20 border border-sky-200 dark:border-sky-800/40 rounded-2xl px-4 py-3"
+          >
             <div className="flex items-start gap-2.5">
               <RefreshCw className="w-4 h-4 text-sky-600 dark:text-sky-400 mt-0.5 shrink-0" />
               <p className="text-xs text-sky-700 dark:text-sky-300 leading-relaxed">
