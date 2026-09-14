@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { RefreshCw, X } from 'lucide-react'
 import { useRecurringStore } from '@/stores/recurringStore'
 import { useTransactionStore } from '@/stores/transactionStore'
+import { useTranslation } from '@/hooks/useTranslation'
 import { formatRupiahShort, getCurrentDate, getCurrentMonth } from '@/lib/utils'
 import { toast } from '@/components/ui/Toast'
 
@@ -15,6 +16,7 @@ function getDismissKey() {
 export function RecurringReminderBanner() {
   const { getPendingToday, updateTemplate } = useRecurringStore()
   const { addTransaction } = useTransactionStore()
+  const t = useTranslation()
   const [dismissed, setDismissed] = useState(true) // true dulu sampai mount cek localStorage
   const [loading, setLoading] = useState(false)
 
@@ -29,7 +31,7 @@ export function RecurringReminderBanner() {
 
   const previewText = pending
     .slice(0, 2)
-    .map((t) => `${t.merchant || t.notes || t.category} ${formatRupiahShort(t.amount)}`)
+    .map((tpl) => `${tpl.merchant || tpl.notes || tpl.category} ${formatRupiahShort(tpl.amount)}`)
     .join(' + ')
   const extraCount = pending.length > 2 ? pending.length - 2 : 0
 
@@ -43,24 +45,24 @@ export function RecurringReminderBanner() {
     const today = getCurrentDate()
     const currentMonth = getCurrentMonth()
     try {
-      for (const t of pending) {
+      for (const tpl of pending) {
         await addTransaction({
-          type: t.type,
-          amount: t.amount,
-          category: t.category,
-          merchant: t.merchant,
-          notes: t.notes,
+          type: tpl.type,
+          amount: tpl.amount,
+          category: tpl.category,
+          merchant: tpl.merchant,
+          notes: tpl.notes,
           date: today,
           source: 'recurring',
-          recurringId: t.id,
+          recurringId: tpl.id,
         })
-        await updateTemplate(t.id, { lastGeneratedMonth: currentMonth })
+        await updateTemplate(tpl.id, { lastGeneratedMonth: currentMonth })
       }
-      toast(`${pending.length} transaksi rutin berhasil dicatat`, 'success')
+      toast(t.dashboard.recurringRecordedSuccess(pending.length), 'success')
       localStorage.setItem(getDismissKey(), '1')
       setDismissed(true)
     } catch {
-      toast('Gagal mencatat transaksi rutin', 'error')
+      toast(t.dashboard.recurringRecordError, 'error')
     } finally {
       setLoading(false)
     }
@@ -82,12 +84,12 @@ export function RecurringReminderBanner() {
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                  🔁 {pending.length} transaksi rutin hari ini
+                  🔁 {t.dashboard.recurringTodayCount(pending.length)}
                 </p>
                 {previewText && (
                   <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
                     {previewText}
-                    {extraCount > 0 ? ` +${extraCount} lainnya` : ''}
+                    {extraCount > 0 ? ` ${t.dashboard.andMore(extraCount)}` : ''}
                   </p>
                 )}
               </div>
@@ -107,14 +109,14 @@ export function RecurringReminderBanner() {
               disabled={loading}
               className="flex-1 h-9 rounded-xl bg-sky-500 text-white text-sm font-semibold disabled:opacity-60 transition-opacity"
             >
-              {loading ? 'Mencatat...' : 'Catat Sekarang'}
+              {loading ? t.dashboard.recording : t.dashboard.recordNow}
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.97 }}
               onClick={handleNanti}
               className="px-4 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-sm font-semibold"
             >
-              Nanti
+              {t.dashboard.later}
             </motion.button>
           </div>
         </div>

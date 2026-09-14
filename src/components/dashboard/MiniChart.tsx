@@ -9,8 +9,10 @@ import {
   Cell,
 } from "recharts";
 import { format, subDays } from "date-fns";
-import { id } from "date-fns/locale";
+import type { Locale } from "date-fns";
 import type { Transaction } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useDateLocale } from "@/hooks/useDateLocale";
 import { formatRupiah, formatRupiahShort } from "@/lib/utils";
 import { TYPE_COLORS } from "@/lib/constants";
 
@@ -18,13 +20,13 @@ interface MiniChartProps {
   transactions: Transaction[];
 }
 
-function getLast7Days(transactions: Transaction[]) {
+function getLast7Days(transactions: Transaction[], locale: Locale) {
   return Array.from({ length: 7 }, (_, i) => {
     const date = subDays(new Date(), 6 - i);
     const dateStr = format(date, "yyyy-MM-dd");
     const dayTx = transactions.filter((t) => t.date === dateStr);
     return {
-      label: format(date, "EEE", { locale: id }),
+      label: format(date, "EEE", { locale }),
       income: dayTx
         .filter((t) => t.type === "income")
         .reduce((s, t) => s + t.amount, 0),
@@ -61,7 +63,9 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 }
 
 export function MiniChart({ transactions }: MiniChartProps) {
-  const data = getLast7Days(transactions);
+  const t = useTranslation();
+  const dateLocale = useDateLocale();
+  const data = getLast7Days(transactions, dateLocale);
   const today = format(new Date(), "yyyy-MM-dd");
 
   const weekIncome = data.reduce((s, d) => s + d.income, 0);
@@ -76,7 +80,7 @@ export function MiniChart({ transactions }: MiniChartProps) {
     <div className="w-full">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
-          7 Hari Terakhir
+          {t.dashboard.last7Days}
         </p>
         <span
           className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -96,7 +100,7 @@ export function MiniChart({ transactions }: MiniChartProps) {
           {todayIncome > 0 && (
             <div className="flex-1 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl px-3 py-2">
               <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
-                Masuk hari ini
+                {t.dashboard.incomeToday}
               </p>
               <p className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
                 {formatRupiah(todayIncome)}
@@ -106,7 +110,7 @@ export function MiniChart({ transactions }: MiniChartProps) {
           {todayExpense > 0 && (
             <div className="flex-1 bg-red-50 dark:bg-red-900/20 rounded-xl px-3 py-2">
               <p className="text-[10px] text-red-500 font-medium">
-                Keluar hari ini
+                {t.dashboard.expenseToday}
               </p>
               <p className="text-sm font-bold text-red-600 dark:text-red-400">
                 {formatRupiah(todayExpense)}
@@ -169,7 +173,7 @@ export function MiniChart({ transactions }: MiniChartProps) {
             {formatRupiah(weekExpense)}
           </span>
         </div>
-        <span className="text-[10px] text-slate-400">7 hari</span>
+        <span className="text-[10px] text-slate-400">{t.dashboard.sevenDaysShort}</span>
       </div>
     </div>
   );

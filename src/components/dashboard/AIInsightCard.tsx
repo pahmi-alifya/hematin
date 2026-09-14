@@ -9,6 +9,8 @@ import { useTransactionStore } from "@/stores/transactionStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { useDebtStore } from "@/stores/debtStore";
 import { useWalletStore } from "@/stores/walletStore";
+import { useLanguageStore } from "@/stores/languageStore";
+import { useTranslation } from "@/hooks/useTranslation";
 import { getOrFetchInsight } from "@/lib/ai-insight";
 
 export function AIInsightCard() {
@@ -16,6 +18,8 @@ export function AIInsightCard() {
   const { aiSettings, isConfigured } = useSettingsStore();
   const debts = useDebtStore((s) => s.debts);
   const activeWalletId = useWalletStore((s) => s.activeWalletId);
+  const language = useLanguageStore((s) => s.language);
+  const t = useTranslation();
   const [insight, setInsight] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,15 +37,16 @@ export function AIInsightCard() {
           aiSettings,
           forceRefresh,
           debts,
+          language,
         );
         setInsight(text);
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Gagal memuat insight");
+        setError(e instanceof Error ? e.message : t.dashboard.insightLoadError);
       } finally {
         setIsLoading(false);
       }
     },
-    [activeWalletId, transactions, aiSettings, isConfigured],
+    [activeWalletId, transactions, aiSettings, isConfigured, debts, language, t],
   );
 
   useEffect(() => {
@@ -64,14 +69,14 @@ export function AIInsightCard() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-white">
-              Aktifkan AI Insight
+              {t.dashboard.enableAiInsight}
             </p>
             <p className="text-xs text-white/80 truncate">
-              Hubungkan API key untuk analisis keuangan harian
+              {t.dashboard.connectApiKeySubtitle}
             </p>
           </div>
           <span className="text-xs font-semibold text-white/80 bg-white/20 px-2 py-1 rounded-full shrink-0">
-            Setup →
+            {t.dashboard.setup} →
           </span>
         </motion.div>
       </Link>
@@ -140,14 +145,14 @@ export function AIInsightCard() {
               <span className="text-base">🤖</span>
             </div>
             <p className="text-sm font-bold text-sky-700 dark:text-sky-300">
-              HEMATIN bilang:
+              {t.dashboard.hematinSays}
             </p>
           </div>
           <button
             onClick={() => loadInsight(true)}
             disabled={isLoading}
             className="p-1.5 rounded-lg text-sky-400 hover:text-sky-600 hover:bg-sky-100 dark:hover:bg-sky-900/30 transition-colors disabled:opacity-40"
-            title="Refresh insight"
+            title={t.dashboard.refreshInsight}
           >
             <RefreshCw
               className={`w-4 h-4 ${isLoading ? "animate-spin" : ""}`}
@@ -164,7 +169,7 @@ export function AIInsightCard() {
             onClick={() => setShowSheet(true)}
             className="mt-3 flex items-center gap-0.5 text-xs font-semibold text-sky-600 dark:text-sky-400"
           >
-            Baca Selengkapnya <ChevronRight className="w-3.5 h-3.5" />
+            {t.dashboard.readMore} <ChevronRight className="w-3.5 h-3.5" />
           </button>
         )}
       </motion.div>
@@ -172,13 +177,13 @@ export function AIInsightCard() {
       <BottomSheet
         open={showSheet}
         onClose={() => setShowSheet(false)}
-        title="AI Insight Harian"
+        title={t.dashboard.dailyInsightTitle}
       >
         <div className="px-5 pt-2 pb-8">
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl">🤖</span>
             <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
-              HEMATIN bilang:
+              {t.dashboard.hematinSays}
             </p>
           </div>
           <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">

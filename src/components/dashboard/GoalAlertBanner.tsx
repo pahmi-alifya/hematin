@@ -6,13 +6,17 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AlertTriangle, ChevronRight } from 'lucide-react'
 import { useGoalStore } from '@/stores/goalStore'
 import { useTransactionStore } from '@/stores/transactionStore'
-import { getCategoryById } from '@/lib/categories'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
+import { getCategoryById, getCategoryLabel } from '@/lib/categories'
 import { groupSumByCategory } from '@/lib/calculations'
 import { formatRupiah, getCurrentMonth } from '@/lib/utils'
 
 export function GoalAlertBanner() {
   const goals = useGoalStore((s) => s.goals)
   const transactions = useTransactionStore((s) => s.transactions)
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const currentMonth = getCurrentMonth()
 
   const alerts = useMemo(() => {
@@ -41,7 +45,7 @@ export function GoalAlertBanner() {
             <div className="flex items-center gap-2">
               <AlertTriangle className="w-4 h-4 text-red-500" />
               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                Batas Terlampaui
+                {t.dashboard.limitExceeded}
               </span>
               <span className="min-w-[18px] h-[18px] bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1">
                 {alerts.length}
@@ -51,7 +55,7 @@ export function GoalAlertBanner() {
               href="/goals"
               className="flex items-center gap-0.5 text-xs font-semibold text-sky-600 dark:text-sky-400"
             >
-              Kelola <ChevronRight className="w-3.5 h-3.5" />
+              {t.dashboard.manage} <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -70,15 +74,15 @@ export function GoalAlertBanner() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">
-                    {cat?.name ?? 'Kategori'}
+                    {getCategoryLabel(cat, language) ?? t.dashboard.categoryFallback}
                   </p>
                   <p className="text-xs text-red-500 font-medium">
-                    Lebih {formatRupiah(overage)} dari limit
+                    {t.dashboard.overLimitBy(formatRupiah(overage))}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-xs font-bold text-red-500">{formatRupiah(spent)}</p>
-                  <p className="text-[10px] text-slate-400">limit {formatRupiah(limit)}</p>
+                  <p className="text-[10px] text-slate-400">{t.dashboard.limitLabel} {formatRupiah(limit)}</p>
                 </div>
               </Link>
             ))}

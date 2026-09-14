@@ -2,8 +2,10 @@
 
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { getCategoryById } from '@/lib/categories'
+import { getCategoryById, getCategoryLabel } from '@/lib/categories'
 import { groupSumByCategory } from '@/lib/calculations'
+import { useTranslation } from '@/hooks/useTranslation'
+import { useLanguageStore } from '@/stores/languageStore'
 import { formatRupiah, getCurrentMonth } from '@/lib/utils'
 import type { Transaction } from '@/types'
 
@@ -12,6 +14,8 @@ interface CategorySpendingChartProps {
 }
 
 export function CategorySpendingChart({ transactions }: CategorySpendingChartProps) {
+  const t = useTranslation()
+  const language = useLanguageStore((s) => s.language)
   const currentMonth = getCurrentMonth()
 
   const data = useMemo(() => {
@@ -28,7 +32,7 @@ export function CategorySpendingChart({ transactions }: CategorySpendingChartPro
         const cat = getCategoryById(catId, 'expense')
         return {
           id: catId,
-          name: cat?.name ?? catId,
+          name: getCategoryLabel(cat, language) ?? catId,
           icon: cat?.icon ?? '📦',
           color: cat?.color ?? '#64748B',
           bgColor: cat?.bgColor ?? '#F1F5F9',
@@ -36,12 +40,12 @@ export function CategorySpendingChart({ transactions }: CategorySpendingChartPro
           pct: Math.round((amount / total) * 100),
         }
       })
-  }, [transactions, currentMonth])
+  }, [transactions, currentMonth, language])
 
   if (data.length === 0) {
     return (
       <div className="flex flex-col items-center gap-1.5 py-6 text-slate-400 dark:text-slate-500">
-        <p className="text-xs">Belum ada pengeluaran bulan ini</p>
+        <p className="text-xs">{t.dashboard.noExpensesThisMonth}</p>
       </div>
     )
   }

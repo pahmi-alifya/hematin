@@ -3,30 +3,32 @@
 import { useMemo } from 'react'
 import Link from 'next/link'
 import { format, parseISO, differenceInDays } from 'date-fns'
-import { id } from 'date-fns/locale'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, Clock, ChevronRight } from 'lucide-react'
 import { useDebtStore } from '@/stores/debtStore'
+import { useTranslation } from '@/hooks/useTranslation'
 import { formatRupiah } from '@/lib/utils'
 import type { Debt } from '@/types'
+import type { Dictionary } from '@/lib/i18n'
 
-function getUrgencyLabel(debt: Debt): string {
+function getUrgencyLabel(debt: Debt, t: Dictionary): string {
   if (debt.status === 'overdue') {
-    if (!debt.dueDate) return 'Sudah jatuh tempo'
+    if (!debt.dueDate) return t.dashboard.alreadyOverdue
     const today = format(new Date(), 'yyyy-MM-dd')
     const diff = differenceInDays(parseISO(today), parseISO(debt.dueDate))
-    return `${diff} hari lalu`
+    return t.dashboard.overdueDaysAgo(diff)
   }
   if (!debt.dueDate) return ''
   const today = format(new Date(), 'yyyy-MM-dd')
   const diff = differenceInDays(parseISO(debt.dueDate), parseISO(today))
-  if (diff === 0) return 'Hari ini!'
-  if (diff === 1) return 'Besok'
-  return `${diff} hari lagi`
+  if (diff === 0) return t.dashboard.dueToday
+  if (diff === 1) return t.dashboard.dueTomorrow
+  return t.dashboard.dueInDays(diff)
 }
 
 export function DebtReminderBanner() {
   const debts = useDebtStore((s) => s.debts)
+  const t = useTranslation()
 
   // Overdue hutang + hutang yang jatuh tempo dalam 7 hari
   const urgentDebts = useMemo(() => {
@@ -57,14 +59,14 @@ export function DebtReminderBanner() {
             <div className="flex items-center gap-2">
               <AlertCircle className="w-4 h-4 text-amber-500" />
               <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                Pengingat Hutang
+                {t.dashboard.debtReminder}
               </span>
             </div>
             <Link
               href="/debts"
               className="flex items-center gap-0.5 text-xs font-semibold text-sky-600 dark:text-sky-400"
             >
-              Lihat semua <ChevronRight className="w-3.5 h-3.5" />
+              {t.common.seeAll} <ChevronRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
@@ -72,7 +74,7 @@ export function DebtReminderBanner() {
           <div className="divide-y divide-slate-100 dark:divide-slate-700/60">
             {urgentDebts.map((debt) => {
               const isOverdue = debt.status === 'overdue'
-              const urgencyLabel = getUrgencyLabel(debt)
+              const urgencyLabel = getUrgencyLabel(debt, t)
               return (
                 <Link
                   key={debt.id}
@@ -89,7 +91,7 @@ export function DebtReminderBanner() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
-                      Hutang ke {debt.person}
+                      {t.dashboard.debtTo(debt.person)}
                     </p>
                     {urgencyLabel && (
                       <p className={`text-xs ${isOverdue ? 'text-red-500' : 'text-amber-600 dark:text-amber-400'}`}>
