@@ -11,8 +11,9 @@ import {
   type Step,
 } from "react-joyride";
 import { useTourStore } from "@/stores/tourStore";
-import { TOUR_STEPS } from "@/lib/tour-steps";
+import { getTourSteps } from "@/lib/tour-steps";
 import { TourTooltip } from "@/components/tour/TourTooltip";
+import { useLanguageStore } from "@/stores/languageStore";
 
 const PATHNAME_POLL_INTERVAL_MS = 50;
 const PATHNAME_POLL_TIMEOUT_MS = 2000;
@@ -39,6 +40,7 @@ function waitForPathname(route: string) {
 export function TourController() {
   const router = useRouter();
   const { hasSeenTour, isRunning, startTour, stopTour } = useTourStore();
+  const language = useLanguageStore((s) => s.language);
   const autoStartedRef = useRef(false);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export function TourController() {
 
   const steps: Step[] = useMemo(
     () =>
-      TOUR_STEPS.map(({ route, icon, ...step }) => ({
+      getTourSteps(language).map(({ route, icon, ...step }) => ({
         ...step,
         data: { icon },
         before: async () => {
@@ -60,7 +62,7 @@ export function TourController() {
           }
         },
       })),
-    [router],
+    [router, language],
   );
 
   function handleEvent(data: EventData, controls: Controls) {
