@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useDebtStore } from "@/stores/debtStore";
 import { useCanEditActiveWallet } from "@/hooks/useCanEditActiveWallet";
+import { useTranslation } from "@/hooks/useTranslation";
 import {
   NAV_LEFT_ITEMS,
   NAV_RIGHT_ITEMS,
@@ -70,10 +71,11 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
   const router = useRouter();
   const overdueCount = useDebtStore((s) => s.getOverdueCount());
   const canEdit = useCanEditActiveWallet();
+  const t = useTranslation();
 
   const fabItems = canEdit
     ? FAB_ITEMS
-    : FAB_ITEMS.filter((item) => item.label !== "Scan");
+    : FAB_ITEMS.filter((item) => item.labelKey !== "scan");
   const [fabOpen, setFabOpen] = useState(false);
 
   function handleItemClick(href: string) {
@@ -117,7 +119,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
 
               return (
                 <motion.div
-                  key={item.label}
+                  key={item.labelKey}
                   className="absolute flex flex-col items-center gap-1.5 pointer-events-auto"
                   style={{
                     // -24px centers the 48px button at the container origin
@@ -162,7 +164,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
                     className="text-[10px] font-bold text-white leading-none whitespace-nowrap"
                     style={{ textShadow: "0 1px 4px rgba(0,0,0,0.5)" }}
                   >
-                    {item.label}
+                    {t.nav[item.labelKey]}
                   </motion.span>
                 </motion.div>
               );
@@ -179,7 +181,9 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
               {NAV_LEFT_ITEMS.map((item) => (
                 <NavItem
                   key={item.href}
-                  {...item}
+                  href={item.href}
+                  icon={item.icon}
+                  label={t.nav[item.labelKey]}
                   isActive={pathname === item.href}
                 />
               ))}
@@ -193,7 +197,9 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
               {NAV_RIGHT_ITEMS.map((item) => (
                 <NavItem
                   key={item.href}
-                  {...item}
+                  href={item.href}
+                  icon={item.icon}
+                  label={t.nav[item.labelKey]}
                   isActive={pathname === item.href}
                   badge={item.href === "/debts" ? overdueCount : undefined}
                 />
@@ -205,7 +211,7 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={() => setFabOpen((v) => !v)}
-            aria-label="Menu aksi"
+            aria-label={t.nav.fabLabel}
             data-tour="fab-toggle"
             className="absolute -top-5 left-1/2 -translate-x-1/2 w-14 h-14 rounded-full flex items-center justify-center z-40"
             style={{
