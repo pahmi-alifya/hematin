@@ -112,7 +112,10 @@ export default function KelolaAksesPage() {
 
       <PageWrapper>
         <div className="pb-28 space-y-4">
-          <div className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1">
+          <div
+            className="flex rounded-xl bg-slate-100 dark:bg-slate-800 p-1 gap-1"
+            data-tour="kelola-akses-tabs"
+          >
             {TABS.map((tabItem) => (
               <button
                 key={tabItem.value}
@@ -132,7 +135,7 @@ export default function KelolaAksesPage() {
 
           {/* Tab: Key & QR */}
           {tab === "key" && (
-            <div className="space-y-4">
+            <div className="space-y-4" data-tour="kelola-akses-key-section">
               {loadingKey ? (
                 <div className="h-40 rounded-2xl bg-slate-200 dark:bg-slate-700 animate-pulse" />
               ) : !shareKey ? (

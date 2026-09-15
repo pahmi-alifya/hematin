@@ -11,6 +11,7 @@ import {
   Check,
   Share2,
   RefreshCw,
+  Sparkles,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";
 import { PageWrapper } from "@/components/layout/PageWrapper";
@@ -31,6 +32,7 @@ import { QrScanButton } from "@/components/wallet/QrScanButton";
 import type { Wallet } from "@/types";
 import { useAuthStore } from "@/stores/authStore";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useTourStore } from "@/stores/tourStore";
 
 function JoinWalletForm({ onSuccess }: { onSuccess: () => void }) {
   const t = useTranslation();
@@ -252,6 +254,7 @@ function WalletsPageContent() {
     useWalletStore();
   const { items, handleReorder } = useWalletReorder(wallets);
   const { refreshingWalletId, refreshWallet } = useSharedSyncStore();
+  const startTour = useTourStore((s) => s.startTour);
 
   const userId = useAuthStore((s) => s.user?.id);
 
@@ -274,7 +277,22 @@ function WalletsPageContent() {
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
-      <Header title={t.wallets.list.pageTitle} showBack hideWalletSwitcher />
+      <Header
+        title={t.wallets.list.pageTitle}
+        showBack
+        hideWalletSwitcher
+        rightElement={
+          <button
+            type="button"
+            onClick={() => startTour("wallet")}
+            aria-label={t.wallets.list.replayTourTooltip}
+            title={t.wallets.list.replayTourTooltip}
+            className="w-9 h-9 rounded-full flex items-center justify-center text-sky-600 dark:text-sky-400 hover:bg-sky-50 dark:hover:bg-slate-700"
+          >
+            <Sparkles className="w-4 h-4" />
+          </button>
+        }
+      />
 
       <PageWrapper>
         <div className="px-2 pb-4">
@@ -289,6 +307,7 @@ function WalletsPageContent() {
             values={items}
             onReorder={handleReorder}
             className="space-y-2"
+            data-tour="wallet-list"
           >
             {items.map((wallet) => (
               <Reorder.Item
@@ -352,6 +371,7 @@ function WalletsPageContent() {
                         onClick={() =>
                           router.push(`/wallets/${wallet.id}/kelola-akses`)
                         }
+                        data-tour="wallet-manage-access-button"
                         className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0"
                         title={t.wallets.list.manageAccessTooltip}
                       >
@@ -397,6 +417,7 @@ function WalletsPageContent() {
               setFormMode("create");
               setFormOpen(true);
             }}
+            data-tour="wallet-add-button"
             className={cn(
               "w-full flex items-center justify-center gap-2 h-12 rounded-2xl border-2 border-dashed mt-3 text-sm font-semibold transition-colors",
               canCreateWallet()
