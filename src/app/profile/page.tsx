@@ -8,14 +8,17 @@ import { PageWrapper } from "@/components/layout/PageWrapper";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { AccountSection } from "@/components/settings/AccountSection";
 import { FaqSection } from "@/components/settings/FaqSection";
+import { DangerZoneSection } from "@/components/settings/DangerZoneSection";
 import { LanguageToggle } from "@/components/ui/LanguageToggle";
 import { useTourStore } from "@/stores/tourStore";
+import { useAuthStore } from "@/stores/authStore";
 import { useTranslation } from "@/hooks/useTranslation";
 
 export default function ProfilePage() {
   const router = useRouter();
   const startTour = useTourStore((s) => s.startTour);
   const resetAllTours = useTourStore((s) => s.resetAllTours);
+  const isGuest = useAuthStore((s) => s.isGuest);
   const t = useTranslation();
 
   function handleReplayTour() {
@@ -72,6 +75,8 @@ export default function ProfilePage() {
           </button>
 
           <FaqSection />
+
+          {!isGuest && <DangerZoneSection />}
         </div>
       </PageWrapper>
 
