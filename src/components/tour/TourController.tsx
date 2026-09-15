@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Joyride,
   EVENTS,
@@ -12,8 +12,11 @@ import {
 } from "react-joyride";
 import { useTourStore } from "@/stores/tourStore";
 import { getTourSteps } from "@/lib/tour-steps";
+import { getWalletTourSteps } from "@/lib/wallet-tour-steps";
 import { TourTooltip } from "@/components/tour/TourTooltip";
 import { useLanguageStore } from "@/stores/languageStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useWalletStore, isSharedWithMe } from "@/stores/walletStore";
 
 const PATHNAME_POLL_INTERVAL_MS = 50;
 const PATHNAME_POLL_TIMEOUT_MS = 2000;
@@ -39,31 +42,48 @@ function waitForPathname(route: string) {
 
 export function TourController() {
   const router = useRouter();
-  const { hasSeenTour, isRunning, startTour, stopTour } = useTourStore();
+  const pathname = usePathname();
+  const { activeTour, hasSeenTour, isRunning, startTour, stopTour } = useTourStore();
   const language = useLanguageStore((s) => s.language);
-  const autoStartedRef = useRef(false);
+  const isGuest = useAuthStore((s) => s.isGuest);
+  const ownedWalletId = useWalletStore(
+    (s) => s.wallets.find((w) => !isSharedWithMe(w))?.id ?? null,
+  );
+  const onboardingAutoStartedRef = useRef(false);
+  const walletAutoStartedRef = useRef(false);
 
   useEffect(() => {
-    if (autoStartedRef.current || hasSeenTour) return;
-    autoStartedRef.current = true;
-    const timer = setTimeout(() => startTour(), 800);
+    if (onboardingAutoStartedRef.current || hasSeenTour.onboarding) return;
+    onboardingAutoStartedRef.current = true;
+    const timer = setTimeout(() => startTour("onboarding"), 800);
     return () => clearTimeout(timer);
-  }, [hasSeenTour, startTour]);
+  }, [hasSeenTour.onboarding, startTour]);
 
-  const steps: Step[] = useMemo(
-    () =>
-      getTourSteps(language).map(({ route, icon, ...step }) => ({
-        ...step,
-        data: { icon },
-        before: async () => {
-          if (window.location.pathname !== route) {
-            router.push(route);
-            await waitForPathname(route);
-          }
-        },
-      })),
-    [router, language],
-  );
+  useEffect(() => {
+    if (walletAutoStartedRef.current || hasSeenTour.wallet) return;
+    if (pathname !== "/wallets") return;
+    walletAutoStartedRef.current = true;
+    const timer = setTimeout(() => startTour("wallet"), 1000);
+    return () => clearTimeout(timer);
+  }, [pathname, hasSeenTour.wallet, startTour]);
+
+  const steps: Step[] = useMemo(() => {
+    const raw =
+      activeTour === "wallet"
+        ? getWalletTourSteps(language, isGuest, ownedWalletId)
+        : getTourSteps(language);
+
+    return raw.map(({ route, icon, ...step }) => ({
+      ...step,
+      data: { icon },
+      before: async () => {
+        if (window.location.pathname !== route) {
+          router.push(route);
+          await waitForPathname(route);
+        }
+      },
+    }));
+  }, [activeTour, language, isGuest, ownedWalletId, router]);
 
   function handleEvent(data: EventData, controls: Controls) {
     if (data.type === EVENTS.TARGET_NOT_FOUND) {
