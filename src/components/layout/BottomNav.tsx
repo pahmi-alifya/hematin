@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Plus, X } from "lucide-react";
+import { Zap, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useDebtStore } from "@/stores/debtStore";
@@ -225,13 +225,13 @@ export function BottomNav({ onFabClick: _onFabClick }: BottomNavProps) {
             }}
           >
             <motion.div
-              animate={{ rotate: fabOpen ? 45 : 0 }}
+              animate={{ rotate: fabOpen ? 180 : 0, scale: fabOpen ? 0.9 : 1 }}
               transition={{ type: "spring", stiffness: 320, damping: 24 }}
             >
               {fabOpen ? (
                 <X className="w-6 h-6 text-white" strokeWidth={2.5} />
               ) : (
-                <Plus className="w-7 h-7 text-white" strokeWidth={2.5} />
+                <Zap className="w-6 h-6 text-white" strokeWidth={2.5} fill="currentColor" />
               )}
             </motion.div>
           </motion.button>
