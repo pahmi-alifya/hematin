@@ -23,7 +23,7 @@ export function useAIProviderSetup() {
   const [keyStep, setKeyStep] = useState<'input' | 'model'>('input')
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Read from per-provider cache — persists across navigations & tab switches
+  // Read from per-provider cache - persists across navigations & tab switches
   const dynamicModels: CachedModel[] | null = cachedModelsByProvider[selectedProvider] ?? null
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function useAIProviderSetup() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiKey, selectedProvider])
 
-  /** notify=true dipakai saat user klik "Perbarui model" manual — tampilkan toast hasil/error. */
+  /** notify=true dipakai saat user klik "Perbarui model" manual - tampilkan toast hasil/error. */
   async function fetchModels(provider: AIProviderKey, key: string, opts: { notify?: boolean } = {}) {
     if (!key) return
     setFetchingModels(true)
@@ -71,7 +71,7 @@ export function useAIProviderSetup() {
       if (opts.notify) toast(t.settings.toast.modelsFound(json.models.length), 'success')
     } catch (err) {
       if (opts.notify) toast(err instanceof Error ? err.message : t.settings.toast.fetchModelsError, 'error')
-      // auto-fetch (notify=false) gagal secara diam — user bisa retry manual
+      // auto-fetch (notify=false) gagal secara diam - user bisa retry manual
     } finally {
       setFetchingModels(false)
     }

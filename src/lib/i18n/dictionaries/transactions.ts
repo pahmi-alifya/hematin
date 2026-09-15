@@ -1,6 +1,6 @@
 export const transactions = {
   id: {
-    // Halaman Transaksi — menu lainnya
+    // Halaman Transaksi - menu lainnya
     moreMenuTooltip: "Menu lainnya",
     moreMenuTitle: "Menu Lainnya",
     recurringTransactions: "Transaksi Rutin",
@@ -66,7 +66,7 @@ export const transactions = {
     resetFilter: "Reset Filter",
   },
   en: {
-    // Transactions page — more menu
+    // Transactions page - more menu
     moreMenuTooltip: "More options",
     moreMenuTitle: "More Options",
     recurringTransactions: "Recurring Transactions",

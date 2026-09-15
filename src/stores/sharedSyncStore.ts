@@ -14,9 +14,9 @@ interface SharedSyncStore {
 }
 
 /**
- * Satu-satunya pemicu Lapis 2 (collaboration sync) — dipanggil tombol refresh manual
+ * Satu-satunya pemicu Lapis 2 (collaboration sync) - dipanggil tombol refresh manual
  * (WalletSwitcher, Kelola Dompet, Kelola Akses) maupun interval otomatis (WalletProvider,
- * cuma untuk dompet aktif). Bisa refresh dompet MANAPUN (bukan cuma yang lagi aktif) —
+ * cuma untuk dompet aktif). Bisa refresh dompet MANAPUN (bukan cuma yang lagi aktif) -
  * store/transaksi/goal/debt/recurring cuma di-reload kalau dompet yang di-refresh itu
  * kebetulan dompet aktif, supaya tidak salah nimpa data dompet lain yang lagi ditampilkan.
  */

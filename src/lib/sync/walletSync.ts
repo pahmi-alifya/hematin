@@ -49,17 +49,17 @@ async function pushDelete(table: CloudTable, id: string): Promise<void> {
   if (error) console.error(`[walletSync] push delete ${table} gagal`, error)
 }
 
-/** Catat ke activity_log HANYA kalau dompetnya benar-benar shared — hindari noise untuk dompet solo. */
+/** Catat ke activity_log HANYA kalau dompetnya benar-benar shared - hindari noise untuk dompet solo. */
 function logIfShared(ctx: CloudContext, action: string, description: string, entityType: string, entityId: string) {
   if (!ctx.isShared) return
   logActivity(ctx.cloudWalletId, ctx.userId, action, description, entityType, entityId).catch(() => { })
 }
 
 /**
- * Push rename/ganti ikon-warna dompet ke cloud_wallets — dipanggil dari walletStore
+ * Push rename/ganti ikon-warna dompet ke cloud_wallets - dipanggil dari walletStore
  * setiap kali owner rename/ganti tampilan dompet yang sudah cloud-linked. RLS
  * `cloud_wallets_owner_all` akan menolak diam-diam (silent no-op di sisi data, cuma
- * ke-log di sini) kalau yang coba edit bukan owner — UI sendiri sudah sembunyikan
+ * ke-log di sini) kalau yang coba edit bukan owner - UI sendiri sudah sembunyikan
  * tombol edit untuk member non-owner (lihat wallets/page.tsx), ini cuma jaga-jaga kedua.
  */
 export async function pushWalletMetadata(
@@ -73,9 +73,9 @@ export async function pushWalletMetadata(
   if (error) console.error('[walletSync] push wallet metadata gagal', error)
 }
 
-// ─── Lapis 1 — Backup sync ───────────────────────────────────────────────────
+// ─── Lapis 1 - Backup sync ───────────────────────────────────────────────────
 // Dipanggil dari store existing (transactionStore dst) setiap CRUD, TAPI cuma efektif
-// kalau dompetnya sudah cloud-linked (getCloudContext return non-null) — dompet Guest
+// kalau dompetnya sudah cloud-linked (getCloudContext return non-null) - dompet Guest
 // murni lokal tidak pernah menyentuh fungsi-fungsi ini secara berarti.
 
 export async function pushTransaction(walletId: string, t: Transaction): Promise<void> {
@@ -149,17 +149,17 @@ export async function pushRecurringTemplateDelete(walletId: string, id: string):
   logIfShared(ctx, 'delete_recurring', 'menghapus template rutin', 'recurring_template', id)
 }
 
-// ─── Lapis 2 — Collaboration sync ────────────────────────────────────────────
-// Hanya berarti untuk dompet isShared===true (ada member lain) — dipanggil dari tombol
+// ─── Lapis 2 - Collaboration sync ────────────────────────────────────────────
+// Hanya berarti untuk dompet isShared===true (ada member lain) - dipanggil dari tombol
 // refresh manual + auto-interval di komponen aktif (lihat useSharedWalletSync).
 
 /**
  * Tarik ulang seluruh data dompet dari cloud (full-replace). Kalau row wallet_members-nya
  * sendiri tidak ketemu lagi (RLS block atau row dihapus SAAT SEDANG LOGIN), berarti akses
- * sudah dicabut owner — cache lokal dompet ini dihapus otomatis.
+ * sudah dicabut owner - cache lokal dompet ini dihapus otomatis.
  *
  * PENTING: revocation cuma bisa disimpulkan kalau user memang sedang login. Query lewat
- * client yang belum login juga akan diblok RLS (auth.uid() null) — itu bukan tanda dicabut,
+ * client yang belum login juga akan diblok RLS (auth.uid() null) - itu bukan tanda dicabut,
  * cuma "belum tau statusnya". Interval auto-refresh di WalletProvider tetap jalan walau user
  * baru logout (state dompetnya tidak ikut ke-reset), jadi tanpa guard ini efek logout salah
  * kesimpulan jadi "dicabut" dan hapus cache lokal yang sebenarnya masih valid.
@@ -169,10 +169,10 @@ export async function refreshSharedWallet(walletId: string): Promise<{ revoked: 
   if (!wallet?.cloudWalletId) return { revoked: false }
 
   const userId = useAuthStore.getState().user?.id
-  if (!userId) return { revoked: false } // belum/tidak login — tidak bisa nentuin status akses
+  if (!userId) return { revoked: false } // belum/tidak login - tidak bisa nentuin status akses
 
   const supabase = createClient()
-  // 1 request gabungan (role + nama/ikon/warna dompet, lihat fetchMembershipInfo) —
+  // 1 request gabungan (role + nama/ikon/warna dompet, lihat fetchMembershipInfo) -
   // sebelumnya ini 3 request terpisah (cek cloud_wallets, fetch role, fetch metadata).
   // null berarti baris wallet_members user ini sudah tidak ada = akses dicabut.
   const info = await fetchMembershipInfo(supabase, wallet.cloudWalletId, userId)
@@ -184,7 +184,7 @@ export async function refreshSharedWallet(walletId: string): Promise<{ revoked: 
 
   await applyMembershipInfo(wallet, info)
   // Reload supaya `ownerRole`/nama-ikon-warna yang baru disinkronkan langsung kepakai di
-  // store in-memory (mis. gating canEdit, WalletSwitcher) — bukan cuma tersimpan di Dexie
+  // store in-memory (mis. gating canEdit, WalletSwitcher) - bukan cuma tersimpan di Dexie
   // tapi UI belum tau.
   await useWalletStore.getState().loadWallets()
 
@@ -198,7 +198,7 @@ async function handleRevoked(walletId: string, walletName: string): Promise<void
 }
 
 /**
- * Terapkan role + nama/ikon/warna terbaru dari `fetchMembershipInfo` ke Dexie lokal —
+ * Terapkan role + nama/ikon/warna terbaru dari `fetchMembershipInfo` ke Dexie lokal -
  * owner bisa promote/demote role ATAU rename/ganti tampilan dompet kapan saja, member lain
  * tidak pernah tahu lewat Lapis 1 (cuma push CRUD data anak, bukan metadata dompet itu
  * sendiri). Dipanggil tiap refresh Lapis 2 (manual + auto-interval) dan tiap login untuk

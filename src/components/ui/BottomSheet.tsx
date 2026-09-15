@@ -1,42 +1,49 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-import { X } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BottomSheetProps {
-  open: boolean
-  onClose: () => void
-  title?: string
-  children: React.ReactNode
-  className?: string
-  showClose?: boolean
+  open: boolean;
+  onClose: () => void;
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+  showClose?: boolean;
 }
 
-export function BottomSheet({ open, onClose, title, children, className, showClose = true }: BottomSheetProps) {
-  // Portal ke document.body — kalau di-render in-place, "fixed" di sini bisa ke-contain
+export function BottomSheet({
+  open,
+  onClose,
+  title,
+  children,
+  className,
+  showClose = true,
+}: BottomSheetProps) {
+  // Portal ke document.body - kalau di-render in-place, "fixed" di sini bisa ke-contain
   // oleh ancestor `position: sticky` (mis. Header) di sebagian browser, bikin sheet
   // nempel di bawah header alih-alih bawah viewport. Portal menghindari itu sepenuhnya.
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   // Prevent scroll when open
   useEffect(() => {
     if (open) {
-      document.body.style.overflow = 'hidden'
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = ''
+      document.body.style.overflow = "";
     }
     return () => {
-      document.body.style.overflow = ''
-    }
-  }, [open])
+      document.body.style.overflow = "";
+    };
+  }, [open]);
 
-  if (!mounted) return null
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
@@ -56,14 +63,14 @@ export function BottomSheet({ open, onClose, title, children, className, showClo
           {/* Sheet */}
           <motion.div
             key="sheet"
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className={cn(
-              'fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl',
-              'max-h-[90dvh] flex flex-col',
-              className
+              "fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 rounded-t-3xl shadow-2xl",
+              "max-h-[90dvh] flex flex-col",
+              className,
             )}
           >
             {/* Drag handle */}
@@ -75,7 +82,9 @@ export function BottomSheet({ open, onClose, title, children, className, showClo
             {(title || showClose) && (
               <div className="flex items-center justify-between px-5 py-3 flex-shrink-0">
                 {title && (
-                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{title}</h2>
+                  <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">
+                    {title}
+                  </h2>
                 )}
                 {!title && <span />}
                 {showClose && (
@@ -98,5 +107,5 @@ export function BottomSheet({ open, onClose, title, children, className, showClo
       )}
     </AnimatePresence>,
     document.body,
-  )
+  );
 }

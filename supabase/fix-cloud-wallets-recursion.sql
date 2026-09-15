@@ -1,14 +1,14 @@
--- HEMATIN — Patch: perbaiki infinite recursion (error 42P17) di RLS cloud_wallets/wallet_members
+-- HEMATIN - Patch: perbaiki infinite recursion (error 42P17) di RLS cloud_wallets/wallet_members
 --
 -- Jalankan SEKALI ini kalau kamu SUDAH menjalankan supabase/schema-fase3-sharing.sql sebelumnya
 -- dan mendapat error "infinite recursion detected in policy for relation cloud_wallets".
 -- File supabase/schema-fase3-sharing.sql sudah diperbaiki juga (untuk project baru nanti),
 -- tapi project yang SUDAH jalan perlu di-patch pakai file ini karena policy tidak bisa
--- di-"replace" langsung — harus di-drop dulu baru dibuat ulang.
+-- di-"replace" langsung - harus di-drop dulu baru dibuat ulang.
 --
 -- Aman dijalankan berkali-kali (semua statement pakai IF EXISTS / OR REPLACE).
 
--- 1) Helper functions SECURITY DEFINER — memutus rantai saling-cek RLS antara
+-- 1) Helper functions SECURITY DEFINER - memutus rantai saling-cek RLS antara
 --    cloud_wallets dan wallet_members.
 create or replace function public.is_wallet_owner(p_wallet_id uuid, p_user_id uuid)
 returns boolean

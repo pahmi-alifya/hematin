@@ -7,7 +7,7 @@ import { useLanguageStore } from '@/stores/languageStore'
 
 /**
  * Owns navigasi bulan "yyyy-MM" (mundur/maju, dibatasi tidak lewat bulan berjalan).
- * `onChange` opsional dipanggil setiap kali bulan berpindah — dipakai caller untuk
+ * `onChange` opsional dipanggil setiap kali bulan berpindah - dipakai caller untuk
  * efek samping masing-masing (reset filter di Transaksi, reset mode "Semua" di Laporan).
  */
 export function useMonthNavigator(onChange?: (month: string) => void) {

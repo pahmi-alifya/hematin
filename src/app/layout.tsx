@@ -26,7 +26,7 @@ const APP_NAME = "HEMATIN";
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://hematin.vercel.app";
 
 const APP_DESCRIPTION =
-  "Catat pengeluaran & pemasukan harian, scan struk belanja dengan AI, dan dapatkan insight keuangan otomatis. Gratis dan bisa langsung dipakai tanpa akun — dengan opsi sinkronisasi cloud & berbagi dompet kapan pun dibutuhkan.";
+  "Catat pengeluaran & pemasukan harian, scan struk belanja dengan AI, dan dapatkan insight keuangan otomatis. Gratis dan bisa langsung dipakai tanpa akun - dengan opsi sinkronisasi cloud & berbagi dompet kapan pun dibutuhkan.";
 
 const APP_TITLE = "HEMATIN - Aplikasi Catatan Keuangan Harian Berbasis AI";
 
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
         url: "/icons/logo.png",
         width: 600,
         height: 600,
-        alt: "HEMATIN — Aplikasi Catatan Keuangan Harian Berbasis AI",
+        alt: "HEMATIN - Aplikasi Catatan Keuangan Harian Berbasis AI",
       },
     ],
   },

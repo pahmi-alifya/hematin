@@ -14,7 +14,7 @@ import type { CloudWalletRow, WalletRole } from '@/lib/supabase/types'
 
 /**
  * Full 2-way sync yang dijalankan sekali setiap kali auth state berubah jadi
- * "logged in" (signup maupun signin) — lihat docs/planning-multi-dompet-sharing-auth.md §3.6.
+ * "logged in" (signup maupun signin) - lihat docs/planning-multi-dompet-sharing-auth.md §3.6.
  *
  * Arah UPLOAD: dompet lokal yang belum cloud-linked (`cloudWalletId` kosong) di-upload
  * penuh ke Supabase dan ditandai linked.
@@ -35,7 +35,7 @@ export async function syncOnLogin(userId: string): Promise<void> {
   await reconcileActiveWalletAfterRestore(emptyUploadedIds, [...downloadedIds, ...memberDownloadedIds])
 }
 
-/** Akun ini sudah punya dompet cloud (dari sesi lain) atau belum sama sekali — dipakai
+/** Akun ini sudah punya dompet cloud (dari sesi lain) atau belum sama sekali - dipakai
  * `uploadUnlinkedWallets` buat mutuskan boleh-tidaknya upload dompet lokal kosong. */
 async function hasExistingCloudWallets(userId: string): Promise<boolean> {
   const supabase = createClient()
@@ -55,7 +55,7 @@ async function hasExistingCloudWallets(userId: string): Promise<boolean> {
  * `walletStore.loadWallets()` sudah kadung bikin "Dompet Utama" baru yang kosong (first-run
  * fallback biasa) dan itu jadi activeWalletId. Begitu login, dompet kosong itu ke-upload
  * sebagai dompet BARU (id beda dari yang lama), sementara dompet LAMA yang beneran isinya
- * ke-download terpisah — tapi activeWalletId tetap nempel ke yang kosong karena idnya masih
+ * ke-download terpisah - tapi activeWalletId tetap nempel ke yang kosong karena idnya masih
  * "ada" secara lokal. User jadi ngira semua data hilang padahal cuma nyasar ke dompet yang
  * gak aktif. Kalau pola ini kedeteksi (upload sesuatu yang kosong + ada juga yang berhasil
  * di-restore dari cloud), pindahkan activeWallet ke dompet yang di-restore.
@@ -81,7 +81,7 @@ async function isWalletEmpty(walletId: string): Promise<boolean> {
 
 /**
  * Dompet yang di-join lewat share key (`ownerRole` viewer/editor) bisa saja rolenya, atau
- * nama/ikon/warnanya, sudah diubah owner dari device lain — tanpa ini, member harus nunggu
+ * nama/ikon/warnanya, sudah diubah owner dari device lain - tanpa ini, member harus nunggu
  * refresh Lapis 2 (interval otomatis / tombol manual) baru kepakai. Disamakan juga di sini
  * biar langsung benar begitu login, bukan cuma pas dompetnya lagi aktif dibuka.
  */
@@ -97,7 +97,7 @@ async function refreshJoinedWalletRoles(userId: string): Promise<void> {
 
 /**
  * Dompet lokal browser ini bisa saja cloud-linked ke akun LAIN dari sesi testing
- * sebelumnya (device/browser yang sama, akun berbeda) — RLS `wallet_members_owner_write`
+ * sebelumnya (device/browser yang sama, akun berbeda) - RLS `wallet_members_owner_write`
  * akan menolak (42501) kalau kita coba klaim ownership untuk akun yang salah, dan itu
  * benar, bukan bug di RLS-nya. Di sini kita verifikasi dulu owner_id sebelum mencoba:
  * kalau bukan milik akun yang sedang login, lepas link lama & pindahkan datanya ke id
@@ -118,11 +118,11 @@ async function reclaimMismatchedWallets(userId: string): Promise<void> {
 
     if (error) {
       console.error('[accountSync] gagal verifikasi ownership dompet', wallet.id, error)
-      continue // transient error — coba lagi login berikutnya, jangan reclaim
+      continue // transient error - coba lagi login berikutnya, jangan reclaim
     }
     if (data?.owner_id === userId) continue // ownership valid, tidak perlu reclaim
 
-    console.warn('[accountSync] dompet', wallet.id, 'cloud-linked ke akun lain — reclaim sebagai dompet baru')
+    console.warn('[accountSync] dompet', wallet.id, 'cloud-linked ke akun lain - reclaim sebagai dompet baru')
     await forkWalletForReclaim(wallet.id)
   }
 }
@@ -130,7 +130,7 @@ async function reclaimMismatchedWallets(userId: string): Promise<void> {
 /**
  * Self-heal: dompet yang SUDAH cloud-linked (dari login sebelumnya) tapi gagal dapat
  * row wallet_members-nya (mis. migration Fase 3 belum jalan waktu itu) akan dicoba lagi
- * di sini setiap login — bukan cuma sekali saat pertama kali link seperti di
+ * di sini setiap login - bukan cuma sekali saat pertama kali link seperti di
  * `uploadUnlinkedWallets`.
  */
 async function ensureOwnerMembershipForLinkedWallets(userId: string): Promise<void> {
@@ -153,7 +153,7 @@ async function uploadUnlinkedWallets(userId: string, accountHasExistingCloudWall
 
     if (wasEmpty && accountHasExistingCloudWallets) {
       // Dompet lokal kosong ini hampir pasti cuma "Dompet Utama" bawaan first-run (abis
-      // clear cache / incognito / guest baru) — akun ini SUDAH punya dompet asli di cloud,
+      // clear cache / incognito / guest baru) - akun ini SUDAH punya dompet asli di cloud,
       // jadi jangan upload jadi dompet duplikat baru yang kosong (kalau tidak, tiap kali
       // orang coba guest->login lagi bakal numpuk "Dompet Utama" kosong tanpa henti).
       // Buang lokal, biar download di bawah yang jadi sumber kebenaran.
@@ -173,9 +173,9 @@ async function uploadUnlinkedWallets(userId: string, accountHasExistingCloudWall
       continue
     }
 
-    // Owner otomatis jadi member pertama dengan role 'owner' — dibutuhkan RLS Fase 3
+    // Owner otomatis jadi member pertama dengan role 'owner' - dibutuhkan RLS Fase 3
     // (§4) untuk membedakan owner/editor/viewer, meski dompet ini belum di-share.
-    // Idempotent (upsert) — kalau gagal sekali, login berikutnya otomatis coba lagi karena
+    // Idempotent (upsert) - kalau gagal sekali, login berikutnya otomatis coba lagi karena
     // fungsi ini dipanggil terlepas dari status cloudWalletId (lihat juga sharing.ts).
     await ensureOwnerMembership(supabase, wallet.id, userId)
 
@@ -201,7 +201,7 @@ interface WalletMembershipRow {
 
 /**
  * Dompet yang di-JOIN lewat share key (viewer/editor, bukan owner) sebelumnya cuma bisa
- * muncul lagi di device kalau di-join ulang pakai key-nya — tidak ada cara buat "nemuin
+ * muncul lagi di device kalau di-join ulang pakai key-nya - tidak ada cara buat "nemuin
  * lagi" dompet yang membership-nya sudah ada tapi cache lokalnya hilang (device baru, abis
  * clear cache, dst), beda dengan dompet milik sendiri yang otomatis ke-download ulang lewat
  * `downloadMissingCloudWallets`. Di sini disamakan: query wallet_members milik user ini

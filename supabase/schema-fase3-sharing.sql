@@ -1,4 +1,4 @@
--- HEMATIN — Fase 3 (Sharing)
+-- HEMATIN - Fase 3 (Sharing)
 -- Jalankan SETELAH supabase/schema.sql (Fase 2) sudah dijalankan di project yang sama.
 -- File terpisah (bukan edit schema.sql) supaya project yang sudah menjalankan Fase 2
 -- tinggal apply file ini sebagai migration lanjutan.
@@ -22,7 +22,7 @@ alter table wallet_members enable row level security;
 -- ─── 1b. Helper functions (SECURITY DEFINER) ───────────────────────────────
 -- cloud_wallets dan wallet_members saling butuh cek satu sama lain (cloud_wallets perlu
 -- tahu "apakah user ini member", wallet_members perlu tahu "apakah user ini owner dompet
--- ini") — kalau dicek lewat subquery biasa di dalam policy, RLS kedua tabel akan saling
+-- ini") - kalau dicek lewat subquery biasa di dalam policy, RLS kedua tabel akan saling
 -- panggil tanpa henti (infinite recursion, Postgres error 42P17). Function SECURITY DEFINER
 -- di bawah ini query tabelnya langsung TANPA melewati RLS lagi, jadi rantainya terputus.
 
@@ -73,7 +73,7 @@ create policy "wallet_members_select" on wallet_members
     or public.is_wallet_owner(wallet_id, auth.uid())
   );
 
--- INSERT/UPDATE/DELETE manual (ubah role, remove member) — HANYA owner dompet.
+-- INSERT/UPDATE/DELETE manual (ubah role, remove member) - HANYA owner dompet.
 -- Insert saat JOIN via key ditangani terpisah lewat RPC join_wallet_by_key()
 -- (security definer, lihat §2) supaya share_key tervalidasi di server, bukan cuma RLS.
 create policy "wallet_members_owner_write" on wallet_members
@@ -84,7 +84,7 @@ create policy "wallet_members_owner_write" on wallet_members
   );
 
 -- ─── 2. RPC: join_wallet_by_key ─────────────────────────────────────────────
--- Satu-satunya jalur resmi untuk "gabung dompet pakai key" — security definer supaya
+-- Satu-satunya jalur resmi untuk "gabung dompet pakai key" - security definer supaya
 -- validasi share_key terjadi di server (client tidak pernah insert wallet_members
 -- langsung untuk proses join, mencegah orang insert baris membership sembarang wallet_id).
 
@@ -125,7 +125,7 @@ $$;
 
 -- ─── 2b. RPC: leave_wallet ──────────────────────────────────────────────────
 -- Satu-satunya jalur resmi untuk "keluar dari dompet yang di-share" (dipakai member,
--- BUKAN owner) — security definer karena "wallet_members_owner_write" cuma izinkan
+-- BUKAN owner) - security definer karena "wallet_members_owner_write" cuma izinkan
 -- owner insert/update/delete baris wallet_members, jadi member tidak bisa hapus baris
 -- membership-nya sendiri lewat client langsung.
 
@@ -136,7 +136,7 @@ security definer set search_path = public
 as $$
 begin
   if public.is_wallet_owner(p_wallet_id, auth.uid()) then
-    raise exception 'Owner tidak bisa keluar dari dompet sendiri — hapus dompet kalau memang mau berhenti berbagi';
+    raise exception 'Owner tidak bisa keluar dari dompet sendiri - hapus dompet kalau memang mau berhenti berbagi';
   end if;
 
   delete from wallet_members
@@ -162,7 +162,7 @@ create table if not exists activity_log (
 
 alter table activity_log enable row level security;
 
--- INSERT oleh member dengan hak tulis (owner/editor) — dipakai saat CRUD data.
+-- INSERT oleh member dengan hak tulis (owner/editor) - dipakai saat CRUD data.
 -- Insert untuk event 'joined' ditangani RPC join_wallet_by_key (security definer, lolos RLS).
 create policy "activity_log_insert" on activity_log
   for insert with check (
@@ -179,7 +179,7 @@ create policy "activity_log_select" on activity_log
 -- ─── 4. Buka akses SELECT untuk member di cloud_wallets ────────────────────
 -- Fase 2 cuma kasih akses ke owner. Sekarang member (viewer/editor) juga perlu SELECT
 -- supaya bisa fetch data dompet yang di-share ke mereka. UPDATE/DELETE tetap owner-only
--- (dijaga oleh policy "cloud_wallets_owner_all" dari Fase 2 — tidak diubah).
+-- (dijaga oleh policy "cloud_wallets_owner_all" dari Fase 2 - tidak diubah).
 
 create policy "cloud_wallets_member_select" on cloud_wallets
   for select using (
@@ -224,7 +224,7 @@ create policy "cloud_recurring_templates_editor_write" on cloud_recurring_templa
   with check (public.can_edit_wallet(wallet_id, auth.uid()));
 
 -- ─── 6. Buka akses SELECT profiles untuk owner atas member dompetnya ───────
--- Fase 2 cuma kasih "profiles_select_own" (auth.uid() = id) — cukup untuk profil sendiri,
+-- Fase 2 cuma kasih "profiles_select_own" (auth.uid() = id) - cukup untuk profil sendiri,
 -- tapi halaman Kelola Akses (owner-only) perlu tampilkan NAMA member lain. Tanpa policy ini
 -- PostgREST diam-diam nge-null-in embed `profiles(name)` di query wallet_members untuk baris
 -- selain milik sendiri (bukan error, RLS cuma nge-filter row-nya).
@@ -247,6 +247,6 @@ create policy "profiles_select_wallet_owner_view_members" on profiles
   for select using (public.is_wallet_owner_of_member(id));
 
 -- ─── Setelah menjalankan file ini ──────────────────────────────────────────
--- Tidak ada langkah manual tambahan di dashboard Supabase — semua lewat SQL di atas.
+-- Tidak ada langkah manual tambahan di dashboard Supabase - semua lewat SQL di atas.
 -- Uji coba: buat 2 akun test, generate share_key dari akun A (lewat app), join dari akun B,
 -- pastikan akun B (role viewer default) bisa SELECT tapi ditolak saat INSERT/UPDATE/DELETE.

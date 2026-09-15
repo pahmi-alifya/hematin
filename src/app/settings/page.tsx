@@ -95,7 +95,7 @@ export default function SettingsPage() {
                     {t.settings.status.active}
                   </p>
                   <p className="text-xs text-emerald-600 mt-0.5">
-                    {AI_PROVIDERS[aiSettings.provider as AIProviderKey]?.name} —{" "}
+                    {AI_PROVIDERS[aiSettings.provider as AIProviderKey]?.name} -{" "}
                     {aiSettings.model}
                   </p>
                   <p className="text-xs text-emerald-500 font-mono mt-0.5">
@@ -202,7 +202,7 @@ export default function SettingsPage() {
             )}
           </div>
 
-          {/* Model Selector — muncul setelah API key tersimpan */}
+          {/* Model Selector - muncul setelah API key tersimpan */}
           <AnimatePresence>
             {keyStep === "model" && (
               <motion.div
@@ -239,7 +239,9 @@ export default function SettingsPage() {
                 {fetchingModels ? (
                   <div className="flex items-center justify-center gap-2 py-6 text-slate-400 dark:text-slate-500">
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span className="text-sm">{t.settings.model.loadingList}</span>
+                    <span className="text-sm">
+                      {t.settings.model.loadingList}
+                    </span>
                   </div>
                 ) : dynamicModels === null ? (
                   <div className="flex flex-col items-center gap-2 py-6 text-center">

@@ -145,7 +145,7 @@ export const useDebtStore = create<DebtStore>((set, get) => ({
   deleteDebt: async (id) => {
     const walletId = get().debts.find((d) => d.id === id)?.walletId
     await db.debts.delete(id)
-    // cascade delete payments — cloud_debt_payments ikut cascade lewat FK on delete cascade
+    // cascade delete payments - cloud_debt_payments ikut cascade lewat FK on delete cascade
     await db.debtPayments.where('debtId').equals(id).delete()
     await get().loadDebts()
     if (walletId) pushDebtDelete(walletId, id)

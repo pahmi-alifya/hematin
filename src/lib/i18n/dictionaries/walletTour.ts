@@ -3,7 +3,7 @@ export const walletTour = {
     welcome: {
       title: "Kelola Dompet 💳",
       content:
-        "Kamu bisa punya lebih dari satu dompet — pribadi, keluarga, atau kantor — masing-masing dengan data transaksi sendiri.",
+        "Kamu bisa punya lebih dari satu dompet - pribadi, keluarga, atau kantor - masing-masing dengan data transaksi sendiri.",
     },
     list: {
       title: "Daftar Dompet",
@@ -18,7 +18,7 @@ export const walletTour = {
     manageAccess: {
       title: "Bagikan Dompet",
       content:
-        "Kalau kamu owner dompet ini, tap ikon ini buat mengatur siapa saja yang bisa akses — lanjut ke halaman Kelola Akses.",
+        "Kalau kamu owner dompet ini, tap ikon ini buat mengatur siapa saja yang bisa akses - lanjut ke halaman Kelola Akses.",
     },
     kelolaAksesTabs: {
       title: "Kelola Akses",
@@ -28,14 +28,14 @@ export const walletTour = {
     kelolaAksesKeySection: {
       title: "Kunci Berbagi",
       content:
-        "Aktifkan kunci di sini, lalu bagikan kode atau QR-nya ke orang yang mau diajak — mereka tinggal masukkan kode itu buat gabung.",
+        "Aktifkan kunci di sini, lalu bagikan kode atau QR-nya ke orang yang mau diajak - mereka tinggal masukkan kode itu buat gabung.",
     },
   },
   en: {
     welcome: {
       title: "Manage Wallets 💳",
       content:
-        "You can have more than one wallet — personal, family, or work — each with its own separate transaction data.",
+        "You can have more than one wallet - personal, family, or work - each with its own separate transaction data.",
     },
     list: {
       title: "Wallet List",
@@ -50,7 +50,7 @@ export const walletTour = {
     manageAccess: {
       title: "Share a Wallet",
       content:
-        "If you own this wallet, tap this icon to manage who can access it — it opens the Manage Access page.",
+        "If you own this wallet, tap this icon to manage who can access it - it opens the Manage Access page.",
     },
     kelolaAksesTabs: {
       title: "Manage Access",
@@ -60,7 +60,7 @@ export const walletTour = {
     kelolaAksesKeySection: {
       title: "Sharing Key",
       content:
-        "Activate the key here, then share the code or QR with whoever you want to invite — they just enter it to join.",
+        "Activate the key here, then share the code or QR with whoever you want to invite - they just enter it to join.",
     },
   },
 };

@@ -49,12 +49,12 @@ export const wallets = {
       deleteTitle: "Hapus Dompet?",
       leaveDescriptionBefore: "Kamu nggak akan bisa lihat atau edit dompet",
       leaveDescriptionAfter:
-        "lagi. Data tetap aman untuk pemilik dan anggota lain — kamu bisa diundang lagi kapan saja kalau berubah pikiran.",
+        "lagi. Data tetap aman untuk pemilik dan anggota lain - kamu bisa diundang lagi kapan saja kalau berubah pikiran.",
       deleteDescriptionBefore: "Semua data di dalam dompet",
       deleteDescriptionAfter:
         "akan ikut terhapus permanen dan tidak bisa dikembalikan",
       deleteDescriptionSharedSuffix:
-        " — termasuk untuk semua anggota yang di-share",
+        " - termasuk untuk semua anggota yang di-share",
       countTransactions: (n: number) => `${n} transaksi`,
       countGoals: (n: number) => `${n} goals`,
       countDebts: (n: number) => `${n} catatan utang/piutang`,
@@ -171,11 +171,11 @@ export const wallets = {
       deleteTitle: "Delete Wallet?",
       leaveDescriptionBefore: "You won't be able to view or edit the wallet",
       leaveDescriptionAfter:
-        "anymore. Data stays safe for the owner and other members — you can be invited again anytime you change your mind.",
+        "anymore. Data stays safe for the owner and other members - you can be invited again anytime you change your mind.",
       deleteDescriptionBefore: "All data inside the wallet",
       deleteDescriptionAfter:
         "will be permanently deleted and cannot be recovered",
-      deleteDescriptionSharedSuffix: " — including for all shared members",
+      deleteDescriptionSharedSuffix: " - including for all shared members",
       countTransactions: (n: number) => `${n} transactions`,
       countGoals: (n: number) => `${n} goals`,
       countDebts: (n: number) => `${n} debt/credit records`,

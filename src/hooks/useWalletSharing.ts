@@ -17,7 +17,7 @@ import { toast } from '@/components/ui/Toast'
 import type { WalletMemberRow, ActivityLogRow, WalletRole } from '@/lib/supabase/types'
 import { useTranslation } from '@/hooks/useTranslation'
 
-/** Owns seluruh data & aksi halaman Kelola Akses (key/QR, anggota, log aktivitas) — owner-only. */
+/** Owns seluruh data & aksi halaman Kelola Akses (key/QR, anggota, log aktivitas) - owner-only. */
 export function useWalletSharing(walletId: string) {
   const t = useTranslation()
   const wallet = useWalletStore((s) => s.wallets.find((w) => w.id === walletId))

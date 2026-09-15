@@ -7,7 +7,7 @@ import { joinWalletByKey } from '@/lib/sharing'
 import { toast } from '@/components/ui/Toast'
 import { useTranslation } from '@/hooks/useTranslation'
 
-/** Owns alur "gabung dompet pakai key" — termasuk gate login untuk Guest. */
+/** Owns alur "gabung dompet pakai key" - termasuk gate login untuk Guest. */
 export function useJoinWallet(onSuccess: () => void) {
   const t = useTranslation()
   const router = useRouter()

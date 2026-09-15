@@ -1,84 +1,90 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { QrCode, X } from 'lucide-react'
-import { toast } from '@/components/ui/Toast'
-import { useTranslation } from '@/hooks/useTranslation'
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { QrCode, X } from "lucide-react";
+import { toast } from "@/components/ui/Toast";
+import { useTranslation } from "@/hooks/useTranslation";
 
-// BarcodeDetector belum ada di lib.dom.d.ts TypeScript bawaan — deklarasi minimal di sini.
+// BarcodeDetector belum ada di lib.dom.d.ts TypeScript bawaan - deklarasi minimal di sini.
 interface BarcodeDetectorResult {
-  rawValue: string
+  rawValue: string;
 }
 interface BarcodeDetectorInstance {
-  detect(source: CanvasImageSource): Promise<BarcodeDetectorResult[]>
+  detect(source: CanvasImageSource): Promise<BarcodeDetectorResult[]>;
 }
-type BarcodeDetectorCtor = new (options: { formats: string[] }) => BarcodeDetectorInstance
+type BarcodeDetectorCtor = new (options: {
+  formats: string[];
+}) => BarcodeDetectorInstance;
 
 export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
-  const t = useTranslation()
-  const [supported, setSupported] = useState(false)
-  const [scanning, setScanning] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const streamRef = useRef<MediaStream | null>(null)
-  const rafRef = useRef<number | null>(null)
+  const t = useTranslation();
+  const [supported, setSupported] = useState(false);
+  const [scanning, setScanning] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    setSupported(typeof window !== 'undefined' && 'BarcodeDetector' in window)
-  }, [])
+    setSupported(typeof window !== "undefined" && "BarcodeDetector" in window);
+  }, []);
 
   async function startScan() {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      streamRef.current = stream
-      setScanning(true)
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+      });
+      streamRef.current = stream;
+      setScanning(true);
     } catch {
-      toast(t.wallets.qr.cameraErrorToast, 'error')
+      toast(t.wallets.qr.cameraErrorToast, "error");
     }
   }
 
   function stopScan() {
-    setScanning(false)
-    streamRef.current?.getTracks().forEach((t) => t.stop())
-    streamRef.current = null
-    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    setScanning(false);
+    streamRef.current?.getTracks().forEach((t) => t.stop());
+    streamRef.current = null;
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
   }
 
   useEffect(() => {
-    if (!scanning || !videoRef.current || !streamRef.current) return
-    const video = videoRef.current
-    video.srcObject = streamRef.current
-    video.play().catch(() => {})
+    if (!scanning || !videoRef.current || !streamRef.current) return;
+    const video = videoRef.current;
+    video.srcObject = streamRef.current;
+    video.play().catch(() => {});
 
-    const DetectorCtor = (window as unknown as { BarcodeDetector: BarcodeDetectorCtor }).BarcodeDetector
-    const detector = new DetectorCtor({ formats: ['qr_code'] })
+    const DetectorCtor = (
+      window as unknown as { BarcodeDetector: BarcodeDetectorCtor }
+    ).BarcodeDetector;
+    const detector = new DetectorCtor({ formats: ["qr_code"] });
 
-    let cancelled = false
+    let cancelled = false;
     async function tick() {
-      if (cancelled || !video) return
+      if (cancelled || !video) return;
       try {
-        const results = await detector.detect(video)
+        const results = await detector.detect(video);
         if (results.length > 0) {
-          onScan(results[0].rawValue)
-          stopScan()
-          return
+          onScan(results[0].rawValue);
+          stopScan();
+          return;
         }
       } catch {
-        // frame belum siap / decode gagal — lanjut coba frame berikutnya
+        // frame belum siap / decode gagal - lanjut coba frame berikutnya
       }
-      rafRef.current = requestAnimationFrame(tick)
+      rafRef.current = requestAnimationFrame(tick);
     }
-    rafRef.current = requestAnimationFrame(tick)
+    rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      cancelled = true
-    }
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanning])
+  }, [scanning]);
 
-  useEffect(() => () => stopScan(), [])
+  useEffect(() => () => stopScan(), []);
 
-  if (!supported) return null
+  if (!supported) return null;
 
   return (
     <>
@@ -98,7 +104,12 @@ export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center"
           >
-            <video ref={videoRef} className="w-full h-full object-cover" muted playsInline />
+            <video
+              ref={videoRef}
+              className="w-full h-full object-cover"
+              muted
+              playsInline
+            />
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="w-64 h-64 border-2 border-white/80 rounded-2xl" />
             </div>
@@ -108,10 +119,12 @@ export function QrScanButton({ onScan }: { onScan: (value: string) => void }) {
             >
               <X className="w-5 h-5" />
             </button>
-            <p className="absolute bottom-10 text-white/80 text-sm">{t.wallets.qr.instruction}</p>
+            <p className="absolute bottom-10 text-white/80 text-sm">
+              {t.wallets.qr.instruction}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
     </>
-  )
+  );
 }

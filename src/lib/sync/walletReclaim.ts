@@ -3,7 +3,7 @@ import { generateId } from '@/lib/utils'
 
 /**
  * Dompet lokal ini cloud-linked ke `cloudWalletId` yang ternyata BUKAN milik akun yang
- * sedang login (mis. sisa data dari testing multi-akun di browser yang sama — lihat
+ * sedang login (mis. sisa data dari testing multi-akun di browser yang sama - lihat
  * `reclaimMismatchedWallets` di accountSync.ts). RLS `wallet_members_owner_write` benar
  * menolak klaim ownership untuk kasus ini (error 42501), jadi tidak ada perbaikan di sisi
  * cloud yang bisa dilakukan untuk id lama tsb.
@@ -21,7 +21,7 @@ export async function forkWalletForReclaim(oldId: string): Promise<string | null
       if (!wallet) return null
       const newId = generateId()
 
-      // `id` (primary key) tiap record TIDAK berubah — cuma field `walletId`-nya. Jadi cukup
+      // `id` (primary key) tiap record TIDAK berubah - cuma field `walletId`-nya. Jadi cukup
       // update in-place via .modify(), jangan bulkPut+bulkDelete pakai id yang sama (itu
       // akan langsung menghapus lagi record yang baru saja dipindah).
       await db.transactions.where('walletId').equals(oldId).modify({ walletId: newId })

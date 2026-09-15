@@ -10,7 +10,7 @@ export const faq = {
       {
         question: "Bagaimana cara pakai fitur scan struk?",
         answer:
-          "Buka menu Scan, lalu foto atau upload gambar struk belanja. AI akan otomatis membaca jumlah, kategori, dan tanggal transaksi — kamu tetap bisa mengedit hasilnya sebelum disimpan sebagai transaksi.",
+          "Buka menu Scan, lalu foto atau upload gambar struk belanja. AI akan otomatis membaca jumlah, kategori, dan tanggal transaksi - kamu tetap bisa mengedit hasilnya sebelum disimpan sebagai transaksi.",
       },
       {
         question: "Bagaimana cara mengatur Goals (batas pengeluaran)?",
@@ -60,7 +60,7 @@ export const faq = {
       {
         question: "How does the receipt scan feature work?",
         answer:
-          "Open the Scan menu, then snap a photo or upload an image of your receipt. The AI automatically reads the amount, category, and date — you can still edit the result before saving it as a transaction.",
+          "Open the Scan menu, then snap a photo or upload an image of your receipt. The AI automatically reads the amount, category, and date - you can still edit the result before saving it as a transaction.",
       },
       {
         question: "How do I set up Goals (spending limits)?",

@@ -127,7 +127,7 @@ export async function importData(
       db.recurringTemplates.bulkAdd(recurringTemplates),
     ])
   } else {
-    // merge — skip existing IDs
+    // merge - skip existing IDs
     const [existingTxIds, existingGoalIds, existingDebtIds, existingRecurIds] =
       await Promise.all([
         db.transactions.toCollection().primaryKeys(),

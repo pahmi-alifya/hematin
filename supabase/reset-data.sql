@@ -1,11 +1,11 @@
--- HEMATIN — Reset semua data Supabase (testing/dev only)
+-- HEMATIN - Reset semua data Supabase (testing/dev only)
 --
 -- Menghapus SEMUA baris di tabel data (dompet, transaksi, goals, hutang, cicilan,
--- template rutin, keanggotaan dompet, log aktivitas) — TAPI akun login (auth.users)
+-- template rutin, keanggotaan dompet, log aktivitas) - TAPI akun login (auth.users)
 -- dan profiles TIDAK ikut dihapus, jadi bisa langsung login lagi tanpa daftar ulang.
 --
 -- CASCADE aman dipakai di sini karena semua FK di tabel-tabel ini mengarah KE
--- cloud_wallets/profiles (searah), bukan sebaliknya — jadi tidak ada efek balik ke profiles.
+-- cloud_wallets/profiles (searah), bukan sebaliknya - jadi tidak ada efek balik ke profiles.
 --
 -- PERINGATAN: ini permanen dan tidak bisa di-undo. Jalankan cuma kalau memang mau
 -- reset total data testing.

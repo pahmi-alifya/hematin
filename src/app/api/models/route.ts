@@ -73,7 +73,7 @@ function inferOpenAIDesc(id: string): string {
   if (id.startsWith('o4')) return 'Model reasoning terbaru OpenAI'
   if (id.startsWith('o3')) return 'Model reasoning canggih'
   if (id.startsWith('o1')) return 'Model reasoning kuat'
-  if (id === 'gpt-4o') return 'Recommended — multimodal terbaik'
+  if (id === 'gpt-4o') return 'Recommended - multimodal terbaik'
   if (id.includes('4o-mini')) return 'Lebih hemat, tetap cerdas'
   if (id.includes('4-turbo')) return 'GPT-4 versi turbo'
   if (id.startsWith('gpt-4')) return 'GPT-4 standar'

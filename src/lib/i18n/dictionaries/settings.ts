@@ -4,7 +4,7 @@ export const settings = {
     support: {
       title: "Dukung Pengembangan",
       description:
-        "HEMATIN gratis selamanya. Jika aplikasi ini membantu keuanganmu, kamu bisa support pengembang lewat Trakteer — secara sukarela 🙏",
+        "HEMATIN gratis selamanya. Jika aplikasi ini membantu keuanganmu, kamu bisa support pengembang lewat Trakteer - secara sukarela 🙏",
       cta: "Support di Trakteer",
     },
     status: {
@@ -112,7 +112,7 @@ export const settings = {
     support: {
       title: "Support Development",
       description:
-        "HEMATIN is free forever. If this app helps your finances, you can support the developer via Trakteer — totally optional 🙏",
+        "HEMATIN is free forever. If this app helps your finances, you can support the developer via Trakteer - totally optional 🙏",
       cta: "Support on Trakteer",
     },
     status: {

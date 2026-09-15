@@ -3,7 +3,14 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ChevronDown, Check, Settings2, Plus, Users, RefreshCw } from "lucide-react";
+import {
+  ChevronDown,
+  Check,
+  Settings2,
+  Plus,
+  Users,
+  RefreshCw,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useWalletStore } from "@/stores/walletStore";
 import { useSharedSyncStore } from "@/stores/sharedSyncStore";
@@ -11,7 +18,7 @@ import { BottomSheet } from "@/components/ui/BottomSheet";
 import { useTranslation } from "@/hooks/useTranslation";
 
 interface WalletSwitcherProps {
-  /** Varian tampilan tombol trigger — light dipakai di atas background gradient (hero dashboard) */
+  /** Varian tampilan tombol trigger - light dipakai di atas background gradient (hero dashboard) */
   variant?: "default" | "light";
   className?: string;
 }
@@ -65,7 +72,10 @@ export function WalletSwitcher({
             )}
           >
             <RefreshCw
-              className={cn("w-3.5 h-3.5", refreshingWalletId === activeWallet.id && "animate-spin")}
+              className={cn(
+                "w-3.5 h-3.5",
+                refreshingWalletId === activeWallet.id && "animate-spin",
+              )}
             />
           </motion.button>
         )}

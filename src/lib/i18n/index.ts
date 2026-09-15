@@ -60,21 +60,21 @@ export const dictionaries = {
 
 /**
  * Widens literal return/value types (e.g. ternaries of plain string literals infer as
- * `"a" | "b"` instead of `string`) so the `id` and `en` dictionary branches — which contain
- * the same shape but different literal content — unify into one `Dictionary` type instead of
+ * `"a" | "b"` instead of `string`) so the `id` and `en` dictionary branches - which contain
+ * the same shape but different literal content - unify into one `Dictionary` type instead of
  * being flagged as structurally incompatible.
  */
 type Widen<T> = T extends (...args: infer A) => infer R
   ? (...args: A) => Widen<R>
   : T extends string
-    ? string
-    : T extends number
-      ? number
-      : T extends readonly (infer U)[]
-        ? readonly Widen<U>[]
-        : T extends object
-          ? { [K in keyof T]: Widen<T[K]> }
-          : T;
+  ? string
+  : T extends number
+  ? number
+  : T extends readonly (infer U)[]
+  ? readonly Widen<U>[]
+  : T extends object
+  ? { [K in keyof T]: Widen<T[K]> }
+  : T;
 
 export type Dictionary = Widen<(typeof dictionaries)["id"]>;
 export type { Language };

@@ -1,47 +1,61 @@
-'use client'
+"use client";
 
-import { motion } from 'framer-motion'
-import { RefreshCw } from 'lucide-react'
-import { Button } from '@/components/ui/Button'
-import { Input, Textarea } from '@/components/ui/Input'
-import { DayPicker } from '@/components/ui/DayPicker'
-import { CategoryPicker } from './CategoryPicker'
-import { useTransactionForm } from '@/hooks/useTransactionForm'
-import { TRANSACTION_TYPE_TOGGLE } from '@/lib/transactions'
-import { cn } from '@/lib/utils'
-import { useTranslation } from '@/hooks/useTranslation'
-import type { TransactionType } from '@/lib/transactions'
+import { motion } from "framer-motion";
+import { RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input, Textarea } from "@/components/ui/Input";
+import { DayPicker } from "@/components/ui/DayPicker";
+import { CategoryPicker } from "./CategoryPicker";
+import { useTransactionForm } from "@/hooks/useTransactionForm";
+import { TRANSACTION_TYPE_TOGGLE } from "@/lib/transactions";
+import { cn } from "@/lib/utils";
+import { useTranslation } from "@/hooks/useTranslation";
+import type { TransactionType } from "@/lib/transactions";
 
 interface DefaultValues {
-  type?: TransactionType
-  amount?: number
-  category?: string
-  merchant?: string
-  date?: string
-  notes?: string
-  source?: 'manual' | 'scan'
+  type?: TransactionType;
+  amount?: number;
+  category?: string;
+  merchant?: string;
+  date?: string;
+  notes?: string;
+  source?: "manual" | "scan";
 }
 
 interface TransactionFormProps {
-  onSuccess?: () => void
+  onSuccess?: () => void;
   /** @deprecated use onSuccess */
-  onClose?: () => void
-  initialType?: TransactionType
-  defaultValues?: DefaultValues
-  editId?: string // jika diisi, mode edit (update) bukan tambah baru
+  onClose?: () => void;
+  initialType?: TransactionType;
+  defaultValues?: DefaultValues;
+  editId?: string; // jika diisi, mode edit (update) bukan tambah baru
 }
 
-export function TransactionForm({ onSuccess, onClose, initialType = 'expense', defaultValues, editId }: TransactionFormProps) {
-  const t = useTranslation()
-  const { form, setField, activeCategory, amount, handleTypeChange, handleSubmit, loading } = useTransactionForm({
+export function TransactionForm({
+  onSuccess,
+  onClose,
+  initialType = "expense",
+  defaultValues,
+  editId,
+}: TransactionFormProps) {
+  const t = useTranslation();
+  const {
+    form,
+    setField,
+    activeCategory,
+    amount,
+    handleTypeChange,
+    handleSubmit,
+    loading,
+  } = useTransactionForm({
     defaultValues,
     initialType,
     editId,
     onSuccess: () => {
-      onSuccess?.()
-      onClose?.()
+      onSuccess?.();
+      onClose?.();
     },
-  })
+  });
 
   return (
     <form onSubmit={handleSubmit} className="px-5 pb-6 space-y-5">
@@ -56,7 +70,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
             className={`flex-1 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${
               form.type === toggle.value
                 ? `bg-white dark:bg-slate-700 ${toggle.activeClass} shadow-sm`
-                : 'text-slate-500 dark:text-slate-400'
+                : "text-slate-500 dark:text-slate-400"
             }`}
           >
             {t.transactions[toggle.labelKey]}
@@ -66,9 +80,13 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
 
       {/* Amount */}
       <div>
-        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">{t.transactions.amountFieldLabel}</label>
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300 block mb-1.5">
+          {t.transactions.amountFieldLabel}
+        </label>
         <div className="relative">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">Rp</span>
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500 text-sm font-medium">
+            Rp
+          </span>
           <input
             type="text"
             inputMode="numeric"
@@ -81,20 +99,24 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
       </div>
 
       {/* Category */}
-      <CategoryPicker type={form.type} selected={activeCategory} onSelect={(c) => setField('category', c)} />
+      <CategoryPicker
+        type={form.type}
+        selected={activeCategory}
+        onSelect={(c) => setField("category", c)}
+      />
 
       {/* Merchant */}
       <Input
         label={t.transactions.merchantLabel}
         placeholder={
-          form.type === 'income'
+          form.type === "income"
             ? t.transactions.merchantPlaceholderIncome
-            : form.type === 'saving'
+            : form.type === "saving"
               ? t.transactions.merchantPlaceholderSaving
               : t.transactions.merchantPlaceholderExpense
         }
         value={form.merchant}
-        onChange={(e) => setField('merchant', e.target.value)}
+        onChange={(e) => setField("merchant", e.target.value)}
       />
 
       {/* Date */}
@@ -102,7 +124,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
         label={t.common.date}
         type="date"
         value={form.date}
-        onChange={(e) => setField('date', e.target.value)}
+        onChange={(e) => setField("date", e.target.value)}
       />
 
       {/* Notes */}
@@ -110,33 +132,54 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
         label={`${t.common.notes} (${t.common.optional})`}
         placeholder={t.common.notesPlaceholder}
         value={form.notes}
-        onChange={(e) => setField('notes', e.target.value)}
+        onChange={(e) => setField("notes", e.target.value)}
         rows={2}
       />
 
-      {/* Recurring Toggle — hanya tampil di mode tambah (bukan edit) */}
+      {/* Recurring Toggle - hanya tampil di mode tambah (bukan edit) */}
       {!editId && (
         <div className="space-y-3">
           <button
             type="button"
-            onClick={() => setField('isRecurring', !form.isRecurring)}
+            onClick={() => setField("isRecurring", !form.isRecurring)}
             className={cn(
-              'w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all',
+              "w-full flex items-center justify-between px-4 py-3 rounded-xl border transition-all",
               form.isRecurring
-                ? 'border-sky-400 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-600'
-                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800',
+                ? "border-sky-400 bg-sky-50 dark:bg-sky-900/20 dark:border-sky-600"
+                : "border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800",
             )}
           >
             <div className="flex items-center gap-2.5">
-              <RefreshCw className={cn('w-4 h-4', form.isRecurring ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400')} />
-              <span className={cn('text-sm font-semibold', form.isRecurring ? 'text-sky-700 dark:text-sky-300' : 'text-slate-600 dark:text-slate-400')}>
+              <RefreshCw
+                className={cn(
+                  "w-4 h-4",
+                  form.isRecurring
+                    ? "text-sky-600 dark:text-sky-400"
+                    : "text-slate-400",
+                )}
+              />
+              <span
+                className={cn(
+                  "text-sm font-semibold",
+                  form.isRecurring
+                    ? "text-sky-700 dark:text-sky-300"
+                    : "text-slate-600 dark:text-slate-400",
+                )}
+              >
                 {t.transactions.repeatMonthly}
               </span>
             </div>
-            <div className={cn('w-10 h-6 rounded-full transition-all flex items-center px-0.5', form.isRecurring ? 'bg-sky-500' : 'bg-slate-200 dark:bg-slate-600')}>
+            <div
+              className={cn(
+                "w-10 h-6 rounded-full transition-all flex items-center px-0.5",
+                form.isRecurring
+                  ? "bg-sky-500"
+                  : "bg-slate-200 dark:bg-slate-600",
+              )}
+            >
               <motion.div
                 animate={{ x: form.isRecurring ? 16 : 0 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 className="w-5 h-5 rounded-full bg-white shadow-sm"
               />
             </div>
@@ -145,7 +188,7 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
           {form.isRecurring && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
+              animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden"
             >
@@ -153,7 +196,10 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
                 <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
                   {t.transactions.repeatOnDate}
                 </p>
-                <DayPicker value={form.recurringDay} onChange={(d) => setField('recurringDay', d)} />
+                <DayPicker
+                  value={form.recurringDay}
+                  onChange={(d) => setField("recurringDay", d)}
+                />
                 <p className="text-xs text-slate-400 dark:text-slate-500">
                   {t.transactions.recurringTemplateNote}
                 </p>
@@ -168,5 +214,5 @@ export function TransactionForm({ onSuccess, onClose, initialType = 'expense', d
         {editId ? t.common.saveChanges : t.transactions.saveTransaction}
       </Button>
     </form>
-  )
+  );
 }

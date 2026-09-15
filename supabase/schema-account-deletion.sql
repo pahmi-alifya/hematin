@@ -1,4 +1,4 @@
--- HEMATIN — Fitur Hapus Akun Pribadi
+-- HEMATIN - Fitur Hapus Akun Pribadi
 -- Jalankan SETELAH supabase/schema.sql (Fase 2) dan supabase/schema-fase3-sharing.sql
 -- (Fase 3) sudah dijalankan di project yang sama.
 --
@@ -8,9 +8,9 @@
 -- Kolom-kolom ini sebelumnya `not null references profiles(id)` TANPA `on delete`,
 -- artinya default Postgres = block delete (foreign key violation). Kalau dibiarkan,
 -- auth.admin.deleteUser() akan GAGAL TOTAL untuk user yang pernah jadi Editor dan
--- mencatat data di dompet MILIK ORANG LAIN (bukan cascade — cascade justru salah di
+-- mencatat data di dompet MILIK ORANG LAIN (bukan cascade - cascade justru salah di
 -- sini karena akan menghapus data milik pemilik dompet, bukan milik si editor yang
--- keluar). Jadi: kolom dibuat nullable + on delete set null — riwayat transaksi tetap
+-- keluar). Jadi: kolom dibuat nullable + on delete set null - riwayat transaksi tetap
 -- ada untuk laporan pemilik dompet, cuma "siapa yang mencatat" jadi kosong.
 
 alter table cloud_transactions alter column created_by drop not null;
@@ -44,13 +44,13 @@ alter table activity_log add constraint activity_log_actor_id_fkey
   foreign key (actor_id) references profiles(id) on delete set null;
 
 -- (wallet_members.user_id dan cloud_wallets.owner_id sudah `on delete cascade` sejak
--- Fase 2/3 — tidak perlu diubah, sudah benar untuk kasusnya masing-masing.)
+-- Fase 2/3 - tidak perlu diubah, sudah benar untuk kasusnya masing-masing.)
 
 -- ─── 2. RPC: transfer_wallet_ownership ──────────────────────────────────────
 -- Dipanggil dari server route /api/account/delete (pakai service-role client, BUKAN
 -- dari client biasa) sebelum auth.admin.deleteUser() dieksekusi. security definer
 -- supaya bisa update cloud_wallets & wallet_members lintas-user (di luar RLS owner-only
--- yang normal), tapi tetap validasi manual di dalam function — jangan asumsikan caller
+-- yang normal), tapi tetap validasi manual di dalam function - jangan asumsikan caller
 -- server route selalu benar, defense in depth.
 
 create or replace function public.transfer_wallet_ownership(
@@ -67,25 +67,25 @@ begin
     select 1 from cloud_wallets
     where id = p_wallet_id and owner_id = p_caller_id
   ) then
-    raise exception 'Caller bukan owner dompet ini — transfer dibatalkan';
+    raise exception 'Caller bukan owner dompet ini - transfer dibatalkan';
   end if;
 
   if not exists (
     select 1 from wallet_members
     where wallet_id = p_wallet_id and user_id = p_new_owner_id
   ) then
-    raise exception 'Calon owner baru bukan anggota dompet ini — transfer dibatalkan';
+    raise exception 'Calon owner baru bukan anggota dompet ini - transfer dibatalkan';
   end if;
 
   update cloud_wallets set owner_id = p_new_owner_id where id = p_wallet_id;
 
   -- KOREKSI (lihat catatan di bawah tanggal 2026-09-15): owner MEMANG punya baris sendiri
-  -- di wallet_members (role 'owner') — di-upsert oleh ensureOwnerMembership() setiap kali
+  -- di wallet_members (role 'owner') - di-upsert oleh ensureOwnerMembership() setiap kali
   -- dompet cloud-linked, bukan cuma dompet yang di-share. Jadi di sini yang benar:
   -- baris owner LAMA (p_caller_id) dihapus (toh akunnya sesaat lagi dihapus permanen,
   -- cascade juga akan membereskan ini, tapi dibersihkan langsung di sini biar konsisten
   -- seketika), dan baris owner BARU (p_new_owner_id, yang sudah divalidasi ada di atas
-  -- sebagai member) role-nya DINAIKKAN jadi 'owner' — BUKAN dihapus.
+  -- sebagai member) role-nya DINAIKKAN jadi 'owner' - BUKAN dihapus.
   delete from wallet_members
     where wallet_id = p_wallet_id and user_id = p_caller_id;
 
@@ -99,7 +99,7 @@ end;
 $$;
 
 -- ─── Setelah menjalankan file ini ──────────────────────────────────────────
--- Tidak ada langkah manual tambahan di dashboard Supabase — semua lewat SQL di atas.
+-- Tidak ada langkah manual tambahan di dashboard Supabase - semua lewat SQL di atas.
 -- Verifikasi FK: `\d+ cloud_transactions` (dst.) harus menunjukkan `created_by` nullable
 -- dan constraint `... ON DELETE SET NULL`.
 -- Uji coba RPC (lihat §5 planning doc): buat 2 akun test, akun A share dompet ke akun B
@@ -110,7 +110,7 @@ $$;
 --
 -- ─── KOREKSI 2026-09-15 ─────────────────────────────────────────────────────
 -- Ditemukan setelah test dengan data Supabase asli: `ensureOwnerMembership()` (dipanggil
--- dari accountSync.ts tiap login) meng-upsert baris wallet_members untuk OWNER juga —
+-- dari accountSync.ts tiap login) meng-upsert baris wallet_members untuk OWNER juga -
 -- untuk SEMUA dompet cloud-linked, TERMASUK yang tidak pernah di-share ke siapapun. Asumsi
 -- awal ("owner tidak pernah punya baris wallet_members") di komentar lama fungsi ini SALAH,
 -- diambil cuma dari baca join_wallet_by_key() yang cuma soal jalur JOIN, bukan jalur upload

@@ -17,7 +17,7 @@ export const tour = {
     fabToggle: {
       title: "Menu Aksi Cepat",
       content:
-        "Tombol ini selalu ada di halaman manapun — buka untuk Scan struk, atur Goals, catat Utang, atau ke Pengaturan AI.",
+        "Tombol ini selalu ada di halaman manapun - buka untuk Scan struk, atur Goals, catat Utang, atau ke Pengaturan AI.",
     },
     monthNavigator: {
       title: "Riwayat per Bulan",
@@ -31,12 +31,12 @@ export const tour = {
     debtTabs: {
       title: "Utang & Piutang",
       content:
-        "Catat utang, piutang, sampai cicilan bertahap di sini — lengkap dengan riwayat pembayarannya.",
+        "Catat utang, piutang, sampai cicilan bertahap di sini - lengkap dengan riwayat pembayarannya.",
     },
     recurringInfo: {
       title: "Transaksi Berulang",
       content:
-        "Buat template untuk transaksi rutin seperti gaji atau tagihan bulanan — akan muncul sebagai pengingat tiap bulan.",
+        "Buat template untuk transaksi rutin seperti gaji atau tagihan bulanan - akan muncul sebagai pengingat tiap bulan.",
     },
     cashflowChart: {
       title: "Laporan Keuangan",
@@ -70,7 +70,7 @@ export const tour = {
     fabToggle: {
       title: "Quick Action Menu",
       content:
-        "This button is always available, on any page — open it to scan a receipt, set Goals, log a debt, or head to AI Settings.",
+        "This button is always available, on any page - open it to scan a receipt, set Goals, log a debt, or head to AI Settings.",
     },
     monthNavigator: {
       title: "Monthly History",
@@ -84,12 +84,12 @@ export const tour = {
     debtTabs: {
       title: "Debts & Loans",
       content:
-        "Track debts, money owed to you, and staged installments here — complete with full payment history.",
+        "Track debts, money owed to you, and staged installments here - complete with full payment history.",
     },
     recurringInfo: {
       title: "Recurring Transactions",
       content:
-        "Create templates for routine transactions like salary or monthly bills — they'll show up as a reminder each month.",
+        "Create templates for routine transactions like salary or monthly bills - they'll show up as a reminder each month.",
     },
     cashflowChart: {
       title: "Financial Reports",

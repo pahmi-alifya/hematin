@@ -1,5 +1,5 @@
 // Definisi manual tipe tabel Supabase yang dipakai HEMATIN (bukan hasil `supabase gen types`
-// — cukup untuk type-safety dasar di client/server helper & sync engine).
+// - cukup untuk type-safety dasar di client/server helper & sync engine).
 // Kalau nanti generate types resmi dari Supabase CLI, file ini bisa diganti.
 
 export interface ProfileRow {

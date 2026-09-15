@@ -1,9 +1,11 @@
-# HEMATIN — Planning Dokumen
+# HEMATIN - Planning Dokumen
+
 > AI Daily Financial Assistant untuk pengguna Indonesia
 
 ---
 
 ## Daftar Isi
+
 1. [Visi & Misi](#1-visi--misi)
 2. [Tech Stack](#2-tech-stack)
 3. [Fitur & Scope MVP](#3-fitur--scope-mvp)
@@ -15,52 +17,55 @@
 9. [User Flow](#9-user-flow)
 10. [PWA Configuration](#10-pwa-configuration)
 11. [Roadmap Pengembangan](#12-roadmap-pengembangan)
-13. [SEO Strategy](#13-seo-strategy)
-14. [Monetization Roadmap](#14-monetization-roadmap)
-15. [Fitur Utang Piutang](#15-fitur-utang-piutang)
-16. [Cloud Storage Migration Plan](#16-cloud-storage-migration-plan)
-17. [Fitur Recurring Transactions](#17-fitur-recurring-transactions)
-18. [Tipe Transaksi: Saving (Tabungan & Investasi)](#18-tipe-transaksi-saving-tabungan--investasi)
+12. [SEO Strategy](#13-seo-strategy)
+13. [Monetization Roadmap](#14-monetization-roadmap)
+14. [Fitur Utang Piutang](#15-fitur-utang-piutang)
+15. [Cloud Storage Migration Plan](#16-cloud-storage-migration-plan)
+16. [Fitur Recurring Transactions](#17-fitur-recurring-transactions)
+17. [Tipe Transaksi: Saving (Tabungan & Investasi)](#18-tipe-transaksi-saving-tabungan--investasi)
 
 ---
 
 ## 1. Visi & Misi
 
 ### Visi
-HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keputusan kecil yang lebih baik setiap hari — bukan sebagai akuntan atau financial advisor.
+
+HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keputusan kecil yang lebih baik setiap hari - bukan sebagai akuntan atau financial advisor.
 
 ### Misi
+
 - Membuat pencatatan keuangan semudah dan secepat mungkin
 - Memberikan insight AI yang empatik, bukan menghakimi
 - Membantu pengguna memahami pola pengeluaran mereka
 - Mengurangi stres finansial dengan pendekatan yang supportif
 
 ### Prinsip Desain
-- **Simple over complex** — fitur yang sedikit tapi sangat berguna
-- **Mobile-first** — mayoritas input dilakukan dari HP
-- **Frictionless** — input transaksi harus bisa dalam < 10 detik
-- **Trustworthy** — desain harus terasa aman dan meyakinkan
+
+- **Simple over complex** - fitur yang sedikit tapi sangat berguna
+- **Mobile-first** - mayoritas input dilakukan dari HP
+- **Frictionless** - input transaksi harus bisa dalam < 10 detik
+- **Trustworthy** - desain harus terasa aman dan meyakinkan
 
 ---
 
 ## 2. Tech Stack
 
-| Layer | Teknologi | Alasan |
-|-------|-----------|--------|
-| Framework | Next.js 14+ (App Router) | Full-stack, SSR/CSR fleksibel, routing modern |
-| Language | TypeScript | Type safety, lebih mudah maintain |
-| Styling | Tailwind CSS v4 | Utility-first, konsisten, cepat |
-| Animation | Framer Motion | Smooth transition & micro-interaction |
-| Database | Dexie.js (IndexedDB wrapper) | Ergonomis, offline-first, tanpa server |
-| State | Zustand | Ringan, simple, cocok untuk client state |
-| Charts | Recharts | Composable, ringan, support responsive |
+| Layer               | Teknologi                          | Alasan                                            |
+| ------------------- | ---------------------------------- | ------------------------------------------------- |
+| Framework           | Next.js 14+ (App Router)           | Full-stack, SSR/CSR fleksibel, routing modern     |
+| Language            | TypeScript                         | Type safety, lebih mudah maintain                 |
+| Styling             | Tailwind CSS v4                    | Utility-first, konsisten, cepat                   |
+| Animation           | Framer Motion                      | Smooth transition & micro-interaction             |
+| Database            | Dexie.js (IndexedDB wrapper)       | Ergonomis, offline-first, tanpa server            |
+| State               | Zustand                            | Ringan, simple, cocok untuk client state          |
+| Charts              | Recharts                           | Composable, ringan, support responsive            |
 | AI (Multi-provider) | Anthropic SDK + OpenAI SDK + Fetch | User bawa API key sendiri, pilih provider & model |
-| Icons | Lucide React | Clean, konsisten, tree-shakeable |
-| Fonts | Inter + Plus Jakarta Sans | Modern, readable, profesional |
-| Date | date-fns | Ringan, tree-shakeable |
-| Validation | Zod | Schema validation untuk form & API |
-| Image Compress | browser-image-compression | Kompres foto struk sebelum kirim ke API |
-| PWA | next-pwa | Install ke homescreen, offline support |
+| Icons               | Lucide React                       | Clean, konsisten, tree-shakeable                  |
+| Fonts               | Inter + Plus Jakarta Sans          | Modern, readable, profesional                     |
+| Date                | date-fns                           | Ringan, tree-shakeable                            |
+| Validation          | Zod                                | Schema validation untuk form & API                |
+| Image Compress      | browser-image-compression          | Kompres foto struk sebelum kirim ke API           |
+| PWA                 | next-pwa                           | Install ke homescreen, offline support            |
 
 ---
 
@@ -69,6 +74,7 @@ HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keput
 ### Core Features
 
 #### 📊 Dashboard
+
 - Ringkasan bulan ini: total income, total expense, saldo estimasi
 - Status cash flow: **Aman** / **Waspada** / **Perlu Hati-hati**
 - AI Insight harian (auto-generate saat buka dashboard)
@@ -76,6 +82,7 @@ HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keput
 - Quick actions: tombol tambah transaksi, scan struk
 
 #### ➕ Input Transaksi
+
 - **Manual Input**: form sederhana (nominal, kategori, tanggal, catatan)
 - **Scan Struk (Receipt Scanner)**:
   - Ambil foto via kamera (mobile-native)
@@ -86,6 +93,7 @@ HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keput
 - **Quick Input**: bottom sheet tap-to-add yang muncul dari tombol floating
 
 #### 📋 Riwayat Transaksi
+
 - List semua transaksi dengan filter bulan
 - Filter per kategori
 - Search by nama / catatan
@@ -93,17 +101,20 @@ HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keput
 - Tap untuk edit detail
 
 #### 📈 Laporan & Analitik
+
 - Grafik cash flow bulanan (bar chart)
 - Breakdown pengeluaran per kategori (donut chart)
 - Tren pengeluaran: naik / stabil / turun
 - Perbandingan bulan ini vs bulan lalu
 
 #### 🎯 Goals
+
 - Set target pengeluaran per kategori (budget)
 - Progress bar per kategori
 - Notifikasi (UI) jika mendekati atau melebihi budget
 
 #### ⚙️ Settings & Konfigurasi AI
+
 - Input API Key (disimpan lokal di IndexedDB, tidak pernah dikirim ke server kami)
 - Pilih AI Provider: Anthropic / OpenAI / Google Gemini
 - Pilih model sesuai provider yang dipilih
@@ -112,12 +123,14 @@ HEMATIN hadir sebagai teman keuangan harian yang membantu pengguna membuat keput
 - Reset / hapus API key
 
 #### 📲 PWA (Progressive Web App)
+
 - Bisa diinstall ke homescreen (Android & iOS)
 - Bisa dibuka fullscreen seperti app native
 - Offline mode: input transaksi tetap bisa walau tidak ada internet
 - Theme color biru langit di status bar
 
 ### Fitur yang TIDAK ada di MVP
+
 - Auth / Login (no backend)
 - Multi-user / sharing
 - Export PDF/Excel (post-MVP)
@@ -228,7 +241,7 @@ hematin/
 │   └── icons/                        # App icons: 192x192, 512x512, maskable
 │
 ├── PLANNING.md                       # Dokumen ini
-├── .env.local                        # (kosong — API key disimpan di IndexedDB user)
+├── .env.local                        # (kosong - API key disimpan di IndexedDB user)
 ├── next.config.ts                    # Include next-pwa config
 ├── tailwind.config.ts
 └── package.json
@@ -242,16 +255,16 @@ hematin/
 
 ```typescript
 interface Transaction {
-  id: string               // UUID
-  type: 'income' | 'expense'
-  amount: number           // dalam Rupiah (integer)
-  category: string         // e.g. "Makanan", "Transport"
-  merchant?: string        // nama toko (dari scan struk)
-  notes?: string           // catatan tambahan
-  date: string             // ISO date: "2026-02-26"
-  createdAt: number        // timestamp
-  source: 'manual' | 'scan'  // cara input
-  receiptImage?: string    // base64 atau blob URL (opsional)
+  id: string; // UUID
+  type: "income" | "expense";
+  amount: number; // dalam Rupiah (integer)
+  category: string; // e.g. "Makanan", "Transport"
+  merchant?: string; // nama toko (dari scan struk)
+  notes?: string; // catatan tambahan
+  date: string; // ISO date: "2026-02-26"
+  createdAt: number; // timestamp
+  source: "manual" | "scan"; // cara input
+  receiptImage?: string; // base64 atau blob URL (opsional)
 }
 ```
 
@@ -259,11 +272,11 @@ interface Transaction {
 
 ```typescript
 interface Goal {
-  id: string
-  category: string         // kategori yang di-budget
-  limitAmount: number      // batas pengeluaran per bulan
-  month: string            // "2026-02" (year-month)
-  createdAt: number
+  id: string;
+  category: string; // kategori yang di-budget
+  limitAmount: number; // batas pengeluaran per bulan
+  month: string; // "2026-02" (year-month)
+  createdAt: number;
 }
 ```
 
@@ -271,10 +284,10 @@ interface Goal {
 
 ```typescript
 interface InsightCache {
-  id: string               // "insight-2026-02-26" (per hari)
-  date: string             // tanggal
-  content: string          // teks hasil AI
-  generatedAt: number      // timestamp
+  id: string; // "insight-2026-02-26" (per hari)
+  date: string; // tanggal
+  content: string; // teks hasil AI
+  generatedAt: number; // timestamp
 }
 ```
 
@@ -282,12 +295,12 @@ interface InsightCache {
 
 ```typescript
 interface AISettings {
-  id: 'ai-config'          // selalu satu record
-  provider: 'anthropic' | 'openai' | 'gemini'
-  model: string            // e.g. "claude-sonnet-4-6", "gpt-4o", "gemini-1.5-pro"
-  apiKey: string           // API key user (tersimpan lokal, TIDAK dikirim ke server kita)
-  isConfigured: boolean    // sudah setup atau belum
-  updatedAt: number
+  id: "ai-config"; // selalu satu record
+  provider: "anthropic" | "openai" | "gemini";
+  model: string; // e.g. "claude-sonnet-4-6", "gpt-4o", "gemini-1.5-pro"
+  apiKey: string; // API key user (tersimpan lokal, TIDAK dikirim ke server kita)
+  isConfigured: boolean; // sudah setup atau belum
+  updatedAt: number;
 }
 ```
 
@@ -302,11 +315,11 @@ interface AISettings {
 
 ### 6.1 Provider yang Didukung
 
-| Provider | Models yang Tersedia |
-|----------|---------------------|
-| **Anthropic** | claude-sonnet-4-6, claude-opus-4-6, claude-haiku-4-5 |
-| **OpenAI** | gpt-4o, gpt-4o-mini, gpt-4-turbo |
-| **Google Gemini** | gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash |
+| Provider          | Models yang Tersedia                                 |
+| ----------------- | ---------------------------------------------------- |
+| **Anthropic**     | claude-sonnet-4-6, claude-opus-4-6, claude-haiku-4-5 |
+| **OpenAI**        | gpt-4o, gpt-4o-mini, gpt-4-turbo                     |
+| **Google Gemini** | gemini-1.5-pro, gemini-1.5-flash, gemini-2.0-flash   |
 
 > Catatan: Scan struk (vision) membutuhkan model yang support multimodal.
 > Semua model di atas mendukung vision/image input.
@@ -337,43 +350,68 @@ Request AI (insight / scan):
 ```
 
 **File: `src/lib/ai-providers.ts`**
+
 ```typescript
 // Konfigurasi semua provider
 export const AI_PROVIDERS = {
   anthropic: {
-    name: 'Anthropic',
+    name: "Anthropic",
     models: [
-      { id: 'claude-sonnet-4-6', name: 'Claude Sonnet 4.6 (Recommended)', vision: true },
-      { id: 'claude-opus-4-6',   name: 'Claude Opus 4.6 (Paling cerdas)', vision: true },
-      { id: 'claude-haiku-4-5',  name: 'Claude Haiku 4.5 (Paling cepat)', vision: true },
+      {
+        id: "claude-sonnet-4-6",
+        name: "Claude Sonnet 4.6 (Recommended)",
+        vision: true,
+      },
+      {
+        id: "claude-opus-4-6",
+        name: "Claude Opus 4.6 (Paling cerdas)",
+        vision: true,
+      },
+      {
+        id: "claude-haiku-4-5",
+        name: "Claude Haiku 4.5 (Paling cepat)",
+        vision: true,
+      },
     ],
-    keyPrefix: 'sk-ant-',
-    keyPlaceholder: 'sk-ant-api03-...',
-    docsUrl: 'https://console.anthropic.com/settings/keys',
+    keyPrefix: "sk-ant-",
+    keyPlaceholder: "sk-ant-api03-...",
+    docsUrl: "https://console.anthropic.com/settings/keys",
   },
   openai: {
-    name: 'OpenAI',
+    name: "OpenAI",
     models: [
-      { id: 'gpt-4o',      name: 'GPT-4o (Recommended)', vision: true },
-      { id: 'gpt-4o-mini', name: 'GPT-4o Mini (Lebih hemat)', vision: true },
-      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo', vision: true },
+      { id: "gpt-4o", name: "GPT-4o (Recommended)", vision: true },
+      { id: "gpt-4o-mini", name: "GPT-4o Mini (Lebih hemat)", vision: true },
+      { id: "gpt-4-turbo", name: "GPT-4 Turbo", vision: true },
     ],
-    keyPrefix: 'sk-',
-    keyPlaceholder: 'sk-proj-...',
-    docsUrl: 'https://platform.openai.com/api-keys',
+    keyPrefix: "sk-",
+    keyPlaceholder: "sk-proj-...",
+    docsUrl: "https://platform.openai.com/api-keys",
   },
   gemini: {
-    name: 'Google Gemini',
+    name: "Google Gemini",
     models: [
-      { id: 'gemini-1.5-pro',   name: 'Gemini 1.5 Pro (Recommended)', vision: true },
-      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash (Lebih cepat)', vision: true },
-      { id: 'gemini-2.0-flash', name: 'Gemini 2.0 Flash (Terbaru)', vision: true },
+      {
+        id: "gemini-1.5-pro",
+        name: "Gemini 1.5 Pro (Recommended)",
+        vision: true,
+      },
+      {
+        id: "gemini-1.5-flash",
+        name: "Gemini 1.5 Flash (Lebih cepat)",
+        vision: true,
+      },
+      {
+        id: "gemini-2.0-flash",
+        name: "Gemini 2.0 Flash (Terbaru)",
+        vision: true,
+      },
     ],
-    keyPrefix: 'AIza',
-    keyPlaceholder: 'AIzaSy...',
-    docsUrl: 'https://aistudio.google.com/app/apikey',
+    keyPrefix: "AIza",
+    keyPlaceholder: "AIzaSy...",
+    docsUrl: "https://aistudio.google.com/app/apikey",
   },
-}
+};
 ```
 
 ---
@@ -381,11 +419,13 @@ export const AI_PROVIDERS = {
 ### 6.3 API Routes (Server-side Proxy)
 
 **Kenapa pakai server proxy, bukan langsung dari browser?**
+
 - Lebih aman: key tidak terekspos di network tab browser secara langsung
 - Bisa tambah rate limiting atau validasi di masa depan
 - CORS tidak jadi masalah
 
 **File: `src/app/api/insight/route.ts`**
+
 ```typescript
 // POST /api/insight
 // Headers: X-AI-Provider, X-AI-Model, X-AI-Key
@@ -400,6 +440,7 @@ export const AI_PROVIDERS = {
 ```
 
 **File: `src/app/api/scan/route.ts`**
+
 ```typescript
 // POST /api/scan
 // Headers: X-AI-Provider, X-AI-Model, X-AI-Key
@@ -413,6 +454,7 @@ export const AI_PROVIDERS = {
 ### 6.4 Daily Insight
 
 **Trigger:** Setiap kali dashboard dibuka, cek cache insight hari ini.
+
 - Ada → tampilkan dari cache (IndexedDB)
 - Belum ada & AI sudah dikonfigurasi → generate baru → simpan cache
 - AI belum dikonfigurasi → tampilkan banner setup
@@ -441,6 +483,7 @@ export const AI_PROVIDERS = {
 ### 6.5 Receipt Scanner (Struk OCR)
 
 **Flow:**
+
 1. User upload/foto struk
 2. Kompres gambar (max 1MB) dengan `browser-image-compression`
 3. Convert ke base64 → kirim ke `/api/scan`
@@ -448,6 +491,7 @@ export const AI_PROVIDERS = {
 5. Return JSON → pre-fill form konfirmasi
 
 **Prompt Vision (sama untuk semua provider):**
+
 ```
 Kamu adalah asisten pembaca struk belanja Indonesia.
 Baca gambar struk ini dan ekstrak informasi berikut.
@@ -477,7 +521,7 @@ Jika bukan struk, kembalikan { "error": "Bukan struk" }.
 │                                     │
 │  🤖 Konfigurasi AI HEMATIN          │
 │                                     │
-│  API key kamu aman — hanya          │
+│  API key kamu aman - hanya          │
 │  tersimpan di perangkat ini.        │
 │                                     │
 │  ── Pilih Provider ──               │
@@ -512,29 +556,30 @@ Jika bukan struk, kembalikan { "error": "Bukan struk" }.
 ### 7.1 Color Palette
 
 ```
-Primary:        #0EA5E9  (Sky-500)    — warna utama brand (biru langit)
-Primary Light:  #38BDF8  (Sky-400)    — gradient, highlight
-Primary Dark:   #0284C7  (Sky-600)    — hover state, pressed
-Primary Subtle: #E0F2FE  (Sky-100)    — background badge, chip
-Primary Ghost:  #F0F9FF  (Sky-50)     — hover ghost button
+Primary:        #0EA5E9  (Sky-500)    - warna utama brand (biru langit)
+Primary Light:  #38BDF8  (Sky-400)    - gradient, highlight
+Primary Dark:   #0284C7  (Sky-600)    - hover state, pressed
+Primary Subtle: #E0F2FE  (Sky-100)    - background badge, chip
+Primary Ghost:  #F0F9FF  (Sky-50)     - hover ghost button
 
-Accent:      #10B981  (Emerald-500)  — income, positif, sukses
-Danger:      #EF4444  (Red-500)      — expense, negatif, warning
-Warning:     #F59E0B  (Amber-500)    — waspada, perhatian
+Accent:      #10B981  (Emerald-500)  - income, positif, sukses
+Danger:      #EF4444  (Red-500)      - expense, negatif, warning
+Warning:     #F59E0B  (Amber-500)    - waspada, perhatian
 
-Background:  #F0F9FF  (Sky-50)       — halaman utama (nuansa langit tipis)
-Surface:     #FFFFFF                  — card, modal
-Surface Alt: #F1F5F9  (Slate-100)    — input, secondary card
+Background:  #F0F9FF  (Sky-50)       - halaman utama (nuansa langit tipis)
+Surface:     #FFFFFF                  - card, modal
+Surface Alt: #F1F5F9  (Slate-100)    - input, secondary card
 
-Text Primary:   #0C1A25  (custom)    — hampir hitam, sedikit biru
+Text Primary:   #0C1A25  (custom)    - hampir hitam, sedikit biru
 Text Secondary: #64748B  (Slate-500)
 Text Muted:     #94A3B8  (Slate-400)
 
-Border:      #BAE6FD  (Sky-200)      — border tipis berwarna langit
-Border Alt:  #E2E8F0  (Slate-200)    — border netral
+Border:      #BAE6FD  (Sky-200)      - border tipis berwarna langit
+Border Alt:  #E2E8F0  (Slate-200)    - border netral
 ```
 
 **Penggunaan Gradient:**
+
 ```
 Hero Card:   linear-gradient(135deg, #0EA5E9 0%, #38BDF8 50%, #7DD3FC 100%)
 Header BG:   linear-gradient(180deg, #F0F9FF 0%, #FFFFFF 100%)
@@ -544,18 +589,18 @@ FAB Button:  linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)
 ### 7.2 Typography
 
 ```
-Font Heading:  Plus Jakarta Sans  — bold, modern
-Font Body:     Inter              — bersih, readable
+Font Heading:  Plus Jakarta Sans  - bold, modern
+Font Body:     Inter              - bersih, readable
 
 Scale:
-  xs:    12px  — label kecil, badge
-  sm:    14px  — body secondary, caption
-  base:  16px  — body utama
-  lg:    18px  — subheading
-  xl:    20px  — heading section
-  2xl:   24px  — heading halaman
-  3xl:   30px  — angka besar (nominal)
-  4xl:   36px  — hero nominal di dashboard
+  xs:    12px  - label kecil, badge
+  sm:    14px  - body secondary, caption
+  base:  16px  - body utama
+  lg:    18px  - subheading
+  xl:    20px  - heading section
+  2xl:   24px  - heading halaman
+  3xl:   30px  - angka besar (nominal)
+  4xl:   36px  - hero nominal di dashboard
 ```
 
 ### 7.3 Spacing & Radius
@@ -564,36 +609,36 @@ Scale:
 Spacing: 4px base unit (4, 8, 12, 16, 20, 24, 32, 40, 48, 64)
 
 Border Radius:
-  sm:   8px   — button kecil, badge
-  md:   12px  — card, input
-  lg:   16px  — modal, bottom sheet
-  xl:   20px  — card besar
-  full: 9999px — pill badge, avatar
+  sm:   8px   - button kecil, badge
+  md:   12px  - card, input
+  lg:   16px  - modal, bottom sheet
+  xl:   20px  - card besar
+  full: 9999px - pill badge, avatar
 ```
 
 ### 7.4 Shadow
 
 ```
-sm:   0 1px 3px rgba(0,0,0,0.06)          — card subtle
-md:   0 4px 12px rgba(0,0,0,0.08)         — card hover, dropdown
-lg:   0 8px 24px rgba(0,0,0,0.10)         — modal, bottom sheet
-glow: 0 0 20px rgba(14,165,233,0.20)      — primary element focus (sky blue)
-sky:  0 4px 24px rgba(14,165,233,0.15)    — hero card, FAB button
+sm:   0 1px 3px rgba(0,0,0,0.06)          - card subtle
+md:   0 4px 12px rgba(0,0,0,0.08)         - card hover, dropdown
+lg:   0 8px 24px rgba(0,0,0,0.10)         - modal, bottom sheet
+glow: 0 0 20px rgba(14,165,233,0.20)      - primary element focus (sky blue)
+sky:  0 4px 24px rgba(14,165,233,0.15)    - hero card, FAB button
 ```
 
 ### 7.5 Animation & Motion
 
 ```
 Duration:
-  fast:    150ms  — hover, badge
-  normal:  250ms  — slide, fade
-  slow:    400ms  — page transition, modal
+  fast:    150ms  - hover, badge
+  normal:  250ms  - slide, fade
+  slow:    400ms  - page transition, modal
 
 Easing:
-  default:    cubic-bezier(0.4, 0, 0.2, 1)  — smooth
-  bounce:     cubic-bezier(0.34, 1.56, 0.64, 1)  — bottom sheet up
-  decelerate: cubic-bezier(0, 0, 0.2, 1)    — masuk layar
-  accelerate: cubic-bezier(0.4, 0, 1, 1)    — keluar layar
+  default:    cubic-bezier(0.4, 0, 0.2, 1)  - smooth
+  bounce:     cubic-bezier(0.34, 1.56, 0.64, 1)  - bottom sheet up
+  decelerate: cubic-bezier(0, 0, 0.2, 1)    - masuk layar
+  accelerate: cubic-bezier(0.4, 0, 1, 1)    - keluar layar
 
 Motion Principles:
   - Page masuk: slide up + fade in (250ms)
@@ -608,6 +653,7 @@ Motion Principles:
 ### 7.6 Komponen UI
 
 #### Card
+
 ```
 - Background: white
 - Padding: 20px
@@ -617,6 +663,7 @@ Motion Principles:
 ```
 
 #### Button
+
 ```
 Primary:   bg-sky-500, text-white, hover:bg-sky-600
 Secondary: bg-slate-100, text-slate-700, hover:bg-slate-200
@@ -633,6 +680,7 @@ Loading state: spinner icon + disabled
 ```
 
 #### Bottom Navigation
+
 ```
 - Fixed bottom, height: 64px + safe area
 - Background: white dengan top border sky-100
@@ -643,6 +691,7 @@ Loading state: spinner icon + disabled
 ```
 
 #### Bottom Sheet
+
 ```
 - Muncul dari bawah dengan spring animation
 - Backdrop blur + overlay
@@ -819,6 +868,7 @@ Loading state: spinner icon + disabled
 ## 9. User Flow
 
 ### Flow A: Input Manual
+
 ```
 Tap [+] di dashboard / bottom nav
     → Bottom sheet muncul (slide up)
@@ -830,6 +880,7 @@ Tap [+] di dashboard / bottom nav
 ```
 
 ### Flow B: Scan Struk
+
 ```
 Tap [📷 Scan Struk] di dashboard
     → Navigasi ke /scan
@@ -847,6 +898,7 @@ Tap [📷 Scan Struk] di dashboard
 ```
 
 ### Flow C: Lihat AI Insight
+
 ```
 Buka dashboard
     → Cek cache insight hari ini
@@ -863,30 +915,33 @@ Buka dashboard
 ### 10.1 next-pwa Setup
 
 **Install:**
+
 ```bash
 npm install next-pwa
 npm install --save-dev @types/next-pwa
 ```
 
 **File: `next.config.ts`**
+
 ```typescript
-import withPWA from 'next-pwa'
+import withPWA from "next-pwa";
 
 const nextConfig = withPWA({
-  dest: 'public',
+  dest: "public",
   register: true,
   skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === "development",
   // Cache strategy: stale-while-revalidate untuk assets
   // Network-first untuk API routes
-})
+});
 
-export default nextConfig
+export default nextConfig;
 ```
 
 ### 10.2 Web App Manifest
 
 **File: `public/manifest.json`**
+
 ```json
 {
   "name": "HEMATIN",
@@ -937,15 +992,16 @@ export default nextConfig
 
 ### 10.4 Offline Strategy
 
-| Halaman / Resource | Strategy |
-|--------------------|----------|
-| Halaman utama (Dashboard, Transaksi, dll) | Cache First (shell) |
-| Data transaksi | IndexedDB — always available offline |
-| AI Insight (cached hari ini) | IndexedDB — available offline |
-| API routes (`/api/insight`, `/api/scan`) | Network Only — butuh internet |
-| Font, icon, static assets | Cache First |
+| Halaman / Resource                        | Strategy                             |
+| ----------------------------------------- | ------------------------------------ |
+| Halaman utama (Dashboard, Transaksi, dll) | Cache First (shell)                  |
+| Data transaksi                            | IndexedDB - always available offline |
+| AI Insight (cached hari ini)              | IndexedDB - available offline        |
+| API routes (`/api/insight`, `/api/scan`)  | Network Only - butuh internet        |
+| Font, icon, static assets                 | Cache First                          |
 
 **UX Offline:**
+
 - Input transaksi manual → tetap bisa (IndexedDB)
 - Lihat riwayat & laporan → tetap bisa (IndexedDB)
 - AI Insight → tampilkan insight yang sudah di-cache
@@ -969,10 +1025,12 @@ export default nextConfig
 
 ---
 
-### Phase 1 — Foundation
+### Phase 1 - Foundation
+
 **Goal:** Project berjalan, bisa input & simpan transaksi ke IndexedDB
 
-#### Step 1.1 — Init Project
+#### Step 1.1 - Init Project
+
 ```bash
 npx create-next-app@latest hematin \
   --typescript --tailwind --app --src-dir \
@@ -986,77 +1044,94 @@ npm install dexie zustand framer-motion recharts \
 npm install --save-dev @types/next-pwa
 ```
 
-#### Step 1.2 — Konfigurasi Tailwind, Font & PWA
+#### Step 1.2 - Konfigurasi Tailwind, Font & PWA
+
 - Setup `tailwind.config.ts` dengan custom color `sky` sebagai primary
 - Tambah font Plus Jakarta Sans + Inter via `next/font/google`
 - Buat CSS variables untuk design tokens di `globals.css`
 - Setup `next.config.ts` dengan `withPWA`
 
-#### Step 1.3 — Types & Constants
+#### Step 1.3 - Types & Constants
+
 **File: `src/types/index.ts`**
+
 ```typescript
 // Transaction, Goal, InsightCache, AISettings, Category types
 // AIProvider: 'anthropic' | 'openai' | 'gemini'
 ```
+
 **File: `src/lib/categories.ts`**
+
 ```typescript
 // Daftar 8 kategori: Makanan, Transport, Belanja,
 // Kesehatan, Hiburan, Tagihan, Pendidikan, Lainnya
 // Masing-masing dengan: name, icon (emoji), color
 ```
+
 **File: `src/lib/ai-providers.ts`**
+
 ```typescript
 // AI_PROVIDERS config: provider list, models, key format
 // getModelsForProvider(provider) → Model[]
 // isVisionCapable(provider, model) → boolean
 ```
 
-#### Step 1.4 — Setup Database (Dexie)
+#### Step 1.4 - Setup Database (Dexie)
+
 **File: `src/lib/db.ts`**
+
 - Definisikan schema IndexedDB
 - Tabel: `transactions`, `goals`, `insights`, `settings`
 - Export instance `db` yang dipakai di seluruh app
 
-#### Step 1.5 — Setup State (Zustand)
+#### Step 1.5 - Setup State (Zustand)
+
 **File: `src/stores/transactionStore.ts`**
+
 - State: `transactions[]`, `isLoading`
 - Actions: `addTransaction`, `deleteTransaction`, `updateTransaction`, `loadTransactions`
 - Semua action sync dengan IndexedDB
 
 **File: `src/stores/settingsStore.ts`**
+
 - State: `aiSettings: AISettings | null`, `isConfigured: boolean`
 - Actions: `saveSettings`, `loadSettings`, `clearSettings`
 - Sync dengan IndexedDB tabel `settings`
 
-#### Step 1.6 — Komponen UI Dasar
+#### Step 1.6 - Komponen UI Dasar
+
 **File: `src/components/ui/`**
 
-| File | Deskripsi |
-|------|-----------|
-| `Button.tsx` | variant: primary, secondary, ghost, danger |
-| `Card.tsx` | wrapper dengan shadow & radius |
-| `Input.tsx` | text input dengan label & error state |
-| `Badge.tsx` | pill badge dengan warna dinamis |
-| `Skeleton.tsx` | loading placeholder shimmer |
-| `EmptyState.tsx` | ilustrasi + teks saat data kosong |
-| `Toast.tsx` | notifikasi sukses/error (top atau bottom) |
-| `BottomSheet.tsx` | modal dari bawah dengan drag gesture |
+| File              | Deskripsi                                  |
+| ----------------- | ------------------------------------------ |
+| `Button.tsx`      | variant: primary, secondary, ghost, danger |
+| `Card.tsx`        | wrapper dengan shadow & radius             |
+| `Input.tsx`       | text input dengan label & error state      |
+| `Badge.tsx`       | pill badge dengan warna dinamis            |
+| `Skeleton.tsx`    | loading placeholder shimmer                |
+| `EmptyState.tsx`  | ilustrasi + teks saat data kosong          |
+| `Toast.tsx`       | notifikasi sukses/error (top atau bottom)  |
+| `BottomSheet.tsx` | modal dari bawah dengan drag gesture       |
 
-#### Step 1.7 — Layout & Navigasi
+#### Step 1.7 - Layout & Navigasi
+
 **File: `src/components/layout/`**
 
-| File | Deskripsi |
-|------|-----------|
-| `BottomNav.tsx` | navigasi 4 tab di bawah + FAB button |
-| `Header.tsx` | header halaman dengan title & actions |
+| File              | Deskripsi                                 |
+| ----------------- | ----------------------------------------- |
+| `BottomNav.tsx`   | navigasi 4 tab di bawah + FAB button      |
+| `Header.tsx`      | header halaman dengan title & actions     |
 | `PageWrapper.tsx` | wrapper dengan padding + safe area bottom |
 
 **File: `src/app/layout.tsx`**
+
 - Pasang font, bottom nav, page wrapper
 - Buat provider untuk Zustand
 
-#### Step 1.8 — Form Input Transaksi
+#### Step 1.8 - Form Input Transaksi
+
 **File: `src/components/transactions/TransactionForm.tsx`**
+
 - Toggle: Pengeluaran / Pemasukan
 - Input: nominal (format Rupiah otomatis)
 - Picker: kategori (grid icon)
@@ -1065,11 +1140,14 @@ npm install --save-dev @types/next-pwa
 - Validasi dengan Zod sebelum submit
 
 **File: `src/components/transactions/CategoryPicker.tsx`**
+
 - Grid 4 kolom kategori
 - Tap untuk pilih, highlight active
 
-#### Step 1.9 — Halaman Riwayat Transaksi
+#### Step 1.9 - Halaman Riwayat Transaksi
+
 **File: `src/app/transactions/page.tsx`**
+
 - List transaksi dari Zustand store
 - Grup berdasarkan tanggal (Hari ini, Kemarin, dst)
 - Setiap item: icon kategori, nama, nominal (merah/hijau)
@@ -1077,11 +1155,14 @@ npm install --save-dev @types/next-pwa
 
 ---
 
-### Phase 2 — Dashboard & Charts
+### Phase 2 - Dashboard & Charts
+
 **Goal:** Dashboard informatif dengan visualisasi data cash flow
 
-#### Step 2.1 — Utility Kalkulasi
+#### Step 2.1 - Utility Kalkulasi
+
 **File: `src/lib/calculations.ts`**
+
 ```typescript
 // getTotalIncome(transactions, month)
 // getTotalExpense(transactions, month)
@@ -1094,40 +1175,48 @@ npm install --save-dev @types/next-pwa
 // compareWithLastMonth(transactions)
 ```
 
-#### Step 2.2 — Komponen Dashboard
+#### Step 2.2 - Komponen Dashboard
+
 **File: `src/components/dashboard/`**
 
-| File | Deskripsi |
-|------|-----------|
-| `HeroCard.tsx` | Card besar: saldo + status + gradient sky |
-| `SummaryCards.tsx` | 2 card kecil: income (hijau) & expense (merah) |
-| `CashFlowStatus.tsx` | Badge berwarna: Aman/Waspada/Perlu Hati-hati |
-| `MiniChart.tsx` | Bar chart 7 hari (Recharts, height 120px) |
-| `QuickActions.tsx` | 2 tombol: + Tambah & 📷 Scan Struk |
-| `AIInsightCard.tsx` | Card dengan skeleton loading & teks insight |
+| File                 | Deskripsi                                      |
+| -------------------- | ---------------------------------------------- |
+| `HeroCard.tsx`       | Card besar: saldo + status + gradient sky      |
+| `SummaryCards.tsx`   | 2 card kecil: income (hijau) & expense (merah) |
+| `CashFlowStatus.tsx` | Badge berwarna: Aman/Waspada/Perlu Hati-hati   |
+| `MiniChart.tsx`      | Bar chart 7 hari (Recharts, height 120px)      |
+| `QuickActions.tsx`   | 2 tombol: + Tambah & 📷 Scan Struk             |
+| `AIInsightCard.tsx`  | Card dengan skeleton loading & teks insight    |
 
-#### Step 2.3 — Halaman Dashboard
+#### Step 2.3 - Halaman Dashboard
+
 **File: `src/app/page.tsx`**
+
 - Susun semua komponen dashboard
 - Load data dari Zustand saat mount
 - Trigger fetch AI insight
 
-#### Step 2.4 — Halaman Laporan
+#### Step 2.4 - Halaman Laporan
+
 **File: `src/app/reports/page.tsx`**
 
 **Komponen:**
-- `CashFlowChart.tsx` — Bar chart grouped (income vs expense) per bulan
-- `CategoryDonut.tsx` — Donut chart + legend daftar kategori
-- `MonthPicker.tsx` — Selector bulan/tahun
-- `TrendCard.tsx` — Perbandingan dengan bulan lalu (% naik/turun)
+
+- `CashFlowChart.tsx` - Bar chart grouped (income vs expense) per bulan
+- `CategoryDonut.tsx` - Donut chart + legend daftar kategori
+- `MonthPicker.tsx` - Selector bulan/tahun
+- `TrendCard.tsx` - Perbandingan dengan bulan lalu (% naik/turun)
 
 ---
 
-### Phase 3 — Settings AI & AI Integration
+### Phase 3 - Settings AI & AI Integration
+
 **Goal:** User bisa setup AI sendiri, insight & scanner berjalan multi-provider
 
-#### Step 3.1 — Utility Format
+#### Step 3.1 - Utility Format
+
 **File: `src/lib/utils.ts`**
+
 ```typescript
 // formatRupiah(amount: number) → "Rp 45.000"
 // formatDate(date: string) → "26 Feb 2026"
@@ -1137,16 +1226,19 @@ npm install --save-dev @types/next-pwa
 // maskApiKey(key: string) → "sk-ant-...xxxx" (untuk display)
 ```
 
-#### Step 3.2 — Halaman Settings AI
+#### Step 3.2 - Halaman Settings AI
+
 **File: `src/app/settings/page.tsx`**
 
 **Komponen:**
-- `AIProviderPicker.tsx` — 3 pill: Anthropic / OpenAI / Gemini
-- `ModelPicker.tsx` — Dropdown model sesuai provider
-- `APIKeyInput.tsx` — Input dengan toggle show/hide + link docs
-- `ConnectionTest.tsx` — Tombol test + status: loading / sukses / gagal
+
+- `AIProviderPicker.tsx` - 3 pill: Anthropic / OpenAI / Gemini
+- `ModelPicker.tsx` - Dropdown model sesuai provider
+- `APIKeyInput.tsx` - Input dengan toggle show/hide + link docs
+- `ConnectionTest.tsx` - Tombol test + status: loading / sukses / gagal
 
 **Logic Test Koneksi:**
+
 ```typescript
 // Kirim request kecil ke /api/insight dengan data dummy
 // Jika response 200 → ✅ Koneksi berhasil
@@ -1155,8 +1247,10 @@ npm install --save-dev @types/next-pwa
 // Jika network error → ❌ Tidak bisa terhubung
 ```
 
-#### Step 3.3 — API Route: Multi-provider Insight
+#### Step 3.3 - API Route: Multi-provider Insight
+
 **File: `src/app/api/insight/route.ts`**
+
 ```typescript
 // POST /api/insight
 // Headers: X-AI-Provider, X-AI-Model, X-AI-Key
@@ -1171,6 +1265,7 @@ npm install --save-dev @types/next-pwa
 ```
 
 **File: `src/lib/ai-insight.ts`**
+
 ```typescript
 // fetchDailyInsight(data, settings) → string
 //   → ambil settings dari Zustand
@@ -1179,16 +1274,20 @@ npm install --save-dev @types/next-pwa
 // saveInsightCache(date, content) → void
 ```
 
-#### Step 3.4 — AI Insight Card
+#### Step 3.4 - AI Insight Card
+
 **File: `src/components/dashboard/AIInsightCard.tsx`**
+
 - Jika AI belum setup → banner dengan link ke `/settings`
 - Jika loading → skeleton shimmer
 - Tampilkan teks insight (📌💡✅🔮🌱)
 - Tap [Baca Selengkapnya] → bottom sheet insight penuh
 - Tombol [Refresh] untuk regenerate
 
-#### Step 3.5 — API Route: Multi-provider Scanner
+#### Step 3.5 - API Route: Multi-provider Scanner
+
 **File: `src/app/api/scan/route.ts`**
+
 ```typescript
 // POST /api/scan
 // Headers: X-AI-Provider, X-AI-Model, X-AI-Key
@@ -1199,50 +1298,61 @@ npm install --save-dev @types/next-pwa
 ```
 
 **File: `src/lib/ai-scanner.ts`**
+
 ```typescript
 // scanReceipt(imageBase64: string, settings: AISettings) → ScannedReceipt
 ```
 
-#### Step 3.6 — Halaman Scanner
+#### Step 3.6 - Halaman Scanner
+
 **File: `src/app/scan/page.tsx`**
 
 **Komponen:**
-- `ReceiptScanner.tsx` — Area upload/kamera + instruksi
-- `ReceiptPreview.tsx` — Preview foto + tombol scan + ganti foto
-- `ScanLoading.tsx` — Animasi loading "HEMATIN sedang membaca..."
-- `ReceiptConfirm.tsx` — Form pre-filled + tombol simpan/ulang
+
+- `ReceiptScanner.tsx` - Area upload/kamera + instruksi
+- `ReceiptPreview.tsx` - Preview foto + tombol scan + ganti foto
+- `ScanLoading.tsx` - Animasi loading "HEMATIN sedang membaca..."
+- `ReceiptConfirm.tsx` - Form pre-filled + tombol simpan/ulang
 
 **Guard:** Jika AI belum dikonfigurasi → redirect ke `/settings` dengan pesan toast
 
 ---
 
-### Phase 4 — Goals & Fitur Lengkap
+### Phase 4 - Goals & Fitur Lengkap
+
 **Goal:** Semua fitur MVP selesai dan terintegrasi
 
-#### Step 4.1 — Goals Store
+#### Step 4.1 - Goals Store
+
 **File: `src/stores/goalStore.ts`**
+
 - State: `goals[]`
 - Actions: `addGoal`, `deleteGoal`, `updateGoal`
 - Kalkulasi: `getGoalProgress(category, month)` → { spent, limit, percent }
 
-#### Step 4.2 — Halaman Goals
+#### Step 4.2 - Halaman Goals
+
 **File: `src/app/goals/page.tsx`**
 
 **Komponen:**
-- `GoalCard.tsx` — Card per kategori dengan progress bar
+
+- `GoalCard.tsx` - Card per kategori dengan progress bar
   - Warna progress: hijau (<80%), kuning (80-99%), merah (>100%)
   - Label: "Rp 350rb dari Rp 500rb"
-- `GoalForm.tsx` — Form: pilih kategori + set limit
+- `GoalForm.tsx` - Form: pilih kategori + set limit
 - Progress bar dengan animasi width dari 0%
 
-#### Step 4.3 — Filter & Search Transaksi
+#### Step 4.3 - Filter & Search Transaksi
+
 **Tambahan di `/transactions`:**
+
 - Month picker (scroll horizontal atau dropdown)
 - Filter kategori (pill scrollable)
 - Search bar dengan debounce 300ms
 - Sort: terbaru / terlama / terbesar / terkecil
 
-#### Step 4.4 — Edit & Hapus Transaksi
+#### Step 4.4 - Edit & Hapus Transaksi
+
 - Tap transaksi → bottom sheet detail
 - Edit: pre-fill form dengan data existing
 - Hapus: konfirmasi dialog sebelum delete
@@ -1250,10 +1360,12 @@ npm install --save-dev @types/next-pwa
 
 ---
 
-### Phase 5 — Polish & Production Ready
+### Phase 5 - Polish & Production Ready
+
 **Goal:** UI premium, smooth, siap dipakai sehari-hari
 
-#### Step 5.1 — Framer Motion Animations
+#### Step 5.1 - Framer Motion Animations
+
 ```typescript
 // Page transition: AnimatePresence + variants
 // Card enter: staggerChildren dengan delay 50ms per card
@@ -1262,7 +1374,8 @@ npm install --save-dev @types/next-pwa
 // Skeleton → content: crossfade transition
 ```
 
-#### Step 5.2 — Micro-interactions
+#### Step 5.2 - Micro-interactions
+
 - Tombol: `whileTap={{ scale: 0.97 }}`
 - Card: `whileHover={{ y: -2, shadow: "md" }}`
 - FAB: `whileTap={{ scale: 0.92 }}` + ripple effect
@@ -1270,19 +1383,22 @@ npm install --save-dev @types/next-pwa
 - Category pick: scale up + bounce saat dipilih
 - Toast: slide dari atas + auto dismiss 3 detik
 
-#### Step 5.3 — Loading & Empty States
+#### Step 5.3 - Loading & Empty States
+
 - Setiap data-driven komponen punya skeleton variant
 - Shimmer direction: kiri ke kanan (90deg gradient)
 - Empty state dashboard: ilustrasi + CTA "Catat transaksi pertama"
 - Empty state riwayat: "Belum ada transaksi bulan ini"
 - Error state AI: "Gagal memuat insight, coba lagi"
 
-#### Step 5.4 — Responsiveness
+#### Step 5.4 - Responsiveness
+
 - Mobile (< 640px): layout utama, bottom nav
 - Tablet (640–1024px): konten lebih lebar, padding lebih besar
 - Desktop (> 1024px): max-width 480px centered (feel like mobile app)
 
-#### Step 5.5 — PWA (Bonus)
+#### Step 5.5 - PWA (Bonus)
+
 ```
 public/manifest.json:
   - name: "HEMATIN"
@@ -1295,13 +1411,16 @@ next.config.ts:
   - Tambah PWA config (next-pwa atau manual service worker)
 ```
 
-#### Step 5.6 — Environment & Deployment
+#### Step 5.6 - Environment & Deployment
+
 **File: `.env.local`**
+
 ```
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 **Deploy ke Vercel:**
+
 ```bash
 vercel deploy
 # Set env var ANTHROPIC_API_KEY di Vercel dashboard
@@ -1401,44 +1520,49 @@ vercel deploy
 
 ### Status Tracking
 
-| Phase | Status | Mulai | Selesai |
-|-------|--------|-------|---------|
-| Phase 1 — Foundation | ✅ Selesai | 26 Feb 2026 | 26 Feb 2026 |
-| Phase 2 — Dashboard & Charts | ✅ Selesai | 26 Feb 2026 | 26 Feb 2026 |
-| Phase 3 — Settings AI & AI Integration | ✅ Selesai | 26 Feb 2026 | 26 Feb 2026 |
-| Phase 4 — Goals & Fitur Lengkap | ✅ Selesai | 26 Feb 2026 | 1 Mar 2026 |
-| Phase 4B — Utang Piutang + Reminder | ✅ Selesai | 1 Mar 2026 | 1 Mar 2026 |
-| Phase 4C — Recurring Transactions | ✅ Selesai | 3 Mar 2026 | 3 Mar 2026 |
-| Phase 5 — Polish, Animasi & PWA | 🟡 Sebagian | 26 Feb 2026 | — |
-| Phase 6 — Cloud Storage Migration | 🔲 Future | — | — |
+| Phase                                  | Status      | Mulai       | Selesai     |
+| -------------------------------------- | ----------- | ----------- | ----------- |
+| Phase 1 - Foundation                   | ✅ Selesai  | 26 Feb 2026 | 26 Feb 2026 |
+| Phase 2 - Dashboard & Charts           | ✅ Selesai  | 26 Feb 2026 | 26 Feb 2026 |
+| Phase 3 - Settings AI & AI Integration | ✅ Selesai  | 26 Feb 2026 | 26 Feb 2026 |
+| Phase 4 - Goals & Fitur Lengkap        | ✅ Selesai  | 26 Feb 2026 | 1 Mar 2026  |
+| Phase 4B - Utang Piutang + Reminder    | ✅ Selesai  | 1 Mar 2026  | 1 Mar 2026  |
+| Phase 4C - Recurring Transactions      | ✅ Selesai  | 3 Mar 2026  | 3 Mar 2026  |
+| Phase 5 - Polish, Animasi & PWA        | 🟡 Sebagian | 26 Feb 2026 | -           |
+| Phase 6 - Cloud Storage Migration      | 🔲 Future   | -           | -           |
 
 ### Catatan Implementasi (26 Feb 2026)
 
 **Yang sudah ada tapi beda dari plan awal:**
-- Dashboard langsung di `/` (bukan `/app/dashboard`) — SEO split bisa dikerjakan post-MVP
+
+- Dashboard langsung di `/` (bukan `/app/dashboard`) - SEO split bisa dikerjakan post-MVP
 - Settings, Goals, Scan, Reports inline di halaman (bukan komponen terpisah per folder)
 - Build menggunakan `--webpack` flag karena Next.js 16 + @ducanh2912/next-pwa tidak kompatibel dengan Turbopack default
 
 **Phase 3 selesai ✅**
 
 **Pending (Phase 5):**
+
 - Swipe-to-delete gesture di TransactionList
 - Responsive check (mobile, tablet, desktop)
 - Test install di Android & iOS
 
 **Selesai 1 Mar 2026 (lanjutan):**
+
 - ~~InstallBanner PWA~~ ✅
 
 **Selesai 1 Mar 2026:**
+
 - ~~Filter & search di riwayat transaksi~~ ✅
 - ~~Edit transaksi (pre-fill form)~~ ✅
 - ~~Fitur Utang Piutang + DebtReminderBanner~~ ✅
 
 **Sudah selesai (dari catatan sebelumnya):**
-- ~~AI Insight Card~~ ✅ — AIInsightCard.tsx + ai-insight.ts + calculations.ts
-- ~~Recharts~~ ✅ — MiniChart + CashFlowChart + CategoryDonut
-- ~~PWA Icons~~ ✅ — icon.svg + icon-192.png + icon-512.png + icon-maskable-512.png
-- ~~Dark mode~~ ✅ — semua halaman & komponen
+
+- ~~AI Insight Card~~ ✅ - AIInsightCard.tsx + ai-insight.ts + calculations.ts
+- ~~Recharts~~ ✅ - MiniChart + CashFlowChart + CategoryDonut
+- ~~PWA Icons~~ ✅ - icon.svg + icon-192.png + icon-512.png + icon-maskable-512.png
+- ~~Dark mode~~ ✅ - semua halaman & komponen
 
 ---
 
@@ -1475,6 +1599,7 @@ vercel deploy
 **Tujuan:** Ranking di Google untuk keyword keuangan personal Indonesia.
 
 **Struktur halaman:**
+
 ```
 ┌─────────────────────────────────────┐
 │  HEMATIN    [Mulai Gratis]          │  ← Navbar
@@ -1507,110 +1632,119 @@ vercel deploy
 
 ### 13.3 Metadata & Next.js SEO Setup
 
-**File: `src/app/layout.tsx`** — metadata global
+**File: `src/app/layout.tsx`** - metadata global
+
 ```typescript
 export const metadata: Metadata = {
   title: {
-    default: 'HEMATIN — Asisten Keuangan Harian Berbasis AI',
-    template: '%s | HEMATIN',
+    default: "HEMATIN - Asisten Keuangan Harian Berbasis AI",
+    template: "%s | HEMATIN",
   },
   description:
-    'Catat cash flow harianmu, scan struk belanja, dan dapatkan insight AI yang empatik. ' +
-    'Data tersimpan aman di perangkatmu, gratis selamanya.',
+    "Catat cash flow harianmu, scan struk belanja, dan dapatkan insight AI yang empatik. " +
+    "Data tersimpan aman di perangkatmu, gratis selamanya.",
   keywords: [
-    'aplikasi keuangan pribadi',
-    'catat pengeluaran',
-    'cash flow harian',
-    'scan struk belanja',
-    'asisten keuangan AI',
-    'aplikasi budgeting indonesia',
-    'pencatatan keuangan gratis',
+    "aplikasi keuangan pribadi",
+    "catat pengeluaran",
+    "cash flow harian",
+    "scan struk belanja",
+    "asisten keuangan AI",
+    "aplikasi budgeting indonesia",
+    "pencatatan keuangan gratis",
   ],
-  authors: [{ name: 'HEMATIN' }],
-  creator: 'HEMATIN',
+  authors: [{ name: "HEMATIN" }],
+  creator: "HEMATIN",
   openGraph: {
-    type: 'website',
-    locale: 'id_ID',
-    url: 'https://hematin.app',
-    siteName: 'HEMATIN',
-    title: 'HEMATIN — Asisten Keuangan Harian Berbasis AI',
-    description: 'Catat cash flow, scan struk, insight AI. Semua data tersimpan di perangkatmu.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    type: "website",
+    locale: "id_ID",
+    url: "https://hematin.app",
+    siteName: "HEMATIN",
+    title: "HEMATIN - Asisten Keuangan Harian Berbasis AI",
+    description:
+      "Catat cash flow, scan struk, insight AI. Semua data tersimpan di perangkatmu.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'HEMATIN — Asisten Keuangan Harian Berbasis AI',
-    description: 'Catat cash flow, scan struk, insight AI. Semua data tersimpan di perangkatmu.',
-    images: ['/og-image.png'],
+    card: "summary_large_image",
+    title: "HEMATIN - Asisten Keuangan Harian Berbasis AI",
+    description:
+      "Catat cash flow, scan struk, insight AI. Semua data tersimpan di perangkatmu.",
+    images: ["/og-image.png"],
   },
   robots: {
     index: true,
     follow: true,
     googleBot: { index: true, follow: true },
   },
-  manifest: '/manifest.json',
-  themeColor: '#0EA5E9',
-}
+  manifest: "/manifest.json",
+  themeColor: "#0EA5E9",
+};
 ```
 
 **Per halaman landing (SSG):**
+
 ```typescript
 // src/app/page.tsx (landing)
 export const metadata: Metadata = {
-  title: 'Catat Keuangan Harian dengan AI — Gratis',
-  description: '...',
-  alternates: { canonical: 'https://hematin.app' },
-}
+  title: "Catat Keuangan Harian dengan AI - Gratis",
+  description: "...",
+  alternates: { canonical: "https://hematin.app" },
+};
 ```
 
 ---
 
 ### 13.4 Target Keyword
 
-| Keyword | Intent | Volume Est. | Prioritas |
-|---------|--------|-------------|-----------|
-| aplikasi catat keuangan | Informational | Tinggi | ★★★ |
-| catat pengeluaran harian | Informational | Tinggi | ★★★ |
-| aplikasi cash flow pribadi | Informational | Sedang | ★★★ |
-| scan struk belanja otomatis | Informational | Sedang | ★★☆ |
-| aplikasi budgeting indonesia gratis | Informational | Sedang | ★★★ |
-| asisten keuangan AI indonesia | Informational | Rendah | ★★☆ |
-| cara mengatur keuangan harian | Informational | Tinggi | ★★☆ |
+| Keyword                             | Intent        | Volume Est. | Prioritas |
+| ----------------------------------- | ------------- | ----------- | --------- |
+| aplikasi catat keuangan             | Informational | Tinggi      | ★★★       |
+| catat pengeluaran harian            | Informational | Tinggi      | ★★★       |
+| aplikasi cash flow pribadi          | Informational | Sedang      | ★★★       |
+| scan struk belanja otomatis         | Informational | Sedang      | ★★☆       |
+| aplikasi budgeting indonesia gratis | Informational | Sedang      | ★★★       |
+| asisten keuangan AI indonesia       | Informational | Rendah      | ★★☆       |
+| cara mengatur keuangan harian       | Informational | Tinggi      | ★★☆       |
 
 ---
 
 ### 13.5 Technical SEO
 
 **File: `src/app/sitemap.ts`**
+
 ```typescript
 // Generate sitemap otomatis
 // Include: /, /blog/*, /features
 // Exclude: /app/* (private, no index)
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
-    { url: 'https://hematin.app', lastModified: new Date(), priority: 1 },
-    { url: 'https://hematin.app/blog', lastModified: new Date(), priority: 0.8 },
+    { url: "https://hematin.app", lastModified: new Date(), priority: 1 },
+    {
+      url: "https://hematin.app/blog",
+      lastModified: new Date(),
+      priority: 0.8,
+    },
     // blog posts...
-  ]
+  ];
 }
 ```
 
 **File: `src/app/robots.ts`**
+
 ```typescript
 // Allow: /
 // Allow: /blog
 // Disallow: /app  ← tidak perlu di-index
 export default function robots(): MetadataRoute.Robots {
   return {
-    rules: [
-      { userAgent: '*', allow: '/', disallow: '/app/' },
-    ],
-    sitemap: 'https://hematin.app/sitemap.xml',
-  }
+    rules: [{ userAgent: "*", allow: "/", disallow: "/app/" }],
+    sitemap: "https://hematin.app/sitemap.xml",
+  };
 }
 ```
 
 **File: `public/og-image.png`**
+
 - Ukuran: 1200 × 630 px
 - Desain: logo HEMATIN + tagline + screenshot app
 - Warna: gradient sky blue brand
@@ -1620,17 +1754,18 @@ export default function robots(): MetadataRoute.Robots {
 ### 13.6 Structured Data (JSON-LD)
 
 **Di landing page:**
+
 ```typescript
 const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: 'HEMATIN',
-  applicationCategory: 'FinanceApplication',
-  operatingSystem: 'Web, Android, iOS',
-  offers: { '@type': 'Offer', price: '0', priceCurrency: 'IDR' },
-  description: 'Asisten keuangan harian berbasis AI untuk pengguna Indonesia.',
-  inLanguage: 'id',
-}
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "HEMATIN",
+  applicationCategory: "FinanceApplication",
+  operatingSystem: "Web, Android, iOS",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "IDR" },
+  description: "Asisten keuangan harian berbasis AI untuk pengguna Indonesia.",
+  inLanguage: "id",
+};
 ```
 
 ---
@@ -1639,16 +1774,17 @@ const jsonLd = {
 
 Target score **Lighthouse ≥ 90** untuk semua kategori:
 
-| Metric | Target | Cara Mencapai |
-|--------|--------|---------------|
-| LCP | < 2.5s | Optimize hero image, preload fonts |
-| FID / INP | < 100ms | Minimize JS blocking, code split |
-| CLS | < 0.1 | Reserve space untuk gambar & font |
-| TTFB | < 600ms | Vercel Edge, static generation |
+| Metric    | Target  | Cara Mencapai                      |
+| --------- | ------- | ---------------------------------- |
+| LCP       | < 2.5s  | Optimize hero image, preload fonts |
+| FID / INP | < 100ms | Minimize JS blocking, code split   |
+| CLS       | < 0.1   | Reserve space untuk gambar & font  |
+| TTFB      | < 600ms | Vercel Edge, static generation     |
 
 **Teknis:**
-- Landing page: **Static Generation (SSG)** — zero server response time
-- App (`/app/*`): **Client-side Rendering** — tidak perlu SSR, data dari IndexedDB
+
+- Landing page: **Static Generation (SSG)** - zero server response time
+- App (`/app/*`): **Client-side Rendering** - tidak perlu SSR, data dari IndexedDB
 - Font: `display: swap` untuk menghindari FOUT
 - Images: `next/image` dengan `priority` pada hero
 - Code splitting: dynamic import untuk komponen berat (chart, framer-motion)
@@ -1659,15 +1795,16 @@ Target score **Lighthouse ≥ 90** untuk semua kategori:
 
 Untuk organic traffic jangka panjang:
 
-| Topik Artikel | Target Keyword |
-|---------------|---------------|
-| Cara mengatur keuangan dengan metode 50/30/20 | cara mengatur keuangan |
-| Apa itu cash flow dan kenapa penting? | cash flow adalah |
-| 7 kebiasaan orang yang sukses kelola keuangan | tips kelola keuangan |
-| Cara baca struk belanja untuk hemat lebih banyak | cara hemat belanja |
-| Bedanya budgeting dan cash flow tracking | budgeting vs cash flow |
+| Topik Artikel                                    | Target Keyword         |
+| ------------------------------------------------ | ---------------------- |
+| Cara mengatur keuangan dengan metode 50/30/20    | cara mengatur keuangan |
+| Apa itu cash flow dan kenapa penting?            | cash flow adalah       |
+| 7 kebiasaan orang yang sukses kelola keuangan    | tips kelola keuangan   |
+| Cara baca struk belanja untuk hemat lebih banyak | cara hemat belanja     |
+| Bedanya budgeting dan cash flow tracking         | budgeting vs cash flow |
 
 **File structure:**
+
 ```
 src/app/blog/
 ├── page.tsx              → Daftar artikel
@@ -1686,8 +1823,10 @@ src/app/blog/
 
 ### 14.1 Model Monetisasi per Fase
 
-#### Fase 0 — Free Forever (Sekarang — MVP)
+#### Fase 0 - Free Forever (Sekarang - MVP)
+
 **Semua fitur gratis tanpa batas.**
+
 - Tidak ada akun, tidak ada paywall
 - User bawa API key sendiri
 - Tujuan: **bangun user base & kepercayaan**
@@ -1698,7 +1837,8 @@ Revenue: Rp 0  |  Fokus: Traction & Feedback
 
 ---
 
-#### Fase 1 — Donate / Support (Post-MVP, ~3 bulan)
+#### Fase 1 - Donate / Support (Post-MVP, ~3 bulan)
+
 **Tambahkan tombol donasi untuk user yang mau support.**
 
 ```typescript
@@ -1716,22 +1856,24 @@ Revenue: Rp 0  |  Fokus: Traction & Feedback
 
 ---
 
-#### Fase 2 — HEMATIN Pro (6-12 bulan)
+#### Fase 2 - HEMATIN Pro (6-12 bulan)
+
 **Freemium model dengan fitur premium.**
 
-| Fitur | Free | Pro |
-|-------|------|-----|
-| Input transaksi | Unlimited | Unlimited |
-| Riwayat data | 3 bulan | Unlimited |
-| Laporan bulanan | ✓ | ✓ |
+| Fitur             | Free          | Pro                           |
+| ----------------- | ------------- | ----------------------------- |
+| Input transaksi   | Unlimited     | Unlimited                     |
+| Riwayat data      | 3 bulan       | Unlimited                     |
+| Laporan bulanan   | ✓             | ✓                             |
 | AI Insight harian | Bring own key | Bring own key + **Hosted AI** |
-| Scan struk | Bring own key | Bring own key + **Hosted AI** |
-| Export PDF/CSV | ✗ | ✓ |
-| Multi-device sync | ✗ | ✓ (cloud backup) |
-| Budget goals | 3 kategori | Unlimited |
-| Priority support | ✗ | ✓ |
+| Scan struk        | Bring own key | Bring own key + **Hosted AI** |
+| Export PDF/CSV    | ✗             | ✓                             |
+| Multi-device sync | ✗             | ✓ (cloud backup)              |
+| Budget goals      | 3 kategori    | Unlimited                     |
+| Priority support  | ✗             | ✓                             |
 
 **Harga:**
+
 ```
 Free:          Rp 0 / bulan
 Pro:           Rp 29.000 / bulan
@@ -1743,14 +1885,16 @@ Lifetime:      Rp 499.000 (early adopter price)
 > User Pro tidak perlu setup API key sendiri.
 
 **Implementasi tambahan yang dibutuhkan:**
+
 - Auth system (Supabase atau Clerk)
-- Payment gateway (Midtrans atau Xendit — Indonesia)
+- Payment gateway (Midtrans atau Xendit - Indonesia)
 - Cloud sync backend (Supabase PostgreSQL)
 - Subscription management
 
 ---
 
-#### Fase 3 — B2B / White Label (12-24 bulan)
+#### Fase 3 - B2B / White Label (12-24 bulan)
+
 **Jual ke perusahaan / komunitas / koperasi.**
 
 ```
@@ -1765,15 +1909,16 @@ Model:  Per seat / bulan
 
 ---
 
-#### Fase 4 — Marketplace & Affiliasi (18+ bulan)
+#### Fase 4 - Marketplace & Affiliasi (18+ bulan)
+
 **Rekomendasikan produk keuangan yang relevan.**
 
 ```
 Integrasi dengan:
-- Reksa dana (Bibit, Ajaib) — afiliasi
-- Tabungan digital (Jenius, Blu) — afiliasi
-- Asuransi — afiliasi
-- Pinjaman (jika user butuh) — afiliasi
+- Reksa dana (Bibit, Ajaib) - afiliasi
+- Tabungan digital (Jenius, Blu) - afiliasi
+- Asuransi - afiliasi
+- Pinjaman (jika user butuh) - afiliasi
 
 Model: Komisi per konversi (Cost Per Acquisition)
 ```
@@ -1786,13 +1931,13 @@ Model: Komisi per konversi (Cost Per Acquisition)
 
 ### 14.2 Revenue Projection (Konservatif)
 
-| Fase | Bulan | Users | Revenue/Bulan |
-|------|-------|-------|---------------|
-| Free | 0-3 | 0–500 | Rp 0 |
-| Donate | 3-6 | 500–2.000 | Rp 500rb – 2jt |
-| Pro Launch | 6-12 | 2.000–5.000 | Rp 5jt – 20jt |
-| Pro Growth | 12-18 | 5.000–15.000 | Rp 20jt – 60jt |
-| B2B + Afiliasi | 18-24 | 15.000+ | Rp 60jt+ |
+| Fase           | Bulan | Users        | Revenue/Bulan  |
+| -------------- | ----- | ------------ | -------------- |
+| Free           | 0-3   | 0–500        | Rp 0           |
+| Donate         | 3-6   | 500–2.000    | Rp 500rb – 2jt |
+| Pro Launch     | 6-12  | 2.000–5.000  | Rp 5jt – 20jt  |
+| Pro Growth     | 12-18 | 5.000–15.000 | Rp 20jt – 60jt |
+| B2B + Afiliasi | 18-24 | 15.000+      | Rp 60jt+       |
 
 ---
 
@@ -1801,7 +1946,7 @@ Model: Komisi per konversi (Cost Per Acquisition)
 Meski belum monetisasi sekarang, siapkan fondasi:
 
 ```typescript
-// 1. Analytics — track usage tanpa data personal
+// 1. Analytics - track usage tanpa data personal
 //    Gunakan: Plausible (privacy-first) atau Umami
 //    Track: page views, fitur yang paling sering dipakai
 
@@ -1814,10 +1959,11 @@ Meski belum monetisasi sekarang, siapkan fondasi:
 //    Gunakan: Resend + simple form di landing page
 
 // 4. Version & changelog
-//    /changelog page — untuk bangun kepercayaan & transparency
+//    /changelog page - untuk bangun kepercayaan & transparency
 ```
 
 **File tambahan:**
+
 ```
 src/app/changelog/page.tsx     → Riwayat update
 src/app/pricing/page.tsx       → Halaman harga (saat Pro launch)
@@ -1828,16 +1974,17 @@ src/components/ui/DonateBanner.tsx  → Banner donasi di settings
 
 ### 14.4 Kompetitor & Diferensiasi
 
-| Kompetitor | Kelemahan | HEMATIN lebih baik di |
-|------------|-----------|----------------------|
-| Money Manager | Berbayar, UI kuno | Gratis, modern, AI |
-| Wallet by BudgetBakers | Perlu akun, sync cloud | No akun, privacy-first |
-| Catatan Keuangan (play store) | Tidak ada AI | AI insight empatik |
-| Notion/Spreadsheet | Ribet setup | Auto-analisis, scan struk |
+| Kompetitor                    | Kelemahan              | HEMATIN lebih baik di     |
+| ----------------------------- | ---------------------- | ------------------------- |
+| Money Manager                 | Berbayar, UI kuno      | Gratis, modern, AI        |
+| Wallet by BudgetBakers        | Perlu akun, sync cloud | No akun, privacy-first    |
+| Catatan Keuangan (play store) | Tidak ada AI           | AI insight empatik        |
+| Notion/Spreadsheet            | Ribet setup            | Auto-analisis, scan struk |
 
 **Unique Selling Proposition (USP):**
-> *"Satu-satunya app keuangan Indonesia yang punya AI empatik,
-> scan struk otomatis, dan data 100% di perangkat kamu — gratis."*
+
+> _"Satu-satunya app keuangan Indonesia yang punya AI empatik,
+> scan struk otomatis, dan data 100% di perangkat kamu - gratis."_
 
 ---
 
@@ -1851,59 +1998,60 @@ src/components/ui/DonateBanner.tsx  → Banner donasi di settings
 
 ### 15.1 Konsep & Terminologi
 
-| Istilah | Artinya | Contoh |
-|---------|---------|--------|
-| **Hutang** | User berhutang ke orang lain | "Aku pinjam Rp 200rb ke Budi" |
+| Istilah     | Artinya                      | Contoh                          |
+| ----------- | ---------------------------- | ------------------------------- |
+| **Hutang**  | User berhutang ke orang lain | "Aku pinjam Rp 200rb ke Budi"   |
 | **Piutang** | Orang lain berhutang ke user | "Aku minjemin Rp 100rb ke Sari" |
 
 ---
 
-### 15.2 Database Schema — Tabel `debts`
+### 15.2 Database Schema - Tabel `debts`
 
 ```typescript
 interface Debt {
-  id: string                          // UUID
-  type: 'hutang' | 'piutang'         // hutang = I owe, piutang = they owe me
-  person: string                      // nama orang (bebas tulis)
-  amount: number                      // jumlah dalam Rupiah
-  dueDate?: string                    // ISO date: "2026-03-15" — opsional
-  description?: string                // keterangan (e.g. "bayar makan bareng")
-  status: 'active' | 'paid' | 'overdue'
-  createdAt: number                   // timestamp
-  paidAt?: number                     // timestamp saat dilunasi
-  notes?: string                      // catatan tambahan saat mark as paid
+  id: string; // UUID
+  type: "hutang" | "piutang"; // hutang = I owe, piutang = they owe me
+  person: string; // nama orang (bebas tulis)
+  amount: number; // jumlah dalam Rupiah
+  dueDate?: string; // ISO date: "2026-03-15" - opsional
+  description?: string; // keterangan (e.g. "bayar makan bareng")
+  status: "active" | "paid" | "overdue";
+  createdAt: number; // timestamp
+  paidAt?: number; // timestamp saat dilunasi
+  notes?: string; // catatan tambahan saat mark as paid
 }
 ```
 
 **Index Dexie:** `++id, type, status, dueDate, person`
 
 **Kalkulasi otomatis `overdue`:**
+
 - Setiap kali load data, cek `dueDate < today && status === 'active'` → otomatis mark `overdue`
 
 ---
 
-### 15.3 Store — `debtStore.ts`
+### 15.3 Store - `debtStore.ts`
 
 ```typescript
 // src/stores/debtStore.ts (Zustand + Dexie sync)
 
 interface DebtStore {
-  debts: Debt[]
-  isLoading: boolean
+  debts: Debt[];
+  isLoading: boolean;
 
   // Actions
-  loadDebts: () => Promise<void>
-  addDebt: (debt: Omit<Debt, 'id' | 'createdAt' | 'status'>) => Promise<void>
-  markAsPaid: (id: string, notes?: string) => Promise<void>
-  deleteDebt: (id: string) => Promise<void>
-  updateDebt: (id: string, data: Partial<Debt>) => Promise<void>
+  loadDebts: () => Promise<void>;
+  addDebt: (debt: Omit<Debt, "id" | "createdAt" | "status">) => Promise<void>;
+  markAsPaid: (id: string, notes?: string) => Promise<void>;
+  deleteDebt: (id: string) => Promise<void>;
+  updateDebt: (id: string, data: Partial<Debt>) => Promise<void>;
 
   // Computed
-  getActiveHutang: () => Debt[]        // type=hutang, status≠paid
-  getActivePiutang: () => Debt[]       // type=piutang, status≠paid
-  getOverdueCount: () => number        // badge count untuk nav
-  getTotalHutang: () => number         // total nominal hutang aktif
-  getTotalPiutang: () => number        // total nominal piutang aktif
+  getActiveHutang: () => Debt[]; // type=hutang, status≠paid
+  getActivePiutang: () => Debt[]; // type=piutang, status≠paid
+  getOverdueCount: () => number; // badge count untuk nav
+  getTotalHutang: () => number; // total nominal hutang aktif
+  getTotalPiutang: () => number; // total nominal piutang aktif
 }
 ```
 
@@ -1943,7 +2091,7 @@ interface DebtStore {
 │                                     │
 │  ── Lunas ──                        │
 │  ┌─────────────────────────────┐    │
-│  │  ✅ Tante Sarah — Rp 50rb  │    │  ← collapsed, text muted
+│  │  ✅ Tante Sarah - Rp 50rb  │    │  ← collapsed, text muted
 │  │  Lunas 20 Feb 2026         │    │
 │  └─────────────────────────────┘    │
 │                                     │
@@ -1979,37 +2127,39 @@ interface DebtStore {
 
 ### 15.6 Reminder System
 
-#### Level 1 — Dashboard Banner (MVP) ✅ Wajib diimplementasi
+#### Level 1 - Dashboard Banner (MVP) ✅ Wajib diimplementasi
 
 ```
 ┌─────────────────────────────────────┐
 │  💳 Pengingat Pembayaran            │
 │                                     │
-│  ⚠️ Hutang ke Budi — Rp 200rb      │
+│  ⚠️ Hutang ke Budi - Rp 200rb      │
 │     Sudah lewat jatuh tempo!        │
 │     [Tandai Lunas] [Lihat Detail]   │
 │                                     │
-│  🔔 Hutang ke Mama — Rp 250rb      │
+│  🔔 Hutang ke Mama - Rp 250rb      │
 │     Jatuh tempo dalam 3 hari        │
 │     [Tandai Lunas] [Lihat Detail]   │
 └─────────────────────────────────────┘
 ```
 
 **Logika trigger banner:**
+
 - `status === 'overdue'` → tampil selalu dengan warna merah
 - `dueDate` dalam 7 hari ke depan && status aktif → tampil kuning
 - Jika tidak ada reminder → tidak tampil (zero UI noise)
 
-#### Level 2 — Badge di Bottom Nav (MVP) ✅ Wajib diimplementasi
+#### Level 2 - Badge di Bottom Nav (MVP) ✅ Wajib diimplementasi
 
 ```
 Tab "💳 Utang" → Badge merah berisi angka jika ada overdue
 e.g. [💳 2] → ada 2 hutang overdue atau jatuh tempo
 ```
 
-#### Level 3 — AI Insight Integration (MVP) ✅ Wajib diimplementasi
+#### Level 3 - AI Insight Integration (MVP) ✅ Wajib diimplementasi
 
 Kirim data utang ke prompt AI insight harian:
+
 ```typescript
 {
   // ...financial context yang sudah ada...
@@ -2021,14 +2171,14 @@ Kirim data utang ke prompt AI insight harian:
 }
 ```
 
-AI bisa menyebut: *"Jangan lupa, kamu masih punya hutang Rp 450rb yang perlu diselesaikan..."*
+AI bisa menyebut: _"Jangan lupa, kamu masih punya hutang Rp 450rb yang perlu diselesaikan..."_
 
-#### Level 4 — PWA Push Notification (Post-MVP) 🔲
+#### Level 4 - PWA Push Notification (Post-MVP) 🔲
 
 ```
 // Butuh: Service Worker + Notification API + user permission
 // Trigger: H-1 sebelum due date → push notification lokal
-// Tidak butuh backend — gunakan Web Notifications API
+// Tidak butuh backend - gunakan Web Notifications API
 // Setup di: src/lib/debt-reminder.ts
 
 // Cara kerja:
@@ -2071,7 +2221,7 @@ src/
 🔲 5. Buat src/app/debts/page.tsx (inline DebtCard + DebtForm)
 🔲 6. Buat DebtReminderBanner.tsx → pasang di Dashboard
 🔲 7. Tambah badge overdue count ke tab BottomNav
-🔲 8. Update AI insight prompt — sertakan data hutang
+🔲 8. Update AI insight prompt - sertakan data hutang
 🔲 9. (Post-MVP) PWA Push Notification scheduler
 ```
 
@@ -2085,12 +2235,12 @@ src/
 
 ### 16.1 Mengapa Migrasi?
 
-| Masalah IndexedDB | Dampak ke User |
-|-------------------|----------------|
-| Data hilang jika clear browser storage | Kehilangan semua riwayat transaksi |
-| Tidak bisa akses dari HP lain | Tidak bisa ganti perangkat |
-| Tidak ada backup | Tidak ada recovery jika HP rusak |
-| Tidak bisa fitur Pro (multi-device sync) | Membatasi monetisasi |
+| Masalah IndexedDB                        | Dampak ke User                     |
+| ---------------------------------------- | ---------------------------------- |
+| Data hilang jika clear browser storage   | Kehilangan semua riwayat transaksi |
+| Tidak bisa akses dari HP lain            | Tidak bisa ganti perangkat         |
+| Tidak ada backup                         | Tidak ada recovery jika HP rusak   |
+| Tidak bisa fitur Pro (multi-device sync) | Membatasi monetisasi               |
 
 ---
 
@@ -2111,13 +2261,13 @@ src/
 
 ### 16.3 Stack yang Direkomendasikan
 
-| Layer | Teknologi | Alasan |
-|-------|-----------|--------|
-| **Database** | Supabase (PostgreSQL) | Free tier generous, realtime, RLS built-in |
-| **Auth** | Supabase Auth | Built-in dengan DB, social login gratis |
-| **ORM/Client** | Supabase JS Client | Official SDK, type-safe |
-| **Sync Strategy** | Optimistic update + background sync | UX tetap snappy, offline tetap jalan |
-| **Conflict Resolution** | Last-write-wins (per field, by `updatedAt`) | Sederhana, cocok untuk data personal |
+| Layer                   | Teknologi                                   | Alasan                                     |
+| ----------------------- | ------------------------------------------- | ------------------------------------------ |
+| **Database**            | Supabase (PostgreSQL)                       | Free tier generous, realtime, RLS built-in |
+| **Auth**                | Supabase Auth                               | Built-in dengan DB, social login gratis    |
+| **ORM/Client**          | Supabase JS Client                          | Official SDK, type-safe                    |
+| **Sync Strategy**       | Optimistic update + background sync         | UX tetap snappy, offline tetap jalan       |
+| **Conflict Resolution** | Last-write-wins (per field, by `updatedAt`) | Sederhana, cocok untuk data personal       |
 
 ---
 
@@ -2204,6 +2354,7 @@ Skenario 3: Multi-device
 ```
 
 **Field tambahan di IndexedDB untuk sync:**
+
 ```typescript
 // Tambahan field di semua tabel lokal:
 pendingSync: boolean    // true = belum tersync ke cloud
@@ -2240,9 +2391,9 @@ Tampilkan opsi:
 // Dijalankan satu kali saat user pertama kali login
 
 export async function migrateLocalDataToCloud(userId: string) {
-  const localTransactions = await db.transactions.toArray()
-  const localGoals = await db.goals.toArray()
-  const localDebts = await db.debts.toArray()
+  const localTransactions = await db.transactions.toArray();
+  const localGoals = await db.goals.toArray();
+  const localDebts = await db.debts.toArray();
 
   // Upload batch ke Supabase
   // Handle duplicate (upsert by id)
@@ -2257,31 +2408,31 @@ export async function migrateLocalDataToCloud(userId: string) {
 ### 16.8 Phase Migrasi
 
 ```
-Phase A — Persiapan (sebelum launch Pro):
+Phase A - Persiapan (sebelum launch Pro):
   🔲 Setup project Supabase (free tier)
   🔲 Buat schema tabel + RLS policies
   🔲 Install @supabase/supabase-js
   🔲 Buat src/lib/supabase.ts (client init)
   🔲 Tambah NEXT_PUBLIC_SUPABASE_URL + NEXT_PUBLIC_SUPABASE_ANON_KEY ke .env.local
 
-Phase B — Auth Layer:
+Phase B - Auth Layer:
   🔲 Buat src/app/auth/ (login/signup page minimal)
   🔲 Buat authStore.ts (Zustand: session, user, isLoggedIn)
   🔲 Integrasi Supabase Auth (Google OAuth + Email magic link)
   🔲 Banner opsional di app: "Login untuk backup otomatis"
 
-Phase C — Sync Layer:
+Phase C - Sync Layer:
   🔲 Tambah field pendingSync, syncedAt ke IndexedDB schema
   🔲 Buat src/lib/sync.ts (sync queue processor)
   🔲 Trigger sync: saat login, saat online kembali, background interval
   🔲 UI indikator sync status (ikon cloud kecil di header)
 
-Phase D — Migration Tool:
-  🔲 Buat migrateLocalDataToCloud() — satu kali saat login pertama
+Phase D - Migration Tool:
+  🔲 Buat migrateLocalDataToCloud() - satu kali saat login pertama
   🔲 Progress modal saat migration berjalan
   🔲 Rollback jika gagal di tengah jalan
 
-Phase E — Multi-device Realtime:
+Phase E - Multi-device Realtime:
   🔲 Subscribe Supabase Realtime untuk tabel transactions, debts, goals
   🔲 Merge incoming changes ke IndexedDB
   🔲 Conflict resolution: last updatedAt wins
@@ -2291,23 +2442,23 @@ Phase E — Multi-device Realtime:
 
 ### 16.9 Timeline & Prioritas
 
-| Phase | Kapan | Syarat |
-|-------|-------|--------|
-| **Utang Piutang** (Sek. 15) | Sekarang (Phase 4 tambahan) | Tidak butuh backend |
-| **Auth Layer** | Saat launch fitur Pro | Butuh user base ≥ 500 |
-| **Sync Layer** | Bersamaan dengan Pro launch | Auth sudah jalan |
-| **Migration Tool** | Bersamaan dengan Sync | Untuk user lama |
-| **Realtime Multi-device** | Setelah stable | Pro feature |
-| **PWA Push Notification** | Post-sync | Service Worker sudah aktif |
+| Phase                       | Kapan                       | Syarat                     |
+| --------------------------- | --------------------------- | -------------------------- |
+| **Utang Piutang** (Sek. 15) | Sekarang (Phase 4 tambahan) | Tidak butuh backend        |
+| **Auth Layer**              | Saat launch fitur Pro       | Butuh user base ≥ 500      |
+| **Sync Layer**              | Bersamaan dengan Pro launch | Auth sudah jalan           |
+| **Migration Tool**          | Bersamaan dengan Sync       | Untuk user lama            |
+| **Realtime Multi-device**   | Setelah stable              | Pro feature                |
+| **PWA Push Notification**   | Post-sync                   | Service Worker sudah aktif |
 
 ---
 
 ### 16.10 Biaya Estimasi (Supabase)
 
-| Tier | Harga | Limit |
-|------|-------|-------|
-| Free | $0/bulan | 500MB DB, 50rb MAU, 5GB transfer |
-| Pro | $25/bulan | 8GB DB, unlimited MAU, 250GB transfer |
+| Tier | Harga     | Limit                                 |
+| ---- | --------- | ------------------------------------- |
+| Free | $0/bulan  | 500MB DB, 50rb MAU, 5GB transfer      |
+| Pro  | $25/bulan | 8GB DB, unlimited MAU, 250GB transfer |
 
 > Untuk 0–5.000 user, Free tier Supabase sudah cukup.
 
@@ -2323,7 +2474,7 @@ Phase E — Multi-device Realtime:
 
 ### 17.1 Konsep
 
-Banyak pengeluaran bersifat tetap dan berulang setiap bulan. Saat ini user harus input ulang manual — fitur ini menghilangkan pekerjaan itu.
+Banyak pengeluaran bersifat tetap dan berulang setiap bulan. Saat ini user harus input ulang manual - fitur ini menghilangkan pekerjaan itu.
 
 **Dua mode:**
 | Mode | Deskripsi |
@@ -2335,52 +2486,58 @@ Untuk MVP, gunakan **Reminder mode** (lebih aman, user tetap konfirmasi sebelum 
 
 ---
 
-### 17.2 Database Schema — Tambahan di `Transaction`
+### 17.2 Database Schema - Tambahan di `Transaction`
 
 ```typescript
 // Tambahan field di interface Transaction (src/types/index.ts)
 interface Transaction {
   // ...field existing...
-  isRecurring?: boolean       // apakah transaksi ini template recurring
-  recurringDay?: number       // tanggal dalam bulan: 1–28 (hindari 29–31)
-  recurringId?: string        // ID template yang meng-generate transaksi ini
+  isRecurring?: boolean; // apakah transaksi ini template recurring
+  recurringDay?: number; // tanggal dalam bulan: 1–28 (hindari 29–31)
+  recurringId?: string; // ID template yang meng-generate transaksi ini
 }
 ```
 
 **Tabel baru: `recurringTemplates`**
+
 ```typescript
 interface RecurringTemplate {
-  id: string                  // UUID
-  type: 'income' | 'expense'
-  amount: number
-  category: string
-  merchant?: string
-  notes?: string
-  recurringDay: number        // tanggal dalam bulan (1–28)
-  isActive: boolean           // bisa di-pause
-  lastGeneratedMonth?: string // "2026-03" — tracking bulan terakhir di-generate
-  createdAt: number
+  id: string; // UUID
+  type: "income" | "expense";
+  amount: number;
+  category: string;
+  merchant?: string;
+  notes?: string;
+  recurringDay: number; // tanggal dalam bulan (1–28)
+  isActive: boolean; // bisa di-pause
+  lastGeneratedMonth?: string; // "2026-03" - tracking bulan terakhir di-generate
+  createdAt: number;
 }
 ```
 
 ---
 
-### 17.3 Store — `recurringStore.ts`
+### 17.3 Store - `recurringStore.ts`
 
 ```typescript
 interface RecurringStore {
-  templates: RecurringTemplate[]
-  isLoading: boolean
+  templates: RecurringTemplate[];
+  isLoading: boolean;
 
   // Actions
-  loadTemplates: () => Promise<void>
-  addTemplate: (t: Omit<RecurringTemplate, 'id' | 'createdAt'>) => Promise<void>
-  updateTemplate: (id: string, data: Partial<RecurringTemplate>) => Promise<void>
-  deleteTemplate: (id: string) => Promise<void>
-  toggleActive: (id: string) => Promise<void>
+  loadTemplates: () => Promise<void>;
+  addTemplate: (
+    t: Omit<RecurringTemplate, "id" | "createdAt">,
+  ) => Promise<void>;
+  updateTemplate: (
+    id: string,
+    data: Partial<RecurringTemplate>,
+  ) => Promise<void>;
+  deleteTemplate: (id: string) => Promise<void>;
+  toggleActive: (id: string) => Promise<void>;
 
   // Generator
-  getPendingToday: () => RecurringTemplate[]
+  getPendingToday: () => RecurringTemplate[];
   // → template yang recurringDay === today && lastGeneratedMonth !== currentMonth
 }
 ```
@@ -2390,8 +2547,8 @@ interface RecurringStore {
 ### 17.4 Logic Reminder
 
 ```typescript
-// Di Dashboard (src/app/page.tsx) — cek saat mount:
-const pending = recurringStore.getPendingToday()
+// Di Dashboard (src/app/page.tsx) - cek saat mount:
+const pending = recurringStore.getPendingToday();
 // → tampilkan RecurringReminderBanner jika pending.length > 0
 
 // User tap "Catat Sekarang":
@@ -2403,7 +2560,7 @@ const pending = recurringStore.getPendingToday()
 
 ---
 
-### 17.5 UI — Halaman Recurring (`/recurring`)
+### 17.5 UI - Halaman Recurring (`/recurring`)
 
 ```
 ┌─────────────────────────────────────┐
@@ -2431,6 +2588,7 @@ const pending = recurringStore.getPendingToday()
 ```
 
 **Form tambah template (BottomSheet):**
+
 - Toggle: Pengeluaran / Pemasukan
 - Nominal (format Rupiah)
 - Kategori (CategoryPicker)
@@ -2459,27 +2617,29 @@ const pending = recurringStore.getPendingToday()
 ### 17.7 Integrasi `TransactionForm`
 
 Di form tambah transaksi manual, tambah toggle opsional:
+
 ```
 □ Ulangi setiap bulan
    Tanggal: [15 ▼]
 ```
+
 Jika dicentang → saat simpan, buat `RecurringTemplate` sekaligus dengan `recurringDay` yang dipilih.
 
 ---
 
 ### 17.8 Langkah Implementasi
 
-| # | File | Aksi |
-|---|------|------|
-| 60 | `src/types/index.ts` | Tambah `RecurringTemplate` interface + field opsional di `Transaction` |
-| 61 | `src/lib/db.ts` | Version bump (v3) + tabel `recurringTemplates` |
-| 62 | `src/stores/recurringStore.ts` | Zustand + Dexie, `getPendingToday()` |
-| 63 | `src/app/recurring/page.tsx` | Halaman daftar + form template |
-| 64 | `src/components/dashboard/RecurringReminderBanner.tsx` | Banner di dashboard |
-| 65 | `src/app/page.tsx` | Integrasi `RecurringReminderBanner` + `loadTemplates` |
-| 66 | `src/components/transactions/TransactionForm.tsx` | Toggle "Ulangi setiap bulan" |
-| 67 | `src/components/transactions/TransactionItem.tsx` | Ikon 🔁 untuk source='recurring' |
-| 68 | `src/app/transactions/page.tsx` | Link "Rutin" di header → `/recurring` |
+| #   | File                                                   | Aksi                                                                   |
+| --- | ------------------------------------------------------ | ---------------------------------------------------------------------- |
+| 60  | `src/types/index.ts`                                   | Tambah `RecurringTemplate` interface + field opsional di `Transaction` |
+| 61  | `src/lib/db.ts`                                        | Version bump (v3) + tabel `recurringTemplates`                         |
+| 62  | `src/stores/recurringStore.ts`                         | Zustand + Dexie, `getPendingToday()`                                   |
+| 63  | `src/app/recurring/page.tsx`                           | Halaman daftar + form template                                         |
+| 64  | `src/components/dashboard/RecurringReminderBanner.tsx` | Banner di dashboard                                                    |
+| 65  | `src/app/page.tsx`                                     | Integrasi `RecurringReminderBanner` + `loadTemplates`                  |
+| 66  | `src/components/transactions/TransactionForm.tsx`      | Toggle "Ulangi setiap bulan"                                           |
+| 67  | `src/components/transactions/TransactionItem.tsx`      | Ikon 🔁 untuk source='recurring'                                       |
+| 68  | `src/app/transactions/page.tsx`                        | Link "Rutin" di header → `/recurring`                                  |
 
 > Akses halaman `/recurring` via tombol "Rutin" di header halaman Transaksi (tidak menambah tab BottomNav agar tetap bersih).
 
@@ -2487,12 +2647,12 @@ Jika dicentang → saat simpan, buat `RecurringTemplate` sekaligus dengan `recur
 
 ### 17.9 Edge Cases
 
-| Case | Handling |
-|------|----------|
-| User tidak buka app di tanggal jatuh tempo | Cek: `recurringDay <= today's date && lastGeneratedMonth !== currentMonth` → masih muncul |
-| User buka app di tanggal 30, template `recurringDay = 31` | Skip bulan ini — tidak ada tanggal 31 |
-| Template dinonaktifkan | `isActive = false` → tidak muncul di reminder |
-| User sudah catat manual, lupa ada recurring | Tidak ada auto-detect, user dismiss banner saja |
+| Case                                                      | Handling                                                                                  |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| User tidak buka app di tanggal jatuh tempo                | Cek: `recurringDay <= today's date && lastGeneratedMonth !== currentMonth` → masih muncul |
+| User buka app di tanggal 30, template `recurringDay = 31` | Skip bulan ini - tidak ada tanggal 31                                                     |
+| Template dinonaktifkan                                    | `isActive = false` → tidak muncul di reminder                                             |
+| User sudah catat manual, lupa ada recurring               | Tidak ada auto-detect, user dismiss banner saja                                           |
 
 ---
 
@@ -2502,20 +2662,21 @@ Jika dicentang → saat simpan, buat `RecurringTemplate` sekaligus dengan `recur
 
 ## 18. Tipe Transaksi: Saving (Tabungan & Investasi)
 
-> Menambahkan tipe ketiga `saving` di samping `income` dan `expense`, untuk mencatat alokasi dana ke tabungan dan investasi secara terpisah — bukan sebagai "pengeluaran konsumtif".
+> Menambahkan tipe ketiga `saving` di samping `income` dan `expense`, untuk mencatat alokasi dana ke tabungan dan investasi secara terpisah - bukan sebagai "pengeluaran konsumtif".
 
 ---
 
 ### 18.1 Latar Belakang & Keputusan Desain
 
-| Pertanyaan | Jawaban |
-|------------|---------|
-| Apakah tabungan = pengeluaran? | **Tidak** — uang tidak "habis", hanya berpindah ke aset |
-| Kenapa bukan tipe `transfer`? | `transfer` ambigu — bisa ke orang lain atau pembayaran |
-| Mengapa tidak cukup pakai kategori? | Tipe mempengaruhi kalkulasi balance, warna UI, dan AI insight |
-| Apakah saving mempengaruhi saldo? | **Ya** — uang keluar dari kantong, tapi ditampilkan terpisah dari expense |
+| Pertanyaan                          | Jawaban                                                                   |
+| ----------------------------------- | ------------------------------------------------------------------------- |
+| Apakah tabungan = pengeluaran?      | **Tidak** - uang tidak "habis", hanya berpindah ke aset                   |
+| Kenapa bukan tipe `transfer`?       | `transfer` ambigu - bisa ke orang lain atau pembayaran                    |
+| Mengapa tidak cukup pakai kategori? | Tipe mempengaruhi kalkulasi balance, warna UI, dan AI insight             |
+| Apakah saving mempengaruhi saldo?   | **Ya** - uang keluar dari kantong, tapi ditampilkan terpisah dari expense |
 
 **Model akhir:**
+
 ```
 income   → uang masuk (gaji, freelance, bonus, dll)
 expense  → uang keluar konsumtif (makan, transport, tagihan, dll)
@@ -2523,6 +2684,7 @@ saving   → uang dialokasikan ke tabungan / investasi
 ```
 
 **Formula saldo dashboard:**
+
 ```
 Saldo Estimasi = Total Income − Total Expense − Total Saving
 ```
@@ -2535,16 +2697,70 @@ Tambah `SAVING_CATEGORIES` baru di `src/lib/categories.ts`:
 
 ```typescript
 export const SAVING_CATEGORIES: Category[] = [
-  { id: 'tabungan',    name: 'Tabungan',      icon: '🏦', color: '#0D9488', bgColor: '#CCFBF1' },
-  { id: 'deposito',    name: 'Deposito',      icon: '💵', color: '#0891B2', bgColor: '#CFFAFE' },
-  { id: 'reksa-dana',  name: 'Reksa Dana',    icon: '📊', color: '#7C3AED', bgColor: '#EDE9FE' },
-  { id: 'saham',       name: 'Saham',         icon: '📈', color: '#16A34A', bgColor: '#DCFCE7' },
-  { id: 'crypto',      name: 'Crypto',        icon: '🪙', color: '#D97706', bgColor: '#FEF3C7' },
-  { id: 'emas',        name: 'Emas',          icon: '🥇', color: '#CA8A04', bgColor: '#FEF9C3' },
-  { id: 'dana-darurat',name: 'Dana Darurat',  icon: '🛡️', color: '#DC2626', bgColor: '#FEE2E2' },
-  { id: 'properti',    name: 'Properti',      icon: '🏠', color: '#64748B', bgColor: '#F1F5F9' },
-  { id: 'other-saving',name: 'Lainnya',       icon: '📦', color: '#64748B', bgColor: '#F1F5F9' },
-]
+  {
+    id: "tabungan",
+    name: "Tabungan",
+    icon: "🏦",
+    color: "#0D9488",
+    bgColor: "#CCFBF1",
+  },
+  {
+    id: "deposito",
+    name: "Deposito",
+    icon: "💵",
+    color: "#0891B2",
+    bgColor: "#CFFAFE",
+  },
+  {
+    id: "reksa-dana",
+    name: "Reksa Dana",
+    icon: "📊",
+    color: "#7C3AED",
+    bgColor: "#EDE9FE",
+  },
+  {
+    id: "saham",
+    name: "Saham",
+    icon: "📈",
+    color: "#16A34A",
+    bgColor: "#DCFCE7",
+  },
+  {
+    id: "crypto",
+    name: "Crypto",
+    icon: "🪙",
+    color: "#D97706",
+    bgColor: "#FEF3C7",
+  },
+  {
+    id: "emas",
+    name: "Emas",
+    icon: "🥇",
+    color: "#CA8A04",
+    bgColor: "#FEF9C3",
+  },
+  {
+    id: "dana-darurat",
+    name: "Dana Darurat",
+    icon: "🛡️",
+    color: "#DC2626",
+    bgColor: "#FEE2E2",
+  },
+  {
+    id: "properti",
+    name: "Properti",
+    icon: "🏠",
+    color: "#64748B",
+    bgColor: "#F1F5F9",
+  },
+  {
+    id: "other-saving",
+    name: "Lainnya",
+    icon: "📦",
+    color: "#64748B",
+    bgColor: "#F1F5F9",
+  },
+];
 ```
 
 **Catatan:** Hapus kategori `savings` dari `EXPENSE_CATEGORIES` (saat ini ada `id: 'savings'`) karena sudah pindah ke tipe `saving`.
@@ -2557,25 +2773,27 @@ export const SAVING_CATEGORIES: Category[] = [
 
 ```typescript
 // Sebelum
-type: 'income' | 'expense'
+type: "income" | "expense";
 
 // Sesudah
-type: 'income' | 'expense' | 'saving'
+type: "income" | "expense" | "saving";
 ```
 
 Update semua interface yang menggunakan union ini:
+
 - `Transaction.type`
 - `RecurringTemplate.type`
 
 Update `FinancialContext`:
+
 ```typescript
 export interface FinancialContext {
-  total_income: number
-  total_expense: number
-  total_saving: number        // ← BARU
-  saving_rate: number         // ← BARU: total_saving / total_income * 100 (%)
-  cash_flow_status: 'positive' | 'neutral' | 'negative'
-  balance: number             // income - expense - saving
+  total_income: number;
+  total_expense: number;
+  total_saving: number; // ← BARU
+  saving_rate: number; // ← BARU: total_saving / total_income * 100 (%)
+  cash_flow_status: "positive" | "neutral" | "negative";
+  balance: number; // income - expense - saving
   // ...field lainnya tetap
 }
 ```
@@ -2584,23 +2802,23 @@ export interface FinancialContext {
 
 ### 18.4 File yang Terkena Perubahan
 
-| # | File | Jenis Perubahan |
-|---|------|-----------------|
-| 1 | `src/types/index.ts` | Tambah `'saving'` ke union type `Transaction.type` & `RecurringTemplate.type`; tambah `total_saving` & `saving_rate` ke `FinancialContext` |
-| 2 | `src/lib/categories.ts` | Tambah `SAVING_CATEGORIES[]`; hapus `savings` dari `EXPENSE_CATEGORIES`; update `getCategoryById` & `getCategoryName` untuk terima `'saving'` |
-| 3 | `src/lib/calculations.ts` | Hitung `total_saving` & `saving_rate`; update rumus `balance = income - expense - saving`; update `buildFinancialContext` |
-| 4 | `src/components/transactions/TransactionForm.tsx` | Tambah tab/toggle ketiga "Tabungan" di type selector; tampilkan `SAVING_CATEGORIES` saat type='saving' |
-| 5 | `src/components/transactions/CategoryPicker.tsx` | Terima prop `type: 'income' \| 'expense' \| 'saving'`; tampilkan `SAVING_CATEGORIES` untuk type saving |
-| 6 | `src/components/transactions/TransactionItem.tsx` | Tambah warna & ikon untuk type saving (warna: teal/emerald, ikon piggy bank atau chart) |
-| 7 | `src/components/transactions/TransactionList.tsx` | Update filter & group jika ada filter per tipe |
-| 8 | `src/app/page.tsx` (Dashboard) | Tambah summary card "Tabungan" di samping Income & Expense; update hero balance menggunakan rumus baru |
-| 9 | `src/app/reports/page.tsx` | Tambah section tabungan/investasi: total saving bulan ini, breakdown per kategori saving, saving rate % |
-| 10 | `src/components/reports/CashFlowChart.tsx` | Tambah bar ketiga (saving) di grouped bar chart — warna teal |
-| 11 | `src/components/reports/CategoryDonut.tsx` | Tambah toggle: tampilkan donut expense ATAU donut saving |
-| 12 | `src/app/goals/page.tsx` | Goals hanya berlaku untuk tipe `expense` — filter kategori saving dari goal picker |
-| 13 | `src/app/recurring/page.tsx` | Tambah opsi type='saving' di form recurring template |
-| 14 | `src/app/api/insight/route.ts` | Update prompt AI — sertakan `total_saving`, `saving_rate`, dan konteks positif jika user rajin menabung |
-| 15 | `src/app/scan/page.tsx` | Scan default type tetap `expense`; user bisa ganti ke `saving` manual jika perlu |
+| #   | File                                              | Jenis Perubahan                                                                                                                               |
+| --- | ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `src/types/index.ts`                              | Tambah `'saving'` ke union type `Transaction.type` & `RecurringTemplate.type`; tambah `total_saving` & `saving_rate` ke `FinancialContext`    |
+| 2   | `src/lib/categories.ts`                           | Tambah `SAVING_CATEGORIES[]`; hapus `savings` dari `EXPENSE_CATEGORIES`; update `getCategoryById` & `getCategoryName` untuk terima `'saving'` |
+| 3   | `src/lib/calculations.ts`                         | Hitung `total_saving` & `saving_rate`; update rumus `balance = income - expense - saving`; update `buildFinancialContext`                     |
+| 4   | `src/components/transactions/TransactionForm.tsx` | Tambah tab/toggle ketiga "Tabungan" di type selector; tampilkan `SAVING_CATEGORIES` saat type='saving'                                        |
+| 5   | `src/components/transactions/CategoryPicker.tsx`  | Terima prop `type: 'income' \| 'expense' \| 'saving'`; tampilkan `SAVING_CATEGORIES` untuk type saving                                        |
+| 6   | `src/components/transactions/TransactionItem.tsx` | Tambah warna & ikon untuk type saving (warna: teal/emerald, ikon piggy bank atau chart)                                                       |
+| 7   | `src/components/transactions/TransactionList.tsx` | Update filter & group jika ada filter per tipe                                                                                                |
+| 8   | `src/app/page.tsx` (Dashboard)                    | Tambah summary card "Tabungan" di samping Income & Expense; update hero balance menggunakan rumus baru                                        |
+| 9   | `src/app/reports/page.tsx`                        | Tambah section tabungan/investasi: total saving bulan ini, breakdown per kategori saving, saving rate %                                       |
+| 10  | `src/components/reports/CashFlowChart.tsx`        | Tambah bar ketiga (saving) di grouped bar chart - warna teal                                                                                  |
+| 11  | `src/components/reports/CategoryDonut.tsx`        | Tambah toggle: tampilkan donut expense ATAU donut saving                                                                                      |
+| 12  | `src/app/goals/page.tsx`                          | Goals hanya berlaku untuk tipe `expense` - filter kategori saving dari goal picker                                                            |
+| 13  | `src/app/recurring/page.tsx`                      | Tambah opsi type='saving' di form recurring template                                                                                          |
+| 14  | `src/app/api/insight/route.ts`                    | Update prompt AI - sertakan `total_saving`, `saving_rate`, dan konteks positif jika user rajin menabung                                       |
+| 15  | `src/app/scan/page.tsx`                           | Scan default type tetap `expense`; user bisa ganti ke `saving` manual jika perlu                                                              |
 
 ---
 
@@ -2613,12 +2831,28 @@ saving  → teal   (Teal-500, #14B8A6)
 ```
 
 Di `TransactionItem.tsx`:
+
 ```tsx
 const typeConfig = {
-  income:  { color: 'text-emerald-600', bg: 'bg-emerald-50', prefix: '+', label: 'Pemasukan' },
-  expense: { color: 'text-red-500',     bg: 'bg-red-50',     prefix: '-', label: 'Pengeluaran' },
-  saving:  { color: 'text-teal-600',    bg: 'bg-teal-50',    prefix: '→', label: 'Tabungan' },
-}
+  income: {
+    color: "text-emerald-600",
+    bg: "bg-emerald-50",
+    prefix: "+",
+    label: "Pemasukan",
+  },
+  expense: {
+    color: "text-red-500",
+    bg: "bg-red-50",
+    prefix: "-",
+    label: "Pengeluaran",
+  },
+  saving: {
+    color: "text-teal-600",
+    bg: "bg-teal-50",
+    prefix: "→",
+    label: "Tabungan",
+  },
+};
 ```
 
 ---
@@ -2634,7 +2868,8 @@ const typeConfig = {
 └──────────────┘  └──────────────┘  └──────────────┘
 ```
 
-**Hero Card** — Saldo Estimasi:
+**Hero Card** - Saldo Estimasi:
+
 ```
 Saldo Estimasi = Income − Expense − Saving
                = 5.000.000 − 2.500.000 − 500.000
@@ -2658,43 +2893,45 @@ Bulan ini:
 ```
 
 AI bisa memberikan insight seperti:
-- *"Kamu sudah menabung 10% dari pendapatan bulan ini — pertahankan!"*
-- *"Saving rate kamu masih di bawah 20%, coba tingkatkan sedikit."*
-- *"Belum ada alokasi tabungan bulan ini — coba sisihkan minimal 10% dari gaji."*
+
+- _"Kamu sudah menabung 10% dari pendapatan bulan ini - pertahankan!"_
+- _"Saving rate kamu masih di bawah 20%, coba tingkatkan sedikit."_
+- _"Belum ada alokasi tabungan bulan ini - coba sisihkan minimal 10% dari gaji."_
 
 ---
 
 ### 18.8 Langkah Implementasi
 
-| # | File | Aksi |
-|---|------|------|
-| 1 | `src/types/index.ts` | Tambah `'saving'` ke union, tambah `total_saving` & `saving_rate` ke `FinancialContext` |
-| 2 | `src/lib/categories.ts` | Tambah `SAVING_CATEGORIES`, hapus `savings` dari `EXPENSE_CATEGORIES`, update helper functions |
-| 3 | `src/lib/calculations.ts` | Update `buildFinancialContext` — hitung saving, saving rate, update balance |
-| 4 | `src/components/transactions/CategoryPicker.tsx` | Handle type `'saving'` → tampilkan SAVING_CATEGORIES |
-| 5 | `src/components/transactions/TransactionForm.tsx` | Tambah tab "Tabungan" ke type selector |
-| 6 | `src/components/transactions/TransactionItem.tsx` | Tambah visual config untuk type saving |
-| 7 | `src/app/page.tsx` | Tambah Summary Card tabungan, update balance formula |
-| 8 | `src/components/reports/CashFlowChart.tsx` | Tambah bar saving (teal) ke grouped chart |
-| 9 | `src/components/reports/CategoryDonut.tsx` | Tambah toggle expense/saving donut |
-| 10 | `src/app/reports/page.tsx` | Tampilkan saving rate + breakdown saving |
-| 11 | `src/app/goals/page.tsx` | Filter saving dari category picker goals |
-| 12 | `src/app/recurring/page.tsx` | Tambah opsi type saving di form recurring |
-| 13 | `src/app/api/insight/route.ts` | Update prompt dengan data saving |
-| 14 | `src/lib/migrations.ts` | Buat fungsi `migrateSavingsFromExpense()` — one-time migration data lama |
-| 15 | `src/stores/transactionStore.ts` | Panggil `migrateSavingsFromExpense()` di awal `loadTransactions()` |
+| #   | File                                              | Aksi                                                                                           |
+| --- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| 1   | `src/types/index.ts`                              | Tambah `'saving'` ke union, tambah `total_saving` & `saving_rate` ke `FinancialContext`        |
+| 2   | `src/lib/categories.ts`                           | Tambah `SAVING_CATEGORIES`, hapus `savings` dari `EXPENSE_CATEGORIES`, update helper functions |
+| 3   | `src/lib/calculations.ts`                         | Update `buildFinancialContext` - hitung saving, saving rate, update balance                    |
+| 4   | `src/components/transactions/CategoryPicker.tsx`  | Handle type `'saving'` → tampilkan SAVING_CATEGORIES                                           |
+| 5   | `src/components/transactions/TransactionForm.tsx` | Tambah tab "Tabungan" ke type selector                                                         |
+| 6   | `src/components/transactions/TransactionItem.tsx` | Tambah visual config untuk type saving                                                         |
+| 7   | `src/app/page.tsx`                                | Tambah Summary Card tabungan, update balance formula                                           |
+| 8   | `src/components/reports/CashFlowChart.tsx`        | Tambah bar saving (teal) ke grouped chart                                                      |
+| 9   | `src/components/reports/CategoryDonut.tsx`        | Tambah toggle expense/saving donut                                                             |
+| 10  | `src/app/reports/page.tsx`                        | Tampilkan saving rate + breakdown saving                                                       |
+| 11  | `src/app/goals/page.tsx`                          | Filter saving dari category picker goals                                                       |
+| 12  | `src/app/recurring/page.tsx`                      | Tambah opsi type saving di form recurring                                                      |
+| 13  | `src/app/api/insight/route.ts`                    | Update prompt dengan data saving                                                               |
+| 14  | `src/lib/migrations.ts`                           | Buat fungsi `migrateSavingsFromExpense()` - one-time migration data lama                       |
+| 15  | `src/stores/transactionStore.ts`                  | Panggil `migrateSavingsFromExpense()` di awal `loadTransactions()`                             |
 
 ---
 
-### 18.9 FAB Expand Menu — Keputusan
+### 18.9 FAB Expand Menu - Keputusan
 
 FAB saat ini sudah memiliki radial menu dengan 3 item: **Scan** (150°), **Utang** (90°), **Settings** (30°).
 
 **Keputusan: Tidak tambah item FAB baru untuk Saving.**
 
 Alasan:
+
 - 4 item radial di mobile mulai terasa sesak
-- Entry point saving sudah ada di form transaksi — user tap FAB utama → form terbuka → pilih tab "Tabungan"
+- Entry point saving sudah ada di form transaksi - user tap FAB utama → form terbuka → pilih tab "Tabungan"
 - Konsisten dengan UX yang sudah ada (expense & income juga tidak punya shortcut FAB sendiri)
 
 ```
@@ -2709,11 +2946,13 @@ Alasan:
 ### 18.10 Migrasi Data Lama
 
 **Masalah:** Sebelum fitur ini ada, kategori `savings` sudah ada di `EXPENSE_CATEGORIES`. User yang pernah input tabungan sebagai pengeluaran akan memiliki data:
+
 ```
 { type: 'expense', category: 'savings', amount: ... }
 ```
 
 **Dampak jika tidak dimigrasi:**
+
 - `total_expense` tercampur dengan nilai tabungan → laporan tidak akurat
 - `total_saving` = 0 meski user sudah pernah mencatat tabungan
 - AI insight salah baca kondisi keuangan user
@@ -2723,24 +2962,26 @@ Alasan:
 ```typescript
 // src/lib/migrations.ts (file baru)
 export async function migrateSavingsFromExpense() {
-  const FLAG = 'hematin_migration_saving_v1'
-  if (localStorage.getItem(FLAG)) return // sudah pernah jalan, skip
+  const FLAG = "hematin_migration_saving_v1";
+  if (localStorage.getItem(FLAG)) return; // sudah pernah jalan, skip
 
   await db.transactions
-    .where({ type: 'expense', category: 'savings' })
-    .modify({ type: 'saving', category: 'tabungan' })
+    .where({ type: "expense", category: "savings" })
+    .modify({ type: "saving", category: "tabungan" });
 
-  localStorage.setItem(FLAG, '1')
+  localStorage.setItem(FLAG, "1");
 }
 ```
 
 Panggil di `transactionStore.ts` → `loadTransactions()` sebelum fetch data:
+
 ```typescript
-await migrateSavingsFromExpense()
-const txs = await db.transactions.toArray()
+await migrateSavingsFromExpense();
+const txs = await db.transactions.toArray();
 ```
 
 **Properti migrasi:**
+
 - Otomatis, satu kali, tidak butuh konfirmasi user
 - Intent jelas: user pilih kategori "Tabungan" di expense = maksudnya menabung
 - Flag di localStorage → tidak pernah jalan ulang meski app di-refresh
@@ -2749,14 +2990,14 @@ const txs = await db.transactions.toArray()
 
 ### 18.11 Edge Cases & Catatan
 
-| Case | Handling |
-|------|----------|
+| Case                                             | Handling                                                                                 |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | Data lama `type: 'expense', category: 'savings'` | Auto-migrate ke `type: 'saving', category: 'tabungan'` saat pertama load (Section 18.10) |
-| User scan struk → default type | Tetap `expense` — scanner tidak akan otomatis detect saving |
-| Goals untuk kategori saving | Tidak relevan — goals hanya untuk expense; filter saving dari goal picker |
-| Recurring template type saving | Boleh — cocok untuk cicilan investasi rutin (e.g., reksa dana otomatis tiap tanggal 1) |
-| `saving_rate` jika income = 0 | Tampilkan `0%` — guard division by zero |
-| Migration gagal (IndexedDB error) | Log error, tidak set flag → akan retry di load berikutnya |
+| User scan struk → default type                   | Tetap `expense` - scanner tidak akan otomatis detect saving                              |
+| Goals untuk kategori saving                      | Tidak relevan - goals hanya untuk expense; filter saving dari goal picker                |
+| Recurring template type saving                   | Boleh - cocok untuk cicilan investasi rutin (e.g., reksa dana otomatis tiap tanggal 1)   |
+| `saving_rate` jika income = 0                    | Tampilkan `0%` - guard division by zero                                                  |
+| Migration gagal (IndexedDB error)                | Log error, tidak set flag → akan retry di load berikutnya                                |
 
 ---
 
@@ -2788,45 +3029,47 @@ User ketik teks bebas
 
 ```ts
 export interface ParsedTransaction {
-  type: 'income' | 'expense' | 'saving'
-  amount: number
-  category: string
-  description: string
-  date: string          // ISO "YYYY-MM-DD"
-  confidence: 'high' | 'medium' | 'low'
+  type: "income" | "expense" | "saving";
+  amount: number;
+  category: string;
+  description: string;
+  date: string; // ISO "YYYY-MM-DD"
+  confidence: "high" | "medium" | "low";
 }
 
 export interface NLParseResult {
-  transactions: ParsedTransaction[]
-  rawInput: string
-  parseNote?: string    // catatan AI jika ada ambiguitas
+  transactions: ParsedTransaction[];
+  rawInput: string;
+  parseNote?: string; // catatan AI jika ada ambiguitas
 }
 ```
 
 ### 19.4 File yang Terlibat
 
-| File | Aksi |
-|---|---|
-| `src/types/index.ts` | Modifikasi — tambah `ParsedTransaction`, `NLParseResult` |
-| `src/lib/nl-parse.ts` | **Buat baru** — shared helper: `extractJSON()`, `sanitizeParsedTransaction()`, `parseIndonesianAmount()` |
-| `src/app/api/parse-nl/route.ts` | **Buat baru** — API route NL parsing |
-| `src/components/transactions/NLInputBar.tsx` | **Buat baru** — textarea input + loading state |
-| `src/components/transactions/NLPreviewSheet.tsx` | **Buat baru** — preview + edit inline + konfirmasi |
-| `src/app/page.tsx` | Modifikasi — tambah kartu "Ketik Bebas" di quick actions |
-| `src/app/api/scan/route.ts` | Modifikasi minor — import `extractJSON` dari shared helper |
+| File                                             | Aksi                                                                                                     |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `src/types/index.ts`                             | Modifikasi - tambah `ParsedTransaction`, `NLParseResult`                                                 |
+| `src/lib/nl-parse.ts`                            | **Buat baru** - shared helper: `extractJSON()`, `sanitizeParsedTransaction()`, `parseIndonesianAmount()` |
+| `src/app/api/parse-nl/route.ts`                  | **Buat baru** - API route NL parsing                                                                     |
+| `src/components/transactions/NLInputBar.tsx`     | **Buat baru** - textarea input + loading state                                                           |
+| `src/components/transactions/NLPreviewSheet.tsx` | **Buat baru** - preview + edit inline + konfirmasi                                                       |
+| `src/app/page.tsx`                               | Modifikasi - tambah kartu "Ketik Bebas" di quick actions                                                 |
+| `src/app/api/scan/route.ts`                      | Modifikasi minor - import `extractJSON` dari shared helper                                               |
 
 ### 19.5 API Route (`/api/parse-nl`)
 
 Header sama dengan `/api/scan`: `X-AI-Provider`, `X-AI-Model`, `X-AI-Key`.
-Body: `{ text: string, today: string }` — `today` dikirim dari client (format `YYYY-MM-DD`) agar "kemarin" sesuai timezone user.
+Body: `{ text: string, today: string }` - `today` dikirim dari client (format `YYYY-MM-DD`) agar "kemarin" sesuai timezone user.
 
 **System Prompt Inti:**
+
 - Parse format angka Indonesia: `15rb` = 15000, `5jt` = 5000000, `1.5jt` = 1500000
 - Deteksi tipe dari kata kunci: beli/bayar/makan → expense; gajian/terima → income; nabung/invest → saving
 - Deteksi tanggal relatif: "kemarin" = today-1, "minggu lalu" = today-7, tanpa keterangan = today
 - Return: raw JSON valid tanpa markdown, format `{ transactions: [...], parseNote: null }`
 
 **Sanitasi di route handler:**
+
 - `amount` harus > 0
 - `category` tidak dikenal → fallback ke `'other'` / `'other-income'` / `'other-saving'`
 - `date` tidak valid → fallback ke `today`
@@ -2835,12 +3078,14 @@ Body: `{ text: string, today: string }` — `today` dikirim dari client (format 
 ### 19.6 Komponen UI
 
 **`NLInputBar.tsx`**
+
 - `textarea` auto-resize, Ctrl+Enter untuk kirim
 - Placeholder: `"beli kopi 15rb, makan siang 35rb..."`
 - State: `idle | loading | error`
 - Disabled + hint kalau AI belum dikonfigurasi di Settings
 
 **`NLPreviewSheet.tsx`**
+
 - BottomSheet scrollable (`max-h-[85dvh]`)
 - Per kartu transaksi: edit inline (amount, category, date), hapus dengan animasi
 - Badge confidence: hijau (high) / kuning (medium) / merah (low)
@@ -2850,43 +3095,45 @@ Body: `{ text: string, today: string }` — `today` dikirim dari client (format 
 ### 19.7 Integrasi Dashboard
 
 Quick actions di `page.tsx` jadi 3 kartu:
+
 ```
 [Catat Transaksi]  [Scan Struk]
 [   Ketik Bebas (full width)  ]
 ```
 
 State baru di `page.tsx`:
+
 ```ts
-const [showNLInput, setShowNLInput] = useState(false)
-const [nlParseResult, setNLParseResult] = useState<NLParseResult | null>(null)
+const [showNLInput, setShowNLInput] = useState(false);
+const [nlParseResult, setNLParseResult] = useState<NLParseResult | null>(null);
 ```
 
 ### 19.8 Keputusan Teknis
 
-- **Entry point**: Kartu ketiga di Quick Actions (bukan tab di TransactionForm — state tidak bercampur)
+- **Entry point**: Kartu ketiga di Quick Actions (bukan tab di TransactionForm - state tidak bercampur)
 - **`today` dari client**: Konsisten dengan pola AI insight, hindari timezone mismatch server/user
 - **Kategori fallback**: Sanitizer di API route handle mapping → tidak perlu logika di client
-- **Provider**: Mengikuti settingan user yang sudah ada (Gemini Flash direkomendasikan — gratis 1500 req/hari)
+- **Provider**: Mengikuti settingan user yang sudah ada (Gemini Flash direkomendasikan - gratis 1500 req/hari)
 
 ### 19.9 Urutan Implementasi
 
-| Step | Task | Estimasi |
-|---|---|---|
-| 1 | Tambah types ke `src/types/index.ts` | 5 menit |
-| 2 | Buat `src/lib/nl-parse.ts` (shared helpers) | 10 menit |
-| 3 | Buat `src/app/api/parse-nl/route.ts` + test manual | 30 menit |
-| 4 | Buat `NLInputBar.tsx` | 30 menit |
-| 5 | Buat `NLPreviewSheet.tsx` (paling kompleks) | 45 menit |
-| 6 | Integrasi di `src/app/page.tsx` | 20 menit |
-| 7 | Polish: dark mode, mobile keyboard, flow antar sheet | 20 menit |
+| Step | Task                                                 | Estimasi |
+| ---- | ---------------------------------------------------- | -------- |
+| 1    | Tambah types ke `src/types/index.ts`                 | 5 menit  |
+| 2    | Buat `src/lib/nl-parse.ts` (shared helpers)          | 10 menit |
+| 3    | Buat `src/app/api/parse-nl/route.ts` + test manual   | 30 menit |
+| 4    | Buat `NLInputBar.tsx`                                | 30 menit |
+| 5    | Buat `NLPreviewSheet.tsx` (paling kompleks)          | 45 menit |
+| 6    | Integrasi di `src/app/page.tsx`                      | 20 menit |
+| 7    | Polish: dark mode, mobile keyboard, flow antar sheet | 20 menit |
 
 **Total estimasi: ~2.5 jam**
 
 ---
 
-*Dokumen ini adalah living document — akan diupdate seiring pengerjaan.*
+_Dokumen ini adalah living document - akan diupdate seiring pengerjaan._
 
-*Dibuat: 26 Februari 2026 | Terakhir diupdate: 11 April 2026 (v14 — Section 20: Cicilan Hutang/Piutang)*
+_Dibuat: 26 Februari 2026 | Terakhir diupdate: 11 April 2026 (v14 - Section 20: Cicilan Hutang/Piutang)_
 
 ---
 
@@ -2899,6 +3146,7 @@ const [nlParseResult, setNLParseResult] = useState<NLParseResult | null>(null)
 ### 20.1 Konsep
 
 Saat ini `Debt` hanya support satu kali bayar penuh (mark as paid). Fitur ini menambah mode **cicilan** di mana:
+
 - Total hutang/piutang dibagi menjadi cicilan per bulan
 - Setiap pembayaran dicatat di tabel terpisah (`debtPayments`)
 - Sisa hutang dihitung otomatis: `amount - totalPaid`
@@ -2907,50 +3155,53 @@ Saat ini `Debt` hanya support satu kali bayar penuh (mark as paid). Fitur ini me
 **Dua mode Debt:**
 | Mode | Deskripsi |
 |---|---|
-| **Lunas Sekaligus** | Behavior existing — satu kali bayar, status jadi `paid` |
-| **Cicilan Bulanan** | Bayar bertahap tiap bulan — sisa berkurang, lunas otomatis saat sisa = 0 |
+| **Lunas Sekaligus** | Behavior existing - satu kali bayar, status jadi `paid` |
+| **Cicilan Bulanan** | Bayar bertahap tiap bulan - sisa berkurang, lunas otomatis saat sisa = 0 |
 
 ---
 
 ### 20.2 Perubahan Database Schema
 
 **Modifikasi interface `Debt` (`src/types/index.ts`):**
+
 ```typescript
 export interface Debt {
   // --- field existing ---
-  id: string
-  type: 'hutang' | 'piutang'
-  person: string
-  amount: number              // TOTAL hutang/piutang (tidak berubah)
-  dueDate?: string            // untuk mode lunas sekaligus
-  description?: string
-  status: 'active' | 'paid' | 'overdue' | 'partial' // tambah 'partial'
-  createdAt: number
-  paidAt?: number
-  notes?: string
+  id: string;
+  type: "hutang" | "piutang";
+  person: string;
+  amount: number; // TOTAL hutang/piutang (tidak berubah)
+  dueDate?: string; // untuk mode lunas sekaligus
+  description?: string;
+  status: "active" | "paid" | "overdue" | "partial"; // tambah 'partial'
+  createdAt: number;
+  paidAt?: number;
+  notes?: string;
 
   // --- field baru untuk cicilan ---
-  isCicilan?: boolean         // true = mode cicilan
-  cicilanAmount?: number      // nominal per cicilan (mis. 500.000/bulan)
-  cicilanDay?: number         // tanggal jatuh tempo tiap bulan (1–28)
-  cicilanStartMonth?: string  // "2026-04" — bulan cicilan pertama
+  isCicilan?: boolean; // true = mode cicilan
+  cicilanAmount?: number; // nominal per cicilan (mis. 500.000/bulan)
+  cicilanDay?: number; // tanggal jatuh tempo tiap bulan (1–28)
+  cicilanStartMonth?: string; // "2026-04" - bulan cicilan pertama
 }
 ```
 
 **Tabel baru: `debtPayments` (`src/lib/db.ts`):**
+
 ```typescript
 export interface DebtPayment {
-  id: string
-  debtId: string              // FK ke Debt.id
-  amount: number              // nominal yang dibayarkan (boleh ≠ cicilanAmount)
-  paidDate: string            // ISO date "YYYY-MM-DD"
-  month: string               // "YYYY-MM" — bulan cicilan yang dibayar ini
-  notes?: string
-  createdAt: number
+  id: string;
+  debtId: string; // FK ke Debt.id
+  amount: number; // nominal yang dibayarkan (boleh ≠ cicilanAmount)
+  paidDate: string; // ISO date "YYYY-MM-DD"
+  month: string; // "YYYY-MM" - bulan cicilan yang dibayar ini
+  notes?: string;
+  createdAt: number;
 }
 ```
 
 **Kalkulasi otomatis:**
+
 - `totalPaid` = SUM(`debtPayments.amount` WHERE `debtId = id`)
 - `remaining` = `debt.amount - totalPaid`
 - `status` → otomatis `'paid'` jika `remaining <= 0`
@@ -2959,32 +3210,32 @@ export interface DebtPayment {
 
 ---
 
-### 20.3 Perubahan Store — `debtStore.ts`
+### 20.3 Perubahan Store - `debtStore.ts`
 
 Tambah actions dan computed baru:
 
 ```typescript
 interface DebtStore {
   // --- existing ---
-  debts: Debt[]
-  isLoading: boolean
-  loadDebts: () => Promise<void>
-  addDebt: (data) => Promise<void>
-  markAsPaid: (id, notes?) => Promise<void>
-  deleteDebt: (id) => Promise<void>
-  updateDebt: (id, data) => Promise<void>
+  debts: Debt[];
+  isLoading: boolean;
+  loadDebts: () => Promise<void>;
+  addDebt: (data) => Promise<void>;
+  markAsPaid: (id, notes?) => Promise<void>;
+  deleteDebt: (id) => Promise<void>;
+  updateDebt: (id, data) => Promise<void>;
 
   // --- baru: payments ---
-  payments: DebtPayment[]
-  loadPayments: () => Promise<void>
-  addPayment: (data: Omit<DebtPayment, 'id' | 'createdAt'>) => Promise<void>
-  deletePayment: (id: string) => Promise<void>
-  getPaymentsByDebt: (debtId: string) => DebtPayment[]
-  getTotalPaid: (debtId: string) => number
-  getRemaining: (debtId: string) => number
+  payments: DebtPayment[];
+  loadPayments: () => Promise<void>;
+  addPayment: (data: Omit<DebtPayment, "id" | "createdAt">) => Promise<void>;
+  deletePayment: (id: string) => Promise<void>;
+  getPaymentsByDebt: (debtId: string) => DebtPayment[];
+  getTotalPaid: (debtId: string) => number;
+  getRemaining: (debtId: string) => number;
 
   // --- baru: cicilan reminder ---
-  getPendingCicilanToday: () => Debt[]
+  getPendingCicilanToday: () => Debt[];
   // → debt.isCicilan === true &&
   //   debt.cicilanDay === today.getDate() &&
   //   belum ada payment untuk bulan ini
@@ -2992,43 +3243,44 @@ interface DebtStore {
 ```
 
 **Logic `getPendingCicilanToday()`:**
+
 ```typescript
 getPendingCicilanToday: () => {
-  const today = new Date()
-  const todayDay = today.getDate()
-  const currentMonth = format(today, 'yyyy-MM')
+  const today = new Date();
+  const todayDay = today.getDate();
+  const currentMonth = format(today, "yyyy-MM");
 
   return get().debts.filter((d) => {
-    if (!d.isCicilan || d.status === 'paid') return false
-    if (d.cicilanDay !== todayDay) return false
+    if (!d.isCicilan || d.status === "paid") return false;
+    if (d.cicilanDay !== todayDay) return false;
 
     // cek apakah bulan ini sudah ada payment
-    const payments = get().getPaymentsByDebt(d.id)
-    const paidThisMonth = payments.some((p) => p.month === currentMonth)
-    return !paidThisMonth
-  })
-}
+    const payments = get().getPaymentsByDebt(d.id);
+    const paidThisMonth = payments.some((p) => p.month === currentMonth);
+    return !paidThisMonth;
+  });
+};
 ```
 
 ---
 
 ### 20.4 File yang Terlibat
 
-| File | Aksi |
-|---|---|
-| `src/types/index.ts` | Modifikasi — tambah field cicilan di `Debt`, tambah interface `DebtPayment` |
-| `src/lib/db.ts` | Modifikasi — tambah tabel `debtPayments` ke Dexie schema, bump versi DB |
-| `src/stores/debtStore.ts` | Modifikasi — tambah state `payments`, actions baru, `getPendingCicilanToday()` |
-| `src/components/debts/DebtForm.tsx` | Modifikasi — tambah toggle "Cicilan Bulanan" + field cicilanAmount + cicilanDay |
-| `src/components/debts/DebtCard.tsx` | Modifikasi — tampilkan progress bar sisa, tombol "Bayar Cicilan" |
-| `src/components/debts/PaymentSheet.tsx` | **Buat baru** — BottomSheet form catat pembayaran cicilan |
-| `src/components/debts/PaymentHistory.tsx` | **Buat baru** — daftar riwayat pembayaran per debt |
-| `src/components/debts/CicilanReminderBanner.tsx` | **Buat baru** — banner reminder cicilan jatuh tempo hari ini |
-| `src/app/debts/page.tsx` | Modifikasi — tampilkan `CicilanReminderBanner`, update layout kartu cicilan |
+| File                                             | Aksi                                                                            |
+| ------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `src/types/index.ts`                             | Modifikasi - tambah field cicilan di `Debt`, tambah interface `DebtPayment`     |
+| `src/lib/db.ts`                                  | Modifikasi - tambah tabel `debtPayments` ke Dexie schema, bump versi DB         |
+| `src/stores/debtStore.ts`                        | Modifikasi - tambah state `payments`, actions baru, `getPendingCicilanToday()`  |
+| `src/components/debts/DebtForm.tsx`              | Modifikasi - tambah toggle "Cicilan Bulanan" + field cicilanAmount + cicilanDay |
+| `src/components/debts/DebtCard.tsx`              | Modifikasi - tampilkan progress bar sisa, tombol "Bayar Cicilan"                |
+| `src/components/debts/PaymentSheet.tsx`          | **Buat baru** - BottomSheet form catat pembayaran cicilan                       |
+| `src/components/debts/PaymentHistory.tsx`        | **Buat baru** - daftar riwayat pembayaran per debt                              |
+| `src/components/debts/CicilanReminderBanner.tsx` | **Buat baru** - banner reminder cicilan jatuh tempo hari ini                    |
+| `src/app/debts/page.tsx`                         | Modifikasi - tampilkan `CicilanReminderBanner`, update layout kartu cicilan     |
 
 ---
 
-### 20.5 UI — Perubahan Form Tambah Hutang
+### 20.5 UI - Perubahan Form Tambah Hutang
 
 Tambah toggle di `DebtForm.tsx`:
 
@@ -3059,7 +3311,7 @@ Tambah toggle di `DebtForm.tsx`:
 
 ---
 
-### 20.6 UI — DebtCard untuk Mode Cicilan
+### 20.6 UI - DebtCard untuk Mode Cicilan
 
 ```
 ┌─────────────────────────────────────┐
@@ -3075,12 +3327,13 @@ Tambah toggle di `DebtForm.tsx`:
 ```
 
 **Progress bar:**
+
 - Warna: biru (< 50% lunas), hijau (≥ 50%), emerald (≥ 90%)
 - Teks: `X/Y cicilan` atau `Rp X dari Rp Y`
 
 ---
 
-### 20.7 UI — PaymentSheet (Baru)
+### 20.7 UI - PaymentSheet (Baru)
 
 BottomSheet yang muncul saat tap "Bayar Cicilan":
 
@@ -3102,13 +3355,14 @@ BottomSheet yang muncul saat tap "Bayar Cicilan":
 ```
 
 Setelah simpan:
+
 - `addPayment()` ke IndexedDB
 - Cek apakah `remaining <= 0` → otomatis `markAsPaid()`
 - Toast: "Cicilan bulan ini berhasil dicatat 🎉" atau "Hutang ke Budi LUNAS! 🎊"
 
 ---
 
-### 20.8 UI — CicilanReminderBanner (Baru)
+### 20.8 UI - CicilanReminderBanner (Baru)
 
 Tampil di halaman `/debts` saat ada cicilan jatuh tempo hari ini:
 
@@ -3132,7 +3386,7 @@ Tampil saat tap "Riwayat" di DebtCard:
 
 ```
 ┌─────────────────────────────────────┐
-│  ── Riwayat Pembayaran — Budi ──   │
+│  ── Riwayat Pembayaran - Budi ──   │
 │                                     │
 │  Apr 2026   Rp 500.000  15 Apr ✓   │
 │  Mar 2026   Rp 500.000  14 Mar ✓   │
@@ -3146,45 +3400,45 @@ Tampil saat tap "Riwayat" di DebtCard:
 
 ---
 
-### 20.10 Dexie DB — Perubahan Versi
+### 20.10 Dexie DB - Perubahan Versi
 
 ```typescript
-// src/lib/db.ts — bump versi DB
+// src/lib/db.ts - bump versi DB
 this.version(X).stores({
   // ... existing tables ...
-  debtPayments: '++id, debtId, month, paidDate',
-})
+  debtPayments: "++id, debtId, month, paidDate",
+});
 ```
 
-> Tidak ada migrasi data lama — field baru di `Debt` bersifat opsional, debt existing tetap bekerja normal sebagai mode "lunas sekaligus".
+> Tidak ada migrasi data lama - field baru di `Debt` bersifat opsional, debt existing tetap bekerja normal sebagai mode "lunas sekaligus".
 
 ---
 
 ### 20.11 Edge Cases
 
-| Case | Handling |
-|---|---|
-| Bayar lebih dari `cicilanAmount` | Diperbolehkan — sisa berkurang lebih cepat |
-| Bayar kurang dari `cicilanAmount` | Diperbolehkan — sisa tetap terhitung, muncul di reminder bulan depan |
-| Cicilan ganda dalam satu bulan | Boleh — `month` field tidak unique per debtId |
-| `cicilanDay` = 31, bulan hanya 30 hari | Tampilkan reminder di hari terakhir bulan |
-| Debt lunas sekaligus + ada payments | Tidak mungkin — toggle di form mutual exclusive |
-| Hapus debt | Cascade delete semua `debtPayments` yang terkait |
+| Case                                   | Handling                                                             |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| Bayar lebih dari `cicilanAmount`       | Diperbolehkan - sisa berkurang lebih cepat                           |
+| Bayar kurang dari `cicilanAmount`      | Diperbolehkan - sisa tetap terhitung, muncul di reminder bulan depan |
+| Cicilan ganda dalam satu bulan         | Boleh - `month` field tidak unique per debtId                        |
+| `cicilanDay` = 31, bulan hanya 30 hari | Tampilkan reminder di hari terakhir bulan                            |
+| Debt lunas sekaligus + ada payments    | Tidak mungkin - toggle di form mutual exclusive                      |
+| Hapus debt                             | Cascade delete semua `debtPayments` yang terkait                     |
 
 ---
 
 ### 20.12 Urutan Implementasi
 
-| Step | Task | Estimasi |
-|---|---|---|
-| 1 | Tambah `DebtPayment` type + field cicilan di `Debt` (`src/types/index.ts`) | 5 menit |
-| 2 | Bump versi Dexie, tambah tabel `debtPayments` (`src/lib/db.ts`) | 10 menit |
-| 3 | Update `debtStore.ts` — tambah state payments + actions + `getPendingCicilanToday()` | 30 menit |
-| 4 | Update `DebtForm.tsx` — tambah toggle cicilan + field baru | 30 menit |
-| 5 | Buat `PaymentSheet.tsx` — form catat pembayaran | 25 menit |
-| 6 | Update `DebtCard.tsx` — progress bar + tombol "Bayar Cicilan" + "Riwayat" | 30 menit |
-| 7 | Buat `PaymentHistory.tsx` — riwayat per debt | 20 menit |
-| 8 | Buat `CicilanReminderBanner.tsx` — banner reminder hari ini | 20 menit |
-| 9 | Update `src/app/debts/page.tsx` — integrasi banner + state flow | 20 menit |
+| Step | Task                                                                                 | Estimasi |
+| ---- | ------------------------------------------------------------------------------------ | -------- |
+| 1    | Tambah `DebtPayment` type + field cicilan di `Debt` (`src/types/index.ts`)           | 5 menit  |
+| 2    | Bump versi Dexie, tambah tabel `debtPayments` (`src/lib/db.ts`)                      | 10 menit |
+| 3    | Update `debtStore.ts` - tambah state payments + actions + `getPendingCicilanToday()` | 30 menit |
+| 4    | Update `DebtForm.tsx` - tambah toggle cicilan + field baru                           | 30 menit |
+| 5    | Buat `PaymentSheet.tsx` - form catat pembayaran                                      | 25 menit |
+| 6    | Update `DebtCard.tsx` - progress bar + tombol "Bayar Cicilan" + "Riwayat"            | 30 menit |
+| 7    | Buat `PaymentHistory.tsx` - riwayat per debt                                         | 20 menit |
+| 8    | Buat `CicilanReminderBanner.tsx` - banner reminder hari ini                          | 20 menit |
+| 9    | Update `src/app/debts/page.tsx` - integrasi banner + state flow                      | 20 menit |
 
 **Total estimasi: ~3 jam**

@@ -1,4 +1,4 @@
-// Starter list — PERLU DIREVIEW & DIKURASI TIM sebelum production.
+// Starter list - PERLU DIREVIEW & DIKURASI TIM sebelum production.
 // Dipakai oleh authGuard.ts untuk validasi registrasi (email prefix palsu & nama/SARA).
 
 export const EMAIL_PREFIX_BLOCKLIST = [

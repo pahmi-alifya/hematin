@@ -1,40 +1,41 @@
-'use client'
+"use client";
 
-import { useEffect, useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { Check, ChevronDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
-import type { WalletRole } from '@/lib/supabase/types'
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { WalletRole } from "@/lib/supabase/types";
 
-const ROLE_OPTIONS: { value: 'viewer' | 'editor'; label: string }[] = [
-  { value: 'viewer', label: 'Viewer' },
-  { value: 'editor', label: 'Editor' },
-]
+const ROLE_OPTIONS: { value: "viewer" | "editor"; label: string }[] = [
+  { value: "viewer", label: "Viewer" },
+  { value: "editor", label: "Editor" },
+];
 
 interface MemberRoleSelectProps {
-  value: WalletRole
-  onChange: (role: WalletRole) => void
+  value: WalletRole;
+  onChange: (role: WalletRole) => void;
 }
 
 /**
- * Native <select> dropdown-nya di-render browser (OS-level popup), bukan elemen DOM biasa —
+ * Native <select> dropdown-nya di-render browser (OS-level popup), bukan elemen DOM biasa -
  * di PWA (terutama mode standalone Android/iOS) posisinya bisa meleset jauh dari tombolnya.
  * Ganti pakai dropdown custom supaya posisinya selalu presisi tepat di bawah tombol.
  */
 export function MemberRoleSelect({ value, onChange }: MemberRoleSelectProps) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [open])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [open]);
 
-  const current = ROLE_OPTIONS.find((o) => o.value === value)
+  const current = ROLE_OPTIONS.find((o) => o.value === value);
 
   return (
     <div ref={ref} className="relative">
@@ -44,7 +45,9 @@ export function MemberRoleSelect({ value, onChange }: MemberRoleSelectProps) {
         className="flex items-center gap-1 text-xs font-medium border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-lg px-2 py-1 text-slate-600 dark:text-slate-300"
       >
         {current?.label ?? value}
-        <ChevronDown className={cn('w-3 h-3 transition-transform', open && 'rotate-180')} />
+        <ChevronDown
+          className={cn("w-3 h-3 transition-transform", open && "rotate-180")}
+        />
       </button>
 
       <AnimatePresence>
@@ -61,18 +64,20 @@ export function MemberRoleSelect({ value, onChange }: MemberRoleSelectProps) {
                 key={opt.value}
                 type="button"
                 onClick={() => {
-                  onChange(opt.value)
-                  setOpen(false)
+                  onChange(opt.value);
+                  setOpen(false);
                 }}
                 className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-sky-50 dark:hover:bg-slate-700 transition-colors"
               >
                 {opt.label}
-                {opt.value === value && <Check className="w-3.5 h-3.5 text-sky-500" />}
+                {opt.value === value && (
+                  <Check className="w-3.5 h-3.5 text-sky-500" />
+                )}
               </button>
             ))}
           </motion.div>
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }

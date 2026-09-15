@@ -45,13 +45,13 @@ export function useDeleteWalletConfirm(wallet: Wallet | null, onDeleted: () => v
     setDeleting(true)
     try {
       if (isSharedWithMe(wallet)) {
-        // Member (editor/viewer) — "hapus" di sini berarti keluar, bukan menghapus data
+        // Member (editor/viewer) - "hapus" di sini berarti keluar, bukan menghapus data
         // yang juga dipakai owner & anggota lain.
         await leaveWallet(wallet.cloudWalletId!)
         await deleteWallet(wallet.id)
         toast(t.wallets.delete.leaveSuccessToast(wallet.name), 'success')
       } else {
-        // Owner (atau dompet lokal murni) — hapus penuh. Kalau cloud-linked, hapus juga
+        // Owner (atau dompet lokal murni) - hapus penuh. Kalau cloud-linked, hapus juga
         // row cloud_wallets-nya supaya cascade ke wallet_members/activity_log/semua data
         // anak, jadi anggota lain otomatis kehilangan akses (bukan cuma cache device ini).
         if (wallet.cloudWalletId) await deleteCloudWallet(wallet.cloudWalletId)

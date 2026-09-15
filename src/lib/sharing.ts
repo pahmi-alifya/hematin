@@ -12,7 +12,7 @@ async function ensureCloudLinked(wallet: Wallet, userId: string): Promise<string
   const supabase = createClient()
 
   if (wallet.cloudWalletId) {
-    // Sudah linked dari sebelumnya — tetap pastikan row wallet_members owner ada
+    // Sudah linked dari sebelumnya - tetap pastikan row wallet_members owner ada
     // (self-heal kalau gagal di attempt sebelumnya, lihat accountSync.ts).
     await ensureOwnerMembership(supabase, wallet.cloudWalletId, userId)
     return wallet.cloudWalletId
@@ -74,7 +74,7 @@ interface JoinResult {
   error?: string
 }
 
-/** Satu-satunya jalur join — panggil RPC (validasi share_key di server), lalu download data awal. */
+/** Satu-satunya jalur join - panggil RPC (validasi share_key di server), lalu download data awal. */
 export async function joinWalletByKey(shareKey: string): Promise<JoinResult> {
   const supabase = createClient()
   const { data, error } = await supabase.rpc('join_wallet_by_key', { p_share_key: shareKey })
@@ -141,7 +141,7 @@ export async function removeMember(memberId: string): Promise<void> {
 }
 
 /**
- * Member (editor/viewer) keluar dari dompet yang di-share — lewat RPC security definer
+ * Member (editor/viewer) keluar dari dompet yang di-share - lewat RPC security definer
  * karena RLS `wallet_members_owner_write` cuma izinkan OWNER yang insert/update/delete baris
  * wallet_members, member tidak bisa hapus baris membership-nya sendiri langsung dari client.
  */
@@ -152,7 +152,7 @@ export async function leaveWallet(cloudWalletId: string): Promise<void> {
 }
 
 /**
- * OWNER hapus dompet dari cloud sepenuhnya — cascade FK ke wallet_members, activity_log,
+ * OWNER hapus dompet dari cloud sepenuhnya - cascade FK ke wallet_members, activity_log,
  * dan semua 5 tabel data anak (semua `references cloud_wallets(id) on delete cascade`),
  * jadi anggota lain otomatis kehilangan akses juga. RLS `cloud_wallets_owner_all` sudah
  * izinkan owner delete langsung, tidak perlu RPC.

@@ -98,7 +98,9 @@ export default function DashboardPage() {
           <p className="text-xs font-semibold text-white/70 uppercase tracking-widest mb-1">
             {monthLabel}
           </p>
-          <p className="text-sm text-white/80 mb-1">{t.dashboard.totalBalance}</p>
+          <p className="text-sm text-white/80 mb-1">
+            {t.dashboard.totalBalance}
+          </p>
           <motion.p
             key={totalBalance}
             initial={{ opacity: 0, y: 8 }}
@@ -114,7 +116,7 @@ export default function DashboardPage() {
         {/* Summary Cards */}
         <div className="mx-4 mb-0 pb-5">
           <p className="text-[10px] font-semibold text-white/50 uppercase tracking-widest mb-2">
-            {monthLabel} — {t.dashboard.thisMonthSuffix}
+            {monthLabel} - {t.dashboard.thisMonthSuffix}
           </p>
           <div className="grid grid-cols-3 gap-2">
             {/* Pemasukan */}

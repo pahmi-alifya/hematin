@@ -6,7 +6,7 @@ export const scan = {
     // Restricted access (viewer role)
     restrictedTitle: "Akses Terbatas",
     restrictedDescription:
-      "Kamu hanya bisa melihat dompet ini (viewer) — tidak bisa menambah transaksi lewat scan struk.",
+      "Kamu hanya bisa melihat dompet ini (viewer) - tidak bisa menambah transaksi lewat scan struk.",
 
     // AI not configured banner
     aiNotActiveTitle: "AI Belum Aktif",
@@ -57,7 +57,7 @@ export const scan = {
     // Restricted access (viewer role)
     restrictedTitle: "Restricted Access",
     restrictedDescription:
-      "You can only view this wallet (viewer) — you can't add transactions via receipt scan.",
+      "You can only view this wallet (viewer) - you can't add transactions via receipt scan.",
 
     // AI not configured banner
     aiNotActiveTitle: "AI Not Active",

@@ -8,7 +8,7 @@ export const account = {
     transferSheet: {
       title: "Transfer Kepemilikan Dompet",
       intro:
-        "Dompet berikut kamu bagikan ke orang lain. Pilih siapa yang akan jadi pemilik baru sebelum akun ini dihapus — dompet & datanya tidak akan hilang, cuma pindah kepemilikan.",
+        "Dompet berikut kamu bagikan ke orang lain. Pilih siapa yang akan jadi pemilik baru sebelum akun ini dihapus - dompet & datanya tidak akan hilang, cuma pindah kepemilikan.",
       selectPlaceholder: "Pilih pemilik baru...",
       roleEditor: "Editor",
       roleViewer: "Viewer",
@@ -19,7 +19,7 @@ export const account = {
     confirmSheet: {
       title: "Konfirmasi Hapus Akun",
       warning:
-        "Akun & semua dompet cloud yang tidak ditransfer akan hilang permanen dan tidak bisa dikembalikan. Data di perangkat ini tetap ada — kamu akan jadi pengguna Guest lagi.",
+        "Akun & semua dompet cloud yang tidak ditransfer akan hilang permanen dan tidak bisa dikembalikan. Data di perangkat ini tetap ada - kamu akan jadi pengguna Guest lagi.",
       confirmPhrase: "HAPUS AKUN",
       inputLabel: 'Ketik "HAPUS AKUN" untuk konfirmasi',
       inputPlaceholder: "HAPUS AKUN",
@@ -42,7 +42,7 @@ export const account = {
     transferSheet: {
       title: "Transfer Wallet Ownership",
       intro:
-        "You've shared the wallets below with others. Choose who becomes the new owner before this account is deleted — the wallet and its data won't be lost, only the ownership changes.",
+        "You've shared the wallets below with others. Choose who becomes the new owner before this account is deleted - the wallet and its data won't be lost, only the ownership changes.",
       selectPlaceholder: "Choose a new owner...",
       roleEditor: "Editor",
       roleViewer: "Viewer",
@@ -53,7 +53,7 @@ export const account = {
     confirmSheet: {
       title: "Confirm Account Deletion",
       warning:
-        "Your account and any cloud wallets that weren't transferred will be permanently and irreversibly deleted. Data on this device stays put — you'll become a Guest user again.",
+        "Your account and any cloud wallets that weren't transferred will be permanently and irreversibly deleted. Data on this device stays put - you'll become a Guest user again.",
       confirmPhrase: "DELETE ACCOUNT",
       inputLabel: 'Type "DELETE ACCOUNT" to confirm',
       inputPlaceholder: "DELETE ACCOUNT",

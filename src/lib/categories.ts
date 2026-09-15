@@ -44,7 +44,7 @@ export function getCategoryById(id: string, type: 'income' | 'expense' | 'saving
   return EXPENSE_CATEGORIES.find((c) => c.id === id)
 }
 
-/** Nama kategori sesuai bahasa aktif — pakai ini (bukan `cat.name` langsung) di semua tampilan. */
+/** Nama kategori sesuai bahasa aktif - pakai ini (bukan `cat.name` langsung) di semua tampilan. */
 export function getCategoryLabel(category: Category | undefined | null, language: Language = 'id'): string | undefined {
   if (!category) return undefined
   return language === 'en' ? category.nameEn : category.name

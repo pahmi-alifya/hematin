@@ -1,6 +1,6 @@
-'use client'
+"use client";
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -8,107 +8,171 @@ import {
   Tooltip,
   ResponsiveContainer,
   Cell,
-} from 'recharts'
+} from "recharts";
 import {
   format,
   subMonths,
   addMonths,
   parseISO,
   getDaysInMonth,
-} from 'date-fns'
-import type { Locale } from 'date-fns'
-import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
-import { motion } from 'framer-motion'
-import type { Transaction } from '@/types'
-import { useTranslation } from '@/hooks/useTranslation'
-import { useDateLocale } from '@/hooks/useDateLocale'
-import { formatRupiah, getCurrentMonth } from '@/lib/utils'
-import { TYPE_COLORS } from '@/lib/constants'
+} from "date-fns";
+import type { Locale } from "date-fns";
+import {
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+} from "lucide-react";
+import { motion } from "framer-motion";
+import type { Transaction } from "@/types";
+import { useTranslation } from "@/hooks/useTranslation";
+import { useDateLocale } from "@/hooks/useDateLocale";
+import { formatRupiah, getCurrentMonth } from "@/lib/utils";
+import { TYPE_COLORS } from "@/lib/constants";
 
 interface MonthlyChartProps {
-  transactions: Transaction[]
+  transactions: Transaction[];
   /** Jika diisi, chart dikontrol dari luar (tidak tampilkan navigator) */
-  externalMonth?: string
+  externalMonth?: string;
 }
 
 function buildDailyData(transactions: Transaction[], month: string) {
-  const daysInMonth = getDaysInMonth(parseISO(month + '-01'))
-  const today = format(new Date(), 'yyyy-MM-dd')
+  const daysInMonth = getDaysInMonth(parseISO(month + "-01"));
+  const today = format(new Date(), "yyyy-MM-dd");
 
   return Array.from({ length: daysInMonth }, (_, i) => {
-    const day = i + 1
-    const dateStr = `${month}-${String(day).padStart(2, '0')}`
-    const dayTx = transactions.filter((t) => t.date === dateStr)
-    const income  = dayTx.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0)
-    const expense = dayTx.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0)
-    const saving  = dayTx.filter((t) => t.type === 'saving').reduce((s, t) => s + t.amount, 0)
-    return { day, dateStr, income, expense, saving, isToday: dateStr === today }
-  })
+    const day = i + 1;
+    const dateStr = `${month}-${String(day).padStart(2, "0")}`;
+    const dayTx = transactions.filter((t) => t.date === dateStr);
+    const income = dayTx
+      .filter((t) => t.type === "income")
+      .reduce((s, t) => s + t.amount, 0);
+    const expense = dayTx
+      .filter((t) => t.type === "expense")
+      .reduce((s, t) => s + t.amount, 0);
+    const saving = dayTx
+      .filter((t) => t.type === "saving")
+      .reduce((s, t) => s + t.amount, 0);
+    return {
+      day,
+      dateStr,
+      income,
+      expense,
+      saving,
+      isToday: dateStr === today,
+    };
+  });
 }
 
 interface TooltipProps {
-  active?: boolean
-  payload?: Array<{ payload: { dateStr: string; income: number; expense: number; saving: number } }>
-  locale?: Locale
+  active?: boolean;
+  payload?: Array<{
+    payload: {
+      dateStr: string;
+      income: number;
+      expense: number;
+      saving: number;
+    };
+  }>;
+  locale?: Locale;
 }
 
 function CustomTooltip({ active, payload, locale }: TooltipProps) {
-  if (!active || !payload?.length) return null
-  const d = payload[0]?.payload
-  if (!d || (d.income === 0 && d.expense === 0 && d.saving === 0)) return null
+  if (!active || !payload?.length) return null;
+  const d = payload[0]?.payload;
+  if (!d || (d.income === 0 && d.expense === 0 && d.saving === 0)) return null;
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-sky-100 dark:border-slate-700 px-3 py-2 text-xs pointer-events-none space-y-1">
       <p className="font-semibold text-slate-500 dark:text-slate-400 mb-1">
-        {format(parseISO(d.dateStr), 'd MMM', { locale })}
+        {format(parseISO(d.dateStr), "d MMM", { locale })}
       </p>
-      {d.income  > 0 && <p className="text-emerald-600 font-semibold">+{formatRupiah(d.income)}</p>}
-      {d.expense > 0 && <p className="text-red-500 font-semibold">-{formatRupiah(d.expense)}</p>}
-      {d.saving  > 0 && <p className="text-teal-600 font-semibold">→{formatRupiah(d.saving)}</p>}
+      {d.income > 0 && (
+        <p className="text-emerald-600 font-semibold">
+          +{formatRupiah(d.income)}
+        </p>
+      )}
+      {d.expense > 0 && (
+        <p className="text-red-500 font-semibold">-{formatRupiah(d.expense)}</p>
+      )}
+      {d.saving > 0 && (
+        <p className="text-teal-600 font-semibold">→{formatRupiah(d.saving)}</p>
+      )}
     </div>
-  )
+  );
 }
 
-function XAxisTick({ x, y, payload }: { x: string | number; y: string | number; payload: { value: number } }) {
-  if (payload.value % 5 !== 0 && payload.value !== 1) return <g />
+function XAxisTick({
+  x,
+  y,
+  payload,
+}: {
+  x: string | number;
+  y: string | number;
+  payload: { value: number };
+}) {
+  if (payload.value % 5 !== 0 && payload.value !== 1) return <g />;
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dy={10} textAnchor="middle" fill="#94A3B8" fontSize={9}>
         {payload.value}
       </text>
     </g>
-  )
+  );
 }
 
-export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps) {
-  const t = useTranslation()
-  const dateLocale = useDateLocale()
-  const currentMonth = getCurrentMonth()
-  const [internalMonth, setInternalMonth] = useState(currentMonth)
+export function MonthlyChart({
+  transactions,
+  externalMonth,
+}: MonthlyChartProps) {
+  const t = useTranslation();
+  const dateLocale = useDateLocale();
+  const currentMonth = getCurrentMonth();
+  const [internalMonth, setInternalMonth] = useState(currentMonth);
 
   // Jika externalMonth diisi → controlled mode (tanpa navigator)
-  const month = externalMonth ?? internalMonth
-  const controlled = externalMonth !== undefined
-  const isCurrentMonth = month === currentMonth
+  const month = externalMonth ?? internalMonth;
+  const controlled = externalMonth !== undefined;
+  const isCurrentMonth = month === currentMonth;
 
   function prevMonth() {
-    setInternalMonth((m) => format(subMonths(parseISO(m + '-01'), 1), 'yyyy-MM'))
+    setInternalMonth((m) =>
+      format(subMonths(parseISO(m + "-01"), 1), "yyyy-MM"),
+    );
   }
   function nextMonth() {
-    const next = format(addMonths(parseISO(internalMonth + '-01'), 1), 'yyyy-MM')
-    if (next <= currentMonth) setInternalMonth(next)
+    const next = format(
+      addMonths(parseISO(internalMonth + "-01"), 1),
+      "yyyy-MM",
+    );
+    if (next <= currentMonth) setInternalMonth(next);
   }
 
-  const monthLabel = format(parseISO(month + '-01'), 'MMMM yyyy', { locale: dateLocale })
-  const data = useMemo(() => buildDailyData(transactions, month), [transactions, month])
-  const totalIncome  = useMemo(() => data.reduce((s, d) => s + d.income,  0), [data])
-  const totalExpense = useMemo(() => data.reduce((s, d) => s + d.expense, 0), [data])
-  const totalSaving  = useMemo(() => data.reduce((s, d) => s + d.saving,  0), [data])
-  const balance = totalIncome - totalExpense - totalSaving
-  const hasData = totalIncome > 0 || totalExpense > 0 || totalSaving > 0
+  const monthLabel = format(parseISO(month + "-01"), "MMMM yyyy", {
+    locale: dateLocale,
+  });
+  const data = useMemo(
+    () => buildDailyData(transactions, month),
+    [transactions, month],
+  );
+  const totalIncome = useMemo(
+    () => data.reduce((s, d) => s + d.income, 0),
+    [data],
+  );
+  const totalExpense = useMemo(
+    () => data.reduce((s, d) => s + d.expense, 0),
+    [data],
+  );
+  const totalSaving = useMemo(
+    () => data.reduce((s, d) => s + d.saving, 0),
+    [data],
+  );
+  const balance = totalIncome - totalExpense - totalSaving;
+  const hasData = totalIncome > 0 || totalExpense > 0 || totalSaving > 0;
 
   return (
     <div className="w-full">
-      {/* Navigator — hanya tampil di uncontrolled mode */}
+      {/* Navigator - hanya tampil di uncontrolled mode */}
       {!controlled && (
         <div className="flex items-center justify-between mb-4">
           <motion.button
@@ -118,7 +182,9 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
           >
             <ChevronLeft className="w-4 h-4" />
           </motion.button>
-          <p className="text-sm font-bold text-slate-800 dark:text-slate-100">{monthLabel}</p>
+          <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+            {monthLabel}
+          </p>
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={nextMonth}
@@ -130,12 +196,14 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
         </div>
       )}
 
-      {/* Summary stats — 2×2 grid */}
+      {/* Summary stats - 2×2 grid */}
       <div className="grid grid-cols-2 gap-2 mb-4">
         <div className="flex items-center gap-2.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl py-2.5 px-3">
           <TrendingUp className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
           <div>
-            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">{t.dashboard.incomeShort}</p>
+            <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">
+              {t.dashboard.incomeShort}
+            </p>
             <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300 leading-tight">
               {formatRupiah(totalIncome)}
             </p>
@@ -144,7 +212,9 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
         <div className="flex items-center gap-2.5 bg-red-50 dark:bg-red-900/20 rounded-xl py-2.5 px-3">
           <TrendingDown className="w-3.5 h-3.5 text-red-500 shrink-0" />
           <div>
-            <p className="text-[10px] text-red-500 font-medium">{t.dashboard.expenseShort}</p>
+            <p className="text-[10px] text-red-500 font-medium">
+              {t.dashboard.expenseShort}
+            </p>
             <p className="text-xs font-bold text-red-600 dark:text-red-400 leading-tight">
               {formatRupiah(totalExpense)}
             </p>
@@ -153,24 +223,39 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
         <div className="flex items-center gap-2.5 bg-teal-50 dark:bg-teal-900/20 rounded-xl py-2.5 px-3">
           <span className="text-sm shrink-0">🏦</span>
           <div>
-            <p className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">{t.common.saving}</p>
+            <p className="text-[10px] text-teal-600 dark:text-teal-400 font-medium">
+              {t.common.saving}
+            </p>
             <p className="text-xs font-bold text-teal-700 dark:text-teal-300 leading-tight">
               {formatRupiah(totalSaving)}
             </p>
           </div>
         </div>
-        <div className={`flex items-center gap-2.5 rounded-xl py-2.5 px-3 ${
-          balance >= 0 ? 'bg-sky-50 dark:bg-sky-900/20' : 'bg-orange-50 dark:bg-orange-900/20'
-        }`}>
-          <Wallet className={`w-3.5 h-3.5 shrink-0 ${balance >= 0 ? 'text-sky-500' : 'text-orange-500'}`} />
+        <div
+          className={`flex items-center gap-2.5 rounded-xl py-2.5 px-3 ${
+            balance >= 0
+              ? "bg-sky-50 dark:bg-sky-900/20"
+              : "bg-orange-50 dark:bg-orange-900/20"
+          }`}
+        >
+          <Wallet
+            className={`w-3.5 h-3.5 shrink-0 ${balance >= 0 ? "text-sky-500" : "text-orange-500"}`}
+          />
           <div>
-            <p className={`text-[10px] font-medium ${balance >= 0 ? 'text-sky-600 dark:text-sky-400' : 'text-orange-500'}`}>
+            <p
+              className={`text-[10px] font-medium ${balance >= 0 ? "text-sky-600 dark:text-sky-400" : "text-orange-500"}`}
+            >
               {t.dashboard.balanceLabel}
             </p>
-            <p className={`text-xs font-bold leading-tight ${
-              balance >= 0 ? 'text-sky-700 dark:text-sky-300' : 'text-orange-600 dark:text-orange-400'
-            }`}>
-              {balance >= 0 ? '' : '-'}{formatRupiah(Math.abs(balance))}
+            <p
+              className={`text-xs font-bold leading-tight ${
+                balance >= 0
+                  ? "text-sky-700 dark:text-sky-300"
+                  : "text-orange-600 dark:text-orange-400"
+              }`}
+            >
+              {balance >= 0 ? "" : "-"}
+              {formatRupiah(Math.abs(balance))}
             </p>
           </div>
         </div>
@@ -192,20 +277,59 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
                 tickLine={false}
                 interval={0}
               />
-              <Tooltip content={<CustomTooltip locale={dateLocale} />} cursor={{ fill: 'rgba(14,165,233,0.06)', radius: 4 }} />
-              <Bar dataKey="income" name="income" radius={[2, 2, 0, 0]} maxBarSize={6}>
+              <Tooltip
+                content={<CustomTooltip locale={dateLocale} />}
+                cursor={{ fill: "rgba(14,165,233,0.06)", radius: 4 }}
+              />
+              <Bar
+                dataKey="income"
+                name="income"
+                radius={[2, 2, 0, 0]}
+                maxBarSize={6}
+              >
                 {data.map((entry) => (
-                  <Cell key={entry.dateStr} fill={entry.isToday ? TYPE_COLORS.income.emphasis : TYPE_COLORS.income.muted} />
+                  <Cell
+                    key={entry.dateStr}
+                    fill={
+                      entry.isToday
+                        ? TYPE_COLORS.income.emphasis
+                        : TYPE_COLORS.income.muted
+                    }
+                  />
                 ))}
               </Bar>
-              <Bar dataKey="expense" name="expense" radius={[2, 2, 0, 0]} maxBarSize={6}>
+              <Bar
+                dataKey="expense"
+                name="expense"
+                radius={[2, 2, 0, 0]}
+                maxBarSize={6}
+              >
                 {data.map((entry) => (
-                  <Cell key={entry.dateStr} fill={entry.isToday ? TYPE_COLORS.expense.emphasis : TYPE_COLORS.expense.muted} />
+                  <Cell
+                    key={entry.dateStr}
+                    fill={
+                      entry.isToday
+                        ? TYPE_COLORS.expense.emphasis
+                        : TYPE_COLORS.expense.muted
+                    }
+                  />
                 ))}
               </Bar>
-              <Bar dataKey="saving" name="saving" radius={[2, 2, 0, 0]} maxBarSize={6}>
+              <Bar
+                dataKey="saving"
+                name="saving"
+                radius={[2, 2, 0, 0]}
+                maxBarSize={6}
+              >
                 {data.map((entry) => (
-                  <Cell key={entry.dateStr} fill={entry.isToday ? TYPE_COLORS.saving.emphasis : TYPE_COLORS.saving.muted} />
+                  <Cell
+                    key={entry.dateStr}
+                    fill={
+                      entry.isToday
+                        ? TYPE_COLORS.saving.emphasis
+                        : TYPE_COLORS.saving.muted
+                    }
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -213,17 +337,20 @@ export function MonthlyChart({ transactions, externalMonth }: MonthlyChartProps)
 
           <div className="flex items-center gap-3 mt-1.5 justify-center flex-wrap">
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
-              <span className="w-2 h-2 rounded-sm bg-emerald-400 inline-block" /> {t.dashboard.incomeShort}
+              <span className="w-2 h-2 rounded-sm bg-emerald-400 inline-block" />{" "}
+              {t.dashboard.incomeShort}
             </span>
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
-              <span className="w-2 h-2 rounded-sm bg-red-400 inline-block" /> {t.dashboard.expenseShort}
+              <span className="w-2 h-2 rounded-sm bg-red-400 inline-block" />{" "}
+              {t.dashboard.expenseShort}
             </span>
             <span className="flex items-center gap-1 text-[10px] text-slate-400">
-              <span className="w-2 h-2 rounded-sm bg-teal-300 inline-block" /> {t.common.saving}
+              <span className="w-2 h-2 rounded-sm bg-teal-300 inline-block" />{" "}
+              {t.common.saving}
             </span>
           </div>
         </>
       )}
     </div>
-  )
+  );
 }

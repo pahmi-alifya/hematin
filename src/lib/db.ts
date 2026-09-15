@@ -57,12 +57,12 @@ class HematinDB extends Dexie {
       recurringTemplates: 'id, type, isActive, recurringDay, createdAt',
       debtPayments: 'id, debtId, month, paidDate, createdAt',
     })
-    // v6: multi-dompet — tambah tabel wallets + walletId index ke semua tabel data
+    // v6: multi-dompet - tambah tabel wallets + walletId index ke semua tabel data
     this.version(6).stores({
       transactions: 'id, type, category, date, createdAt, walletId',
       goals: 'id, category, walletId',
       insights: 'id, date, walletId',
-      settings: 'id', // TETAP global — AI settings bukan per-dompet
+      settings: 'id', // TETAP global - AI settings bukan per-dompet
       debts: 'id, type, status, dueDate, person, createdAt, walletId',
       recurringTemplates: 'id, type, isActive, recurringDay, createdAt, walletId',
       debtPayments: 'id, debtId, month, paidDate, createdAt, walletId',

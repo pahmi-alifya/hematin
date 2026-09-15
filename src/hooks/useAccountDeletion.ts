@@ -18,7 +18,7 @@ interface SharedOwnedWallet {
   members: WalletMemberRow[]
 }
 
-/** Owns seluruh alur "Hapus Akun" — cek dompet shared, transfer kepemilikan, konfirmasi, lalu eksekusi. */
+/** Owns seluruh alur "Hapus Akun" - cek dompet shared, transfer kepemilikan, konfirmasi, lalu eksekusi. */
 export function useAccountDeletion() {
   const t = useTranslation()
   const router = useRouter()
@@ -49,7 +49,7 @@ export function useAccountDeletion() {
           const allMembers = await fetchWalletMembers(w.cloudWalletId as string)
           // ensureOwnerMembership() (src/lib/sync/mappers.ts) selalu kasih owner baris
           // wallet_members sendiri (role 'owner') untuk SEMUA dompet cloud-linked, bahkan
-          // yang tidak pernah di-share ke siapapun — baris itu harus dibuang dari sini,
+          // yang tidak pernah di-share ke siapapun - baris itu harus dibuang dari sini,
           // kalau tidak dompet pribadi akan selalu dianggap "punya anggota" (dirinya sendiri).
           return { wallet: w, members: allMembers.filter((m) => m.user_id !== userId) }
         }),

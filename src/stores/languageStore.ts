@@ -12,7 +12,7 @@ interface LanguageStore {
   toggle: () => void;
 }
 
-// Selalu mulai dari 'id' baik di server maupun render pertama di client (sebelum hydration) —
+// Selalu mulai dari 'id' baik di server maupun render pertama di client (sebelum hydration) -
 // menghindari mismatch hydration Next.js, karena localStorage cuma bisa dibaca setelah mount
 // (lihat LanguageProvider di components/ui/LanguageToggle.tsx, pola sama seperti ThemeProvider).
 export const useLanguageStore = create<LanguageStore>((set) => ({

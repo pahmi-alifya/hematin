@@ -25,7 +25,7 @@ interface AuthStore {
 }
 
 // Guard supaya sync tidak jalan dobel: dipanggil langsung (awaited) dari signIn/signUp DAN
-// dari listener onAuthStateChange (untuk kasus sesi dipulihkan di tab lain) — bisa saja
+// dari listener onAuthStateChange (untuk kasus sesi dipulihkan di tab lain) - bisa saja
 // keduanya trigger untuk userId yang sama nyaris bersamaan.
 let syncInFlightForUserId: string | null = null
 
@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   isSyncing: false,
 
   init: async () => {
-    // Supabase belum di-setup (belum ada .env.local) — tetap jalan sebagai Guest,
+    // Supabase belum di-setup (belum ada .env.local) - tetap jalan sebagai Guest,
     // jangan sampai app pengguna yang belum pernah setup Supabase ikut error.
     if (!isSupabaseConfigured()) {
       set({ user: null, isGuest: true, isLoading: false })
@@ -76,7 +76,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   signUp: async ({ name, email, password }) => {
     if (!isSupabaseConfigured()) {
-      return { success: false, error: 'Fitur akun belum tersedia — coba lagi nanti' }
+      return { success: false, error: 'Fitur akun belum tersedia - coba lagi nanti' }
     }
     const parsed = registerCoreSchema.safeParse({ name, email, password })
     if (!parsed.success) {
@@ -93,7 +93,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     if (error) return { success: false, error: error.message }
     if (data.user) {
       // Await di sini (bukan cuma lewat listener onAuthStateChange) supaya caller
-      // (form register) baru redirect SETELAH data lokal selesai ke-link ke cloud —
+      // (form register) baru redirect SETELAH data lokal selesai ke-link ke cloud -
       // kalau tidak, transaksi yang dibuat user tepat setelah daftar bisa ke-skip
       // dari sync awal karena wallet-nya belum kebagian cloudWalletId.
       set({ user: data.user, isGuest: false })
@@ -104,7 +104,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   signIn: async ({ email, password }) => {
     if (!isSupabaseConfigured()) {
-      return { success: false, error: 'Fitur akun belum tersedia — coba lagi nanti' }
+      return { success: false, error: 'Fitur akun belum tersedia - coba lagi nanti' }
     }
     const parsed = loginSchema.safeParse({ email, password })
     if (!parsed.success) {
@@ -126,7 +126,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     await supabase.auth.signOut()
     set({ user: null, isGuest: true })
     // Dompet cloud-linked (punya sendiri ATAU hasil join) cuma boleh kelihatan selama
-    // akun itu login — kalau tidak dibersihkan, tetap nongol sebagai data "Guest" padahal
+    // akun itu login - kalau tidak dibersihkan, tetap nongol sebagai data "Guest" padahal
     // sebenarnya milik akun yang baru saja logout.
     await useWalletStore.getState().clearAccountLinkedWallets()
   },

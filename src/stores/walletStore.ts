@@ -9,7 +9,7 @@ import type { Wallet } from '@/types'
 
 const ACTIVE_WALLET_KEY = 'hematin-active-wallet'
 
-/** Dompet cloud-linked yang aku ikuti sebagai editor/viewer — bukan milikku, cuma dibagikan owner-nya. */
+/** Dompet cloud-linked yang aku ikuti sebagai editor/viewer - bukan milikku, cuma dibagikan owner-nya. */
 export function isSharedWithMe(wallet: Pick<Wallet, 'cloudWalletId' | 'ownerRole'>): boolean {
   return !!wallet.cloudWalletId && wallet.ownerRole !== 'owner'
 }
@@ -146,7 +146,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
   },
 
   /**
-   * Dipanggil saat logout — dompet yang cloud-linked (owned ATAU joined sebagai member)
+   * Dipanggil saat logout - dompet yang cloud-linked (owned ATAU joined sebagai member)
    * cuma boleh terlihat selama akun itu login, bukan nyisa jadi data "Guest" abal-abal
    * setelah logout (Dexie tidak otomatis kosong cuma karena sesi auth berakhir). Dompet
    * lokal murni yang belum pernah di-link tetap aman, tidak ikut kehapus.
@@ -175,7 +175,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
    * `clearAccountLinkedWallets` (dipakai saat sign-out biasa, yang menghapus SEMUA wallet
    * cloud-linked tanpa pandang bulu): di sini dompet yang MASIH miliknya (tidak di-share ke
    * orang lain, dan tidak ada di `transferredWalletIds`) justru dipertahankan sebagai wallet
-   * lokal biasa — sesuai keputusan "data lokal tetap ada" pas hapus akun. Yang benar-benar
+   * lokal biasa - sesuai keputusan "data lokal tetap ada" pas hapus akun. Yang benar-benar
    * dihapus total cuma dompet yang di-share KE dia (`isSharedWithMe`) dan dompet miliknya yang
    * baru saja ditransfer ke owner baru (sudah bukan miliknya lagi).
    */

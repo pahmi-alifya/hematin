@@ -9,7 +9,7 @@ export interface Wallet {
   createdAt: number
   order: number            // urutan tampil di switcher
 
-  // Diisi kalau dompet ini pernah cloud-linked (Fase 2/3) — belum dipakai di Fase 1
+  // Diisi kalau dompet ini pernah cloud-linked (Fase 2/3) - belum dipakai di Fase 1
   cloudWalletId?: string
   ownerRole?: 'owner' | 'editor' | 'viewer'
   isShared?: boolean
@@ -39,7 +39,7 @@ export interface RecurringTemplate {
   notes?: string
   recurringDay: number        // tanggal dalam bulan: 1–28
   isActive: boolean
-  lastGeneratedMonth?: string // "2026-03" — bulan terakhir di-generate
+  lastGeneratedMonth?: string // "2026-03" - bulan terakhir di-generate
   createdAt: number
 }
 
@@ -48,7 +48,7 @@ export interface Goal {
   walletId: string
   category: string
   limitAmount: number
-  month?: string // "2026-02" — opsional, legacy field
+  month?: string // "2026-02" - opsional, legacy field
   createdAt: number
 }
 
@@ -119,7 +119,7 @@ export interface Debt {
   isCicilan?: boolean         // true = mode cicilan bulanan
   cicilanAmount?: number      // nominal per cicilan
   cicilanDay?: number         // tanggal jatuh tempo tiap bulan (1–28)
-  cicilanStartMonth?: string  // "2026-04" — bulan cicilan pertama
+  cicilanStartMonth?: string  // "2026-04" - bulan cicilan pertama
 }
 
 export interface DebtPayment {
@@ -128,7 +128,7 @@ export interface DebtPayment {
   debtId: string              // FK ke Debt.id
   amount: number              // nominal yang dibayarkan
   paidDate: string            // ISO date "YYYY-MM-DD"
-  month: string               // "YYYY-MM" — bulan cicilan ini
+  month: string               // "YYYY-MM" - bulan cicilan ini
   notes?: string
   createdAt: number
 }

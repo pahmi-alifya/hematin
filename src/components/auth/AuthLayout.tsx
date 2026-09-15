@@ -19,7 +19,7 @@ export function AuthLayout({ children }: AuthLayoutProps) {
         <AuthScene />
       </div>
 
-      {/* Scrim mobile — supaya form tetap kebaca di atas scene, tetap di keluarga biru yang sama */}
+      {/* Scrim mobile - supaya form tetap kebaca di atas scene, tetap di keluarga biru yang sama */}
       <div className="absolute inset-0 md:hidden bg-linear-to-b from-[#075985]/10 via-[#075985]/45 to-[#075985]/80" />
 
       {/* Form panel */}

@@ -32,9 +32,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { exportTransactionsCSV } from "@/lib/export";
 import { TYPE_FILTERS, SORT_OPTIONS } from "@/lib/transactions";
-import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, SAVING_CATEGORIES } from "@/lib/categories";
+import {
+  EXPENSE_CATEGORIES,
+  INCOME_CATEGORIES,
+  SAVING_CATEGORIES,
+} from "@/lib/categories";
 
-const ALL_CATEGORIES = [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES, ...SAVING_CATEGORIES];
+const ALL_CATEGORIES = [
+  ...EXPENSE_CATEGORIES,
+  ...INCOME_CATEGORIES,
+  ...SAVING_CATEGORIES,
+];
 
 export default function TransactionsPage() {
   const t = useTranslation();
@@ -70,14 +78,20 @@ export default function TransactionsPage() {
     loadTransactions();
   }, [loadTransactions]);
 
-  const activeTypeFilter = TYPE_FILTERS.find((item) => item.value === typeFilter);
-  const activeTypeLabel = activeTypeFilter ? t.transactions[activeTypeFilter.labelKey] : undefined;
+  const activeTypeFilter = TYPE_FILTERS.find(
+    (item) => item.value === typeFilter,
+  );
+  const activeTypeLabel = activeTypeFilter
+    ? t.transactions[activeTypeFilter.labelKey]
+    : undefined;
   const activeCategory =
     categoryFilter !== "all"
       ? ALL_CATEGORIES.find((c) => c.id === categoryFilter)
       : undefined;
   const activeSortOption = SORT_OPTIONS.find((s) => s.value === sortBy);
-  const activeSortLabel = activeSortOption ? t.transactions[activeSortOption.labelKey] : undefined;
+  const activeSortLabel = activeSortOption
+    ? t.transactions[activeSortOption.labelKey]
+    : undefined;
 
   return (
     <div className="min-h-screen bg-sky-50 dark:bg-[#0B1120]">
@@ -230,7 +244,7 @@ export default function TransactionsPage() {
             </motion.button>
           </div>
 
-          {/* Ringkasan filter aktif — cuma tampil kalau ada yang di-filter */}
+          {/* Ringkasan filter aktif - cuma tampil kalau ada yang di-filter */}
           <AnimatePresence>
             {activeSheetFiltersCount > 0 && (
               <motion.div

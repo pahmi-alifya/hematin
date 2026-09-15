@@ -33,7 +33,7 @@ interface FabItemConfig {
   href: string
 }
 
-/** Radial FAB menu — urutan array = urutan tampil di busur (kiri ke kanan) & animasi stagger saat dibuka. */
+/** Radial FAB menu - urutan array = urutan tampil di busur (kiri ke kanan) & animasi stagger saat dibuka. */
 export const FAB_ITEMS: FabItemConfig[] = [
   { icon: Camera, labelKey: 'scan', color: '#10B981', shadow: 'rgba(16,185,129,0.45)', href: '/scan' },
   { icon: Target, labelKey: 'goals', color: '#8B5CF6', shadow: 'rgba(139,92,246,0.45)', href: '/goals' },
@@ -41,7 +41,7 @@ export const FAB_ITEMS: FabItemConfig[] = [
   { icon: Settings, labelKey: 'settings', color: '#6366F1', shadow: 'rgba(99,102,241,0.45)', href: '/settings' },
 ]
 
-// Sudut awal/akhir busur radial (derajat, dari kanan, counter-clockwise = ke atas layar) —
+// Sudut awal/akhir busur radial (derajat, dari kanan, counter-clockwise = ke atas layar) -
 // item didistribusikan rata di antara keduanya sesuai jumlah fabItems yang tampil saat itu
 // (lihat BottomNav.tsx), supaya tidak ada celah kalau salah satu item difilter (mis. viewer).
 export const FAB_START_ANGLE = 170

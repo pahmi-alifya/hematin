@@ -31,7 +31,7 @@ export function useTransactionFilters(transactions: Transaction[]) {
     setSearch('')
   }
 
-  /** Reset khusus tombol Filter (tipe/kategori/sort) — search punya tombol clear sendiri. */
+  /** Reset khusus tombol Filter (tipe/kategori/sort) - search punya tombol clear sendiri. */
   function resetSheetFilters() {
     setTypeFilter('all')
     setCategoryFilter('all')
@@ -53,9 +53,9 @@ export function useTransactionFilters(transactions: Transaction[]) {
 
     const pool =
       typeFilter === 'income' ? INCOME_CATEGORIES :
-      typeFilter === 'expense' ? EXPENSE_CATEGORIES :
-      typeFilter === 'saving' ? SAVING_CATEGORIES :
-      [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES, ...SAVING_CATEGORIES]
+        typeFilter === 'expense' ? EXPENSE_CATEGORIES :
+          typeFilter === 'saving' ? SAVING_CATEGORIES :
+            [...EXPENSE_CATEGORIES, ...INCOME_CATEGORIES, ...SAVING_CATEGORIES]
 
     return pool.filter((c) => cats.has(c.id))
   }, [transactions, month, typeFilter])
@@ -90,7 +90,7 @@ export function useTransactionFilters(transactions: Transaction[]) {
     }
   }, [filteredTransactions])
 
-  // Badge tombol Filter — cuma tipe/kategori/sort, search dihitung terpisah (ada clear-nya sendiri).
+  // Badge tombol Filter - cuma tipe/kategori/sort, search dihitung terpisah (ada clear-nya sendiri).
   const activeSheetFiltersCount = [typeFilter !== 'all', categoryFilter !== 'all', sortBy !== 'newest'].filter(Boolean).length
 
   return {

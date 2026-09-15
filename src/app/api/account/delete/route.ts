@@ -9,7 +9,7 @@ interface TransferPair {
 
 /**
  * Hapus akun permanen. Urutan WAJIB: transfer kepemilikan dompet shared dulu (kalau ada),
- * baru auth.admin.deleteUser() — kalau ada transfer yang gagal, langsung return error
+ * baru auth.admin.deleteUser() - kalau ada transfer yang gagal, langsung return error
  * SEBELUM deleteUser dipanggil (fail-safe: akun tidak boleh terhapus separuh-jalan).
  */
 export async function POST(req: NextRequest) {

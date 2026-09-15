@@ -1,8 +1,8 @@
--- HEMATIN — Fase 2 (Auth & Backend Infrastructure)
+-- HEMATIN - Fase 2 (Auth & Backend Infrastructure)
 -- Jalankan file ini di Supabase Dashboard → SQL Editor (sekali saja, di project baru).
 --
 -- Cakupan Fase 2: akun (profiles) + backup cloud per-akun (cloud_wallets & data anaknya).
--- Sharing (wallet_members, activity_log, share_key multi-user RLS) menyusul di Fase 3 —
+-- Sharing (wallet_members, activity_log, share_key multi-user RLS) menyusul di Fase 3 -
 -- lihat docs/planning-multi-dompet-sharing-auth.md §3.2/§3.3/§4.
 
 -- ─── 1. profiles ────────────────────────────────────────────────────────────
@@ -145,7 +145,7 @@ alter table cloud_debts enable row level security;
 alter table cloud_debt_payments enable row level security;
 alter table cloud_recurring_templates enable row level security;
 
--- RLS Fase 2: akses HANYA untuk owner dompetnya (belum ada konsep member/role —
+-- RLS Fase 2: akses HANYA untuk owner dompetnya (belum ada konsep member/role -
 -- itu ditambahkan di Fase 3 lewat migration terpisah begitu wallet_members ada).
 create policy "cloud_transactions_owner_all" on cloud_transactions
   for all using (

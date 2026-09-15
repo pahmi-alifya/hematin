@@ -27,10 +27,10 @@ interface MembershipRow {
  * Satu query gabungan: role member + nama/ikon/warna dompet saat ini, lewat join
  * wallet_members -> cloud_wallets. Dipakai refresh Lapis 2 & sync saat login untuk
  * sinkronkan `ownerRole`/metadata lokal yang bisa jadi basi (owner ubah role atau
- * rename/ganti tampilan dompet dari device lain) — sebelumnya ini 2 query terpisah
+ * rename/ganti tampilan dompet dari device lain) - sebelumnya ini 2 query terpisah
  * (fetchMemberRole + fetchWalletMetadata), digabung supaya request ke Supabase lebih
  * hemat (lihat `applyMembershipInfo` di walletSync.ts). Return null kalau row wallet_members
- * tidak ketemu — dipakai juga sebagai sinyal "sudah tidak jadi member" (revoked).
+ * tidak ketemu - dipakai juga sebagai sinyal "sudah tidak jadi member" (revoked).
  */
 export async function fetchMembershipInfo(
   supabase: SupabaseClient,
@@ -49,10 +49,10 @@ export async function fetchMembershipInfo(
 }
 
 /**
- * Pastikan owner punya row wallet_members untuk dompet ini — idempotent (aman dipanggil
+ * Pastikan owner punya row wallet_members untuk dompet ini - idempotent (aman dipanggil
  * berkali-kali, termasuk untuk dompet yang SUDAH cloud-linked). Ini yang bikin proses
  * self-healing: kalau insert wallet_members gagal di satu login (mis. migration Fase 3
- * belum jalan / RLS bermasalah saat itu), login berikutnya akan otomatis coba lagi —
+ * belum jalan / RLS bermasalah saat itu), login berikutnya akan otomatis coba lagi -
  * tidak seperti cloudWalletId yang begitu ke-set, tidak pernah dicoba ulang.
  */
 export async function ensureOwnerMembership(supabase: SupabaseClient, walletId: string, userId: string): Promise<void> {
@@ -265,7 +265,7 @@ export async function uploadWalletChildRecords(
   }
 }
 
-/** Download data satu dompet cloud ke Dexie — dipakai saat dompet ini BELUM ADA sama sekali secara lokal. */
+/** Download data satu dompet cloud ke Dexie - dipakai saat dompet ini BELUM ADA sama sekali secara lokal. */
 export async function downloadWalletChildRecordsFresh(supabase: SupabaseClient, cloudWalletId: string): Promise<void> {
   const [
     { data: transactions },
@@ -291,7 +291,7 @@ export async function downloadWalletChildRecordsFresh(supabase: SupabaseClient, 
 }
 
 /**
- * Refresh data satu dompet yang SUDAH ADA secara lokal — hapus semua record lama wallet ini
+ * Refresh data satu dompet yang SUDAH ADA secara lokal - hapus semua record lama wallet ini
  * lalu ganti dengan snapshot terbaru dari cloud (full-replace, bukan incremental). Dipakai
  * sync engine Lapis 2 (collaboration sync) untuk menarik perubahan dari member lain.
  */

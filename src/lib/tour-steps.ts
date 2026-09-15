@@ -15,7 +15,7 @@ import {
 import { getDictionary, type Language } from "@/lib/i18n";
 
 export interface TourStepConfig extends Step {
-  /** Halaman yang harus aktif saat step ini ditampilkan — TourController akan navigasi ke sini dulu kalau perlu. */
+  /** Halaman yang harus aktif saat step ini ditampilkan - TourController akan navigasi ke sini dulu kalau perlu. */
   route: string;
   icon: LucideIcon;
 }

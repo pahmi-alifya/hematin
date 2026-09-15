@@ -11,7 +11,7 @@ export const TRANSACTION_TYPE_PREFIX: Record<TransactionType, string> = {
 export type TransactionTypeLabelKey = 'typeShortIncome' | 'typeShortExpense' | 'typeShortSaving'
 
 /**
- * Toggle tipe transaksi (emoji + warna aktif) — dipakai di TransactionForm & form recurring.
+ * Toggle tipe transaksi (emoji + warna aktif) - dipakai di TransactionForm & form recurring.
  * `labelKey` dipakai untuk lookup dictionary (`t.transactions[labelKey]`) sesuai bahasa aktif.
  */
 export const TRANSACTION_TYPE_TOGGLE: {
@@ -19,10 +19,10 @@ export const TRANSACTION_TYPE_TOGGLE: {
   labelKey: TransactionTypeLabelKey
   activeClass: string
 }[] = [
-  { value: 'expense', labelKey: 'typeShortExpense', activeClass: 'text-red-500' },
-  { value: 'income', labelKey: 'typeShortIncome', activeClass: 'text-emerald-500' },
-  { value: 'saving', labelKey: 'typeShortSaving', activeClass: 'text-teal-600 dark:text-teal-400' },
-]
+    { value: 'expense', labelKey: 'typeShortExpense', activeClass: 'text-red-500' },
+    { value: 'income', labelKey: 'typeShortIncome', activeClass: 'text-emerald-500' },
+    { value: 'saving', labelKey: 'typeShortSaving', activeClass: 'text-teal-600 dark:text-teal-400' },
+  ]
 
 export type TypeFilter = 'all' | TransactionType
 

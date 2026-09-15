@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import { AlertTriangle, Trash2 } from 'lucide-react'
-import { BottomSheet } from '@/components/ui/BottomSheet'
-import { Button } from '@/components/ui/Button'
-import { Input } from '@/components/ui/Input'
-import { OwnerSelect } from '@/components/wallet/OwnerSelect'
-import { useAccountDeletion } from '@/hooks/useAccountDeletion'
-import { useTranslation } from '@/hooks/useTranslation'
+import { AlertTriangle, Trash2 } from "lucide-react";
+import { BottomSheet } from "@/components/ui/BottomSheet";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { OwnerSelect } from "@/components/wallet/OwnerSelect";
+import { useAccountDeletion } from "@/hooks/useAccountDeletion";
+import { useTranslation } from "@/hooks/useTranslation";
 
 export function DangerZoneSection() {
-  const t = useTranslation()
+  const t = useTranslation();
   const {
     step,
     sharedOwnedWallets,
@@ -23,7 +23,7 @@ export function DangerZoneSection() {
     selectOwner,
     proceedFromTransfer,
     confirmDelete,
-  } = useAccountDeletion()
+  } = useAccountDeletion();
 
   return (
     <>
@@ -37,7 +37,7 @@ export function DangerZoneSection() {
         <button
           type="button"
           onClick={open}
-          disabled={step === 'checking'}
+          disabled={step === "checking"}
           className="w-full flex items-center gap-3 rounded-xl border border-red-100 dark:border-red-900/40 p-3 text-left hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors disabled:opacity-50"
         >
           <div className="w-9 h-9 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center text-red-500 shrink-0">
@@ -56,7 +56,7 @@ export function DangerZoneSection() {
 
       {/* Sheet: Transfer Kepemilikan */}
       <BottomSheet
-        open={step === 'transfer'}
+        open={step === "transfer"}
         onClose={close}
         title={t.account.transferSheet.title}
       >
@@ -85,9 +85,9 @@ export function DangerZoneSection() {
                   onChange={(newOwnerId) => selectOwner(wallet.id, newOwnerId)}
                   options={members.map((m) => ({
                     id: m.user_id,
-                    label: m.profiles?.name ?? '—',
+                    label: m.profiles?.name ?? "-",
                     roleLabel:
-                      m.role === 'editor'
+                      m.role === "editor"
                         ? t.account.transferSheet.roleEditor
                         : t.account.transferSheet.roleViewer,
                   }))}
@@ -109,7 +109,7 @@ export function DangerZoneSection() {
 
       {/* Sheet: Konfirmasi Hapus Akun */}
       <BottomSheet
-        open={step === 'confirm'}
+        open={step === "confirm"}
         onClose={close}
         title={t.account.confirmSheet.title}
       >
@@ -127,7 +127,12 @@ export function DangerZoneSection() {
           />
 
           <div className="flex gap-2 pt-2">
-            <Button variant="secondary" fullWidth onClick={close} disabled={deleting}>
+            <Button
+              variant="secondary"
+              fullWidth
+              onClick={close}
+              disabled={deleting}
+            >
               {t.account.confirmSheet.cancelButton}
             </Button>
             <Button
@@ -137,11 +142,13 @@ export function DangerZoneSection() {
               disabled={!canConfirm}
               loading={deleting}
             >
-              {deleting ? t.account.confirmSheet.deletingButton : t.account.confirmSheet.confirmButton}
+              {deleting
+                ? t.account.confirmSheet.deletingButton
+                : t.account.confirmSheet.confirmButton}
             </Button>
           </div>
         </div>
       </BottomSheet>
     </>
-  )
+  );
 }

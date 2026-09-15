@@ -7,7 +7,7 @@ export const loginSchema = z.object({
 })
 export type LoginFormValues = z.infer<typeof loginSchema>
 
-// Sumber tunggal aturan validasi register — dipakai oleh form (registerFormSchema)
+// Sumber tunggal aturan validasi register - dipakai oleh form (registerFormSchema)
 // maupun authStore.signUp() sebagai pertahanan kedua (defense in depth).
 export const registerCoreSchema = z.object({
   name: z

@@ -29,7 +29,7 @@ export const debts = {
       addTitle: (type: DebtType) => `Catat ${type === "hutang" ? "Hutang" : "Piutang"}`,
       markPaidTitle: "Tandai Lunas",
       paymentTitle: "Catat Pembayaran",
-      historyTitle: (person: string) => `Riwayat Pembayaran — ${person}`,
+      historyTitle: (person: string) => `Riwayat Pembayaran - ${person}`,
       detailTitle: "Detail Catatan",
     },
     detail: {
@@ -183,7 +183,7 @@ export const debts = {
       addTitle: (type: DebtType) => `Record ${type === "hutang" ? "Debt" : "Credit"}`,
       markPaidTitle: "Mark as Paid",
       paymentTitle: "Record Payment",
-      historyTitle: (person: string) => `Payment History — ${person}`,
+      historyTitle: (person: string) => `Payment History - ${person}`,
       detailTitle: "Record Details",
     },
     detail: {

@@ -18,7 +18,7 @@ export async function createClient() {
               cookieStore.set(name, value, options),
             )
           } catch {
-            // Dipanggil dari Server Component tanpa akses set-cookie — aman diabaikan,
+            // Dipanggil dari Server Component tanpa akses set-cookie - aman diabaikan,
             // middleware yang menangani refresh session di request berikutnya.
           }
         },
