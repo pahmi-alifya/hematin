@@ -61,15 +61,15 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/screenshot-mobile.svg",
+      "src": "/screenshots/screenshot-mobile.png",
       "sizes": "390x844",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "label": "Dashboard HEMATIN - tampilan mobile"
     },
     {
-      "src": "/screenshots/screenshot-desktop.svg",
+      "src": "/screenshots/screenshot-desktop.png",
       "sizes": "1280x800",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "form_factor": "wide",
       "label": "Dashboard HEMATIN - tampilan desktop"
     }
