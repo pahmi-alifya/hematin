@@ -58,7 +58,7 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
         const defaultWallet: Wallet = {
           id: generateId(),
           name: 'Dompet Utama',
-          icon: '👛',
+          icon: '💳',
           color: '#0EA5E9',
           isDefault: true,
           createdAt: Date.now(),

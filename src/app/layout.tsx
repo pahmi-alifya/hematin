@@ -162,7 +162,7 @@ export const metadata: Metadata = {
   icons: {
     icon: [{ url: "/icons/logo.png", type: "image/png" }],
     shortcut: "/icons/logo.png",
-    apple: "/icons/logo.png",
+    apple: "/icons/icon-152x152.png",
   },
   manifest: "/manifest.json",
   openGraph: {
@@ -229,7 +229,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="apple-touch-icon" href="/icons/logo.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
         {/* Anti-flash: apply saved theme before first paint */}
         <script
           dangerouslySetInnerHTML={{

@@ -1,7 +1,7 @@
 export const walletTour = {
   id: {
     welcome: {
-      title: "Kelola Dompet 👛",
+      title: "Kelola Dompet 💳",
       content:
         "Kamu bisa punya lebih dari satu dompet — pribadi, keluarga, atau kantor — masing-masing dengan data transaksi sendiri.",
     },
@@ -33,7 +33,7 @@ export const walletTour = {
   },
   en: {
     welcome: {
-      title: "Manage Wallets 👛",
+      title: "Manage Wallets 💳",
       content:
         "You can have more than one wallet — personal, family, or work — each with its own separate transaction data.",
     },

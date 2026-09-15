@@ -1,7 +1,7 @@
 export const MAX_WALLETS = 5
 
 export const WALLET_ICONS = [
-  '👛', '💼', '🏠', '🏢', '🍽️', '🎓', '✈️', '🚗', '💰', '🎯', '🛒', '❤️',
+  '💳', '💼', '🏠', '🏢', '🍽️', '🎓', '✈️', '🚗', '💰', '🎯', '🛒', '❤️',
 ]
 
 export const WALLET_COLORS = [
