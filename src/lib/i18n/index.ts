@@ -4,6 +4,7 @@ import { dashboard } from "./dictionaries/dashboard";
 import { profile } from "./dictionaries/profile";
 import { faq } from "./dictionaries/faq";
 import { tour } from "./dictionaries/tour";
+import { walletTour } from "./dictionaries/walletTour";
 import { settings } from "./dictionaries/settings";
 import { goals } from "./dictionaries/goals";
 import { recurring } from "./dictionaries/recurring";
@@ -23,6 +24,7 @@ export const dictionaries = {
     profile: profile.id,
     faq: faq.id,
     tour: tour.id,
+    walletTour: walletTour.id,
     settings: settings.id,
     goals: goals.id,
     recurring: recurring.id,
@@ -40,6 +42,7 @@ export const dictionaries = {
     profile: profile.en,
     faq: faq.en,
     tour: tour.en,
+    walletTour: walletTour.en,
     settings: settings.en,
     goals: goals.en,
     recurring: recurring.en,

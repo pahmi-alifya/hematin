@@ -2,6 +2,7 @@ export const wallets = {
   id: {
     list: {
       pageTitle: "Kelola Dompet",
+      replayTourTooltip: "Lihat tutorial wallet",
       dragHintBefore: "Tahan & geser",
       dragHintAfter: "untuk mengubah urutan",
       activeLabel: "Aktif",
@@ -123,6 +124,7 @@ export const wallets = {
   en: {
     list: {
       pageTitle: "Manage Wallets",
+      replayTourTooltip: "View wallet tutorial",
       dragHintBefore: "Hold & drag",
       dragHintAfter: "to reorder",
       activeLabel: "Active",
