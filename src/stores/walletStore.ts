@@ -37,6 +37,7 @@ interface WalletStore {
   deleteWallet: (id: string) => Promise<void>
   reorderWallets: (orderedIds: string[]) => Promise<void>
   clearAccountLinkedWallets: () => Promise<void>
+  cleanupAfterAccountDeletion: (transferredWalletIds: string[]) => Promise<void>
 
   getActiveWallet: () => Wallet | undefined
   canCreateWallet: () => boolean
@@ -165,6 +166,41 @@ export const useWalletStore = create<WalletStore>((set, get) => ({
         db.wallets.delete(w.id),
       ]),
     )
+
+    await get().loadWallets()
+  },
+
+  /**
+   * Dipanggil setelah akun berhasil dihapus (src/app/api/account/delete). BEDA dari
+   * `clearAccountLinkedWallets` (dipakai saat sign-out biasa, yang menghapus SEMUA wallet
+   * cloud-linked tanpa pandang bulu): di sini dompet yang MASIH miliknya (tidak di-share ke
+   * orang lain, dan tidak ada di `transferredWalletIds`) justru dipertahankan sebagai wallet
+   * lokal biasa — sesuai keputusan "data lokal tetap ada" pas hapus akun. Yang benar-benar
+   * dihapus total cuma dompet yang di-share KE dia (`isSharedWithMe`) dan dompet miliknya yang
+   * baru saja ditransfer ke owner baru (sudah bukan miliknya lagi).
+   */
+  cleanupAfterAccountDeletion: async (transferredWalletIds) => {
+    const allWallets = await db.wallets.toArray()
+    const toFullyDelete = allWallets.filter(
+      (w) => isSharedWithMe(w) || transferredWalletIds.includes(w.id),
+    )
+    const toFullyDeleteIds = new Set(toFullyDelete.map((w) => w.id))
+    const toDowngrade = allWallets.filter((w) => w.cloudWalletId && !toFullyDeleteIds.has(w.id))
+
+    await Promise.all([
+      ...toFullyDelete.flatMap((w) => [
+        db.transactions.where('walletId').equals(w.id).delete(),
+        db.goals.where('walletId').equals(w.id).delete(),
+        db.insights.where('walletId').equals(w.id).delete(),
+        db.debts.where('walletId').equals(w.id).delete(),
+        db.debtPayments.where('walletId').equals(w.id).delete(),
+        db.recurringTemplates.where('walletId').equals(w.id).delete(),
+        db.wallets.delete(w.id),
+      ]),
+      ...toDowngrade.map((w) =>
+        db.wallets.update(w.id, { cloudWalletId: undefined, ownerRole: undefined, isShared: undefined }),
+      ),
+    ])
 
     await get().loadWallets()
   },
