@@ -14,6 +14,7 @@ import { reports } from "./dictionaries/reports";
 import { scan } from "./dictionaries/scan";
 import { wallets } from "./dictionaries/wallets";
 import { auth } from "./dictionaries/auth";
+import { account } from "./dictionaries/account";
 import type { Language } from "@/stores/languageStore";
 
 export const dictionaries = {
@@ -34,6 +35,7 @@ export const dictionaries = {
     scan: scan.id,
     wallets: wallets.id,
     auth: auth.id,
+    account: account.id,
   },
   en: {
     common: common.en,
@@ -52,6 +54,7 @@ export const dictionaries = {
     scan: scan.en,
     wallets: wallets.en,
     auth: auth.en,
+    account: account.en,
   },
 };
 
