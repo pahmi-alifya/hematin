@@ -15,11 +15,13 @@ import { useTranslation } from "@/hooks/useTranslation";
 export default function ProfilePage() {
   const router = useRouter();
   const startTour = useTourStore((s) => s.startTour);
+  const resetAllTours = useTourStore((s) => s.resetAllTours);
   const t = useTranslation();
 
   function handleReplayTour() {
+    resetAllTours();
     router.push("/");
-    startTour();
+    startTour("onboarding");
   }
 
   return (
